@@ -1,0 +1,746 @@
+﻿/*###########    GENERAL      ###########*/
+body
+{
+	font-weight: normal;
+	/*font-size: 0.8em;*/
+	word-spacing: normal;
+	text-transform: none;
+	font-family: Verdana, Helvetica, sans-serif;
+	letter-spacing: normal;
+	background-color: white;
+}
+
+a
+{
+    color:#007139;
+    text-decoration:none;
+}
+
+a:hover
+{
+     /*font-weight:bold;*/
+     text-decoration:underline;
+}
+
+.sistema
+{
+	font-family: Verdana;
+	font-size: 16px;
+	color: #ffffff;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+input
+{
+	font-family: Verdana;
+	font-size: 10px;
+	background-color: #ffffff;
+	/*color: #55657C;*/
+	/*text-transform: uppercase;*/
+}
+
+ .titulo_pagina {
+	font-size: 24px;
+	background-color: #eaf1dd;
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-top-style: solid;
+	border-top-color: #d7e4bc;
+	border-right-color: #d7e4bc;
+	border-bottom-color: #d7e4bc;
+	border-left-color: #d7e4bc;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	color: #666666;
+	padding-left:10px;
+	text-align:left;
+    font-weight: bold;
+}
+
+.texto_footer2
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	color: #01703D;
+	text-align: right;
+}
+
+.texto_footer
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: normal;
+	color: #777777;
+}
+
+.login_from {
+    width: 350px;
+    margin: 25px auto !important;
+}
+
+.login_title
+{
+    padding: 10px 15px;
+    background-color: #dff0d8;
+    color: #3c763d;
+    font-family: Verdana, Helvetica, sans-serif;
+    letter-spacing: normal;
+}
+
+.login_label, .login_label  label
+{
+    text-align: right;
+    margin-top: 18px;
+    font-weight:normal ;
+}
+
+.login_input {
+    margin-top: 15px;
+    margin-bottom: -20px;
+    margin-left: 5px;
+    margin-right: 15px;
+    width: 94%;
+}
+
+.login_button {
+    margin: 15px 10px 15px 0;
+}
+
+td.details-control {
+    background: url('../images/icons/add.png') no-repeat center center;
+    cursor: pointer;
+    width: 16px;
+}
+tr.details td.details-control {
+    background: url('../images/icons/upload.jpg') no-repeat center center;
+}
+
+td.anular-control {
+    vertical-align: middle !important;
+    text-align: center;    
+}
+
+td.anular-control a {
+    cursor: pointer;
+}
+
+th.rotate  {
+  padding: 5px 9px !important;
+}
+
+th.rotate > div {
+  transform: 
+    /* Magic Numbers */
+    translate(0px, 0px)
+    /* 45 is really 360 - 45 */
+    rotate(-90deg);
+  width: 30px;
+}
+
+th.rotate2 > div {
+  transform: translate(0px, 25px) rotate(340deg);
+}
+th.rotate > div > span {
+  /*border-bottom: 1px solid #ccc;*/
+  font-size:12px;
+  padding: 6px 10px;
+}
+
+#ctl00_cphControles_loginUsuario
+{
+    margin: 0 auto;
+}  
+
+/*###########    MODIFICACIONES A BOOSTRAP      ###########*/
+
+/*Generales*/
+
+.container
+{
+    color: #555;
+}
+.container-fluid {
+    width: 100%;
+}
+
+/*Tablas*/
+.table
+{
+    font-size: 12px;
+    /*border: medium none !important;*/
+}
+.table > thead  > tr:first-child,
+.panel-body .table tbody  tr th
+{
+    background-color:#007139;
+    color:#fff;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #E6EFE9 ;
+}
+/*Tabla autorizaciones en requisiciones al final del formulario*/
+.panel-body .table.tautorizacion tbody  tr th
+{
+    background-color:#fff;
+    color:#555;
+    padding: 5px 8px;
+} 
+
+.red > thead > tr:first-child {
+    background-color: #fff !important;
+    color: #777;
+    font-weight:  lighter !important;
+    
+}
+.red > thead > tr > th
+{
+   
+    border: 1px solid #ccc;
+    border-top: 1px solid #ccc !important;
+    text-align: center;
+}
+
+.red > tbody > tr > td
+{
+    border: 1px solid #ccc;
+}
+
+/*Modal*/
+.modal-header
+{
+    border-bottom: none;
+}
+
+.modal-backdrop {
+    z-index: 0;
+}
+
+.modal-footer > span {
+    color: #888;
+    float: left;
+}
+
+/*Paginacion tablas*/
+.pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus
+{
+    background-color: #007139;
+    border-color: #007139;
+}
+
+.pagination > li > a, .pagination > li > span
+{
+    color: #007139;
+}
+.pagination > li > a:hover, .pagination > li > span:hover, .pagination > li > a:focus, .pagination > li > span:focus
+{
+    color: #007139;
+}
+
+/*Paginacion Gridview*/
+.pagination-ys {
+    /*display: inline-block;*/
+    /*padding-left: 0;
+    margin: 20px 0;*/
+    border-radius: 4px;
+}
+
+.pagination-ys table > tbody > tr > td {
+    /*display: inline;*/
+}
+
+.pagination-ys table > tbody > tr > td > a,
+.pagination-ys table > tbody > tr > td > span {
+    /*position: relative;*/
+    float: left;
+    padding: 8px 12px;
+    /*line-height: 1.42857143;*/
+    text-decoration: none;
+    /*color: #dd4814;*/
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    margin-left: -1px;
+}
+
+    
+
+.pagination-ys table > tbody > tr > td:first-child > a,
+.pagination-ys table > tbody > tr > td:first-child > span {
+    margin-left: 0;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.pagination-ys table > tbody > tr > td:last-child > a,
+.pagination-ys table > tbody > tr > td:last-child > span {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+    .pagination-ys table > tbody > tr > td > a:hover,
+    .pagination-ys table > tbody > tr > td > span:hover,
+    .pagination-ys table > tbody > tr > td > a:focus,
+    .pagination-ys table > tbody > tr > td > span:focus {
+        color: #007139;
+        background-color: #eeeeee;
+        border-color: #dddddd;
+    }
+
+    .pagination-ys table > tbody > tr > td > span,
+    .pagination-ys table > tbody > tr > td > span:hover {
+        background-color: #007139;
+        border-color: #007139;
+        color: #ffffff;
+    }
+
+
+/*Alertas*/
+.alert {        
+    /*border-width: medium;*/    
+    border: 2px solid;
+}
+
+/*Checkbos y Radio*/
+.radio label, .checkbox label {
+    min-height: 19px;   
+}
+
+/*Input Grupo*/
+.input-group.date .input-group-addon i {
+    left: -3px;
+}
+.glyphicon {   
+    top: 0;
+}
+
+/*###########    MODIFICACION A JQUERY.DATATABLES      ###########*/
+
+.panel-body .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #E6EFE9 !important;
+}
+
+table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd > .sorting_1
+{
+ background-color: #ddd !important;   
+}
+
+table.dataTable.display tbody tr.even > .sorting_1, 
+table.dataTable.order-column.stripe tbody tr.even > .sorting_1
+{    
+    background-color: rgba(200, 200, 200, 0.25) !important;
+}
+
+table.dataTable.compact thead th,
+table.dataTable.compact thead td {
+  padding: 5px 22px 5px 9px;
+}
+table.dataTable.compact tfoot th,
+table.dataTable.compact tfoot td {
+  padding: 5px 9px 3px 9px;
+}
+table.dataTable.compact tbody th,
+table.dataTable.compact tbody td {
+  padding: 4px 5px;
+}
+
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after {
+    opacity: 1;
+}
+
+/*###########    MODIFICACION A JQUERY.DATATABLES BUTTONS      ###########*/
+.buttons-colvis {
+    border-bottom-right-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+    margin-right: 30px;
+}
+.buttons-copy {
+    border-bottom-left-radius: 4px !important;
+    border-top-left-radius: 4px !important;
+}
+
+/*###########    MODIFICACION A CHOOSEN CSS      ###########*/
+
+.chosen-container:focus, .chosen-single {
+    border-color: #66AFE9;
+    outline: 0px none;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(102, 175, 233, 0.6);
+}
+.chosen-single {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    background-color: #FFF;
+    background-image: none;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    text-transform: none;
+    margin: 0px;
+    font: inherit;
+    color: inherit;
+    box-sizing: border-box;
+}
+    .chosen-single:hover
+    {
+        text-decoration: none;
+    }
+
+.chosen-container .chosen-results li.highlighted
+{
+    background-color: rgb(15,153,255);
+    color: #fff;
+}
+.chosen-container-single .chosen-single span
+{
+    white-space: inherit;
+    margin-right: 15px;
+}
+
+.chosen-single
+{
+    overflow: hidden;
+    height: 30px;
+    padding: 6px;
+}
+
+.form-control {
+    height: auto;
+}
+
+/*###########    MODIFICACION AL CHOOSEN CUANDO ESTA DENTRO DE UNA TABLA      ###########*/
+
+table .chosen-container
+{
+    font-size:10px;
+    max-width: 180px;
+    
+}
+
+table .chosen-container .form-control
+{
+    width: 100% !important;
+}
+
+table .input-sm 
+{
+     height: 24px;
+     padding: 2px 4px;
+     font-size: 10px;
+}
+
+table .chosen-drop
+{
+    width: 200% !important;
+}
+
+table .chosen-single
+{
+    
+    height: 24px;
+     padding: 4px 6px;
+}
+table .chosen-container-single .chosen-single div b
+{
+    background-position: 2px 4px;
+}
+
+
+/*###########    MODIFICACIONES DE CHOSEN-MULTIPLE      ###########*/
+
+.chosen-choices {
+    height: 30px;
+    overflow: hidden;
+    padding: 6px;
+}
+.chosen-choices {
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    box-sizing: border-box;
+    color: inherit;
+    display: block;
+    font: inherit;
+    height: 34px;
+    margin: 0;
+    padding: 6px 12px;
+    text-transform: none;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    width: 100%;
+}
+.chosen-container-multi .chosen-drop {
+    background-clip: padding-box;
+    border-radius: 0 0 4px 4px;
+    margin-top: -3px;
+}
+
+.chosen-container-active .chosen-choices {
+    border: 1px solid #5897fb;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+.chosen-container-active.chosen-with-drop .chosen-choices {
+    background-image: linear-gradient(#eeeeee 20%, #ffffff 80%);
+    border: 1px solid #aaa;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 1px 0 #fff inset;
+}
+
+.chosen-container .chosen-results {
+    margin: 0 4px 4px 0 !important;
+    padding: 0 0 0 4px !important;
+}
+
+.yadcf-filter-wrapper .chosen-container-multi
+{
+    width: calc(80% - 2px) !important;
+}
+.yadcf-filter-wrapper button
+{
+    height: 30px;
+    width: 40px;
+    max-width: calc(20% - 1px);
+}
+.chosen-container-multi .chosen-choices li.search-choice
+{
+    padding: 1px 20px 2px 3px !important;
+}
+.chosen-container-multi .chosen-choices li.search-choice .search-choice-close
+{
+    top: 3px !important;
+}
+
+/*###########    ALINEACIONES PARA TABLAS      ###########*/
+
+table.dataTable th.dt-left,
+table.dataTable td.dt-left {
+  text-align: left;
+}
+table.dataTable th.dt-center,
+table.dataTable td.dt-center,
+table.dataTable td.dataTables_empty {
+  text-align: center;
+}
+table.dataTable th.dt-right,
+table.dataTable td.dt-right {
+  text-align: right;
+}
+table.dataTable th.dt-justify,
+table.dataTable td.dt-justify {
+  text-align: justify;
+}
+table.dataTable th.dt-nowrap,
+table.dataTable td.dt-nowrap {
+  white-space: nowrap;
+}
+table.dataTable thead th.dt-head-left,
+table.dataTable thead td.dt-head-left,
+table.dataTable tfoot th.dt-head-left,
+table.dataTable tfoot td.dt-head-left {
+  text-align: left;
+}
+table.dataTable thead th.dt-head-center,
+table.dataTable thead td.dt-head-center,
+table.dataTable tfoot th.dt-head-center,
+table.dataTable tfoot td.dt-head-center {
+  text-align: center;
+}
+table.dataTable thead th.dt-head-right,
+table.dataTable thead td.dt-head-right,
+table.dataTable tfoot th.dt-head-right,
+table.dataTable tfoot td.dt-head-right {
+  text-align: right;
+}
+table.dataTable thead th.dt-head-justify,
+table.dataTable thead td.dt-head-justify,
+table.dataTable tfoot th.dt-head-justify,
+table.dataTable tfoot td.dt-head-justify {
+  text-align: justify;
+}
+table.dataTable thead th.dt-head-nowrap,
+table.dataTable thead td.dt-head-nowrap,
+table.dataTable tfoot th.dt-head-nowrap,
+table.dataTable tfoot td.dt-head-nowrap {
+  white-space: nowrap;
+}
+table.dataTable tbody th.dt-body-left,
+table.dataTable tbody td.dt-body-left {
+  text-align: left;
+}
+table.dataTable tbody th.dt-body-center,
+table.dataTable tbody td.dt-body-center {
+  text-align: center;
+}
+table.dataTable tbody th.dt-body-right,
+table.dataTable tbody td.dt-body-right {
+  text-align: right;
+}
+table.dataTable tbody th.dt-body-justify,
+table.dataTable tbody td.dt-body-justify {
+  text-align: justify;
+}
+table.dataTable tbody th.dt-body-nowrap,
+table.dataTable tbody td.dt-body-nowrap {
+  white-space: nowrap;
+}
+
+table hr
+{
+    margin-bottom: 5px;
+    margin-top: 0;
+}
+
+/*###########    MODIFICACIONES DE MENU BOOSTRAP      ###########*/
+
+#dvMenuBar .dropdown-menu {
+    background-color:#007139;
+    padding: 0;
+}
+
+#dvMenuBar.nav li {
+    border-right: 1px solid #778;
+}
+
+#dvMenuBar.nav li a
+{	
+	padding:6px 13px 5px 5px;
+	color:#fff;
+	text-decoration:none;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	
+}
+#dvMenuBar.nav li a:focus, .nav ul a:focus,
+#dvMenuBar.nav li a:hover, .nav ul a:hover
+{	
+	background-color:#000;
+	color:#fff;
+}
+
+#dvMenuBar.nav .dropdown.open>a{
+    background-color:#777777;
+}
+
+
+
+/*###########    Loader      ###########*/
+
+.loader {
+  position: relative;
+  padding-top: 25%;
+width: 300px;
+margin: 0 auto;
+}
+.loader .circle {
+  position: absolute;
+  width: 300px;
+  height: 80px;
+  opacity: 0;
+  transform: rotate(225deg);
+  animation-iteration-count: infinite;
+  animation-name: orbit;
+  animation-duration: 5.5s;
+  background-image: url('../images/logoE.png');
+  background-repeat:no-repeat;
+  /*background-position: 155px 0px;*/
+}
+.loader .circle:after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 5px;
+  /*background: #fff;*/
+  /* Pick a color */
+  background-image: url('../images/logoE.png');
+  background-repeat:no-repeat;
+}
+.loader .circle:nth-child(2) {
+  animation-delay: 240ms;
+}
+.loader .circle:nth-child(3) {
+  animation-delay: 480ms;
+}
+.loader .circle:nth-child(4) {
+  animation-delay: 720ms;
+}
+.loader .circle:nth-child(5) {
+  animation-delay: 960ms;
+}
+@keyframes orbit {
+  0% {
+    transform: rotate(225deg);
+    opacity: 1;
+    animation-timing-function: ease-out;
+  }
+  7% {
+    transform: rotate(345deg);
+    animation-timing-function: linear;
+  }
+  30% {
+    transform: rotate(455deg);
+    animation-timing-function: ease-in-out;
+  }
+  39% {
+    transform: rotate(690deg);
+    animation-timing-function: linear;
+  }
+  70% {
+    transform: rotate(815deg);
+    opacity: 1;
+    animation-timing-function: ease-out;
+  }
+  75% {
+    transform: rotate(945deg);
+    animation-timing-function: ease-out;
+  }
+  76% {
+    transform: rotate(945deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(945deg);
+    opacity: 0;
+  }
+}
+
+div.dataTables_processing {
+    position: fixed;
+    top: 0%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    opacity: 0.7;
+    z-index: 1060;
+}
+
+#chart-container .loader{
+    /*position: relative;
+    padding-top: 50%;
+    width: 315px;
+    margin: 0 auto;
+    height: 400px;
+    background: #000;*/
+    opacity: 0.7;
+}
+
+input[type=radio] + label {
+    font-weight:normal !important;
+}

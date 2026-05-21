@@ -1,0 +1,58 @@
+
+.relative {
+    /*margin-top: 50px;*/
+    position: relative;
+    /*display: inline-block;*/
+}
+
+div.activeToolTip 
+{
+    display:block;
+    visibility:visible;
+}
+
+div.idleToolTip 
+{
+    display:none;
+    visibility:hidden;
+}
+
+/* Error Tool Tip Styles*/
+.tool_tip {
+  top: -6px;
+  left: 30%;
+  /* font */
+  font-family: Helvetica;
+  font-size: 13px;
+  font-weight: bold;
+  color: #cc0033;
+  line-height: 20px;
+  /* background */
+  background-color: #fce4e4;
+  border: 1px solid #fcc2c3;
+  border-radius: 7px;
+  /*-moz-border-radius: 7px;
+  -webkit-border-radius: 7px;*/
+  /* positioning */
+  float: left;
+  position: absolute;
+  padding: 7px 11px 4px;
+  margin-left: 10px; /* distance between error tip and element it points to */
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Left Arrow Styles */
+.tool_tip:after, .tool_tip:before {
+  content: '';
+  border: 7px solid transparent;
+  position: absolute;
+  top: 10px;
+}
+.tool_tip:after {
+  border-right: 7px solid #fce4e4;
+  left: -14px;
+}
+.tool_tip:before {
+  border-right: 7px solid #fcc2c3;
+  left: -15px;
+}

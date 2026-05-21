@@ -1,0 +1,206 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="mpaSistema.master.cs" Inherits="mpaSistema" %>
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=11" />
+    <title>mpaProyectos</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+    <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-3.3.2.min.js"></script>
+    <asp:ContentPlaceHolder ID="headContent" runat="server">
+    </asp:ContentPlaceHolder>
+    <link rel="stylesheet" type="text/css" href="css/Estilos.css" />
+</head>
+<body>
+    <div class="container hidden-print">
+        <div class="row">
+            <%--Logo--%>
+            <div class="col-md-5 col-md-offset-1">
+                <div class="pull-left" style="text-align: left">
+                    <img src="images/logoN.png" width="241" height="47" />
+                </div>
+            </div>
+            <%--Nombre Sistema--%>
+            <div class="col-md-6">
+                <div style="text-align: right; line-height: 47px" class="sistema">
+                    <asp:Label ID="lblSistema" runat="server" ForeColor="#007139" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%--Menu--%>
+    <div class="container-fluid hidden-print">
+        <div class="row" style="background-color: #007139;">
+            <div class="col-md-12" style="padding: 0;">
+                <div style="height: 3px; background-color: #7bc342;"></div>
+                <div class="collapse navbar-collapse" style="min-height: 5px">
+                    <asp:Literal ID="ltlMenu" runat="server" EnableViewState="true" Visible="true"></asp:Literal>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <form id="aspnetForm" runat="server" class="form-horizontal">
+        <%--Script Manager--%>
+        <asp:ScriptManager runat="server" ID="smgPrincipal" AsyncPostBackTimeout="300"></asp:ScriptManager>
+
+        <%--Titulo de Pagina--%>
+        <section id="title" runat="server">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12 titulo_pagina">
+                        <div class="container">
+                            <div class="row">
+                                <div id="dvTituloPagina" class="col-md-12 " runat="server">
+                                    <asp:Label ID="lblTituloPagina" runat="server" Text="" Font-Bold="true" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <%--Mensaje de Confirmacion--%>
+        <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+            <ContentTemplate>
+                <div class="container hidden-print">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="divSuccessMaster" class="alert alert-info alert-dismissible fade in" role="alert" runat="server" style="margin-top: 25px;" visible="false">
+                                <button class="close" type="button" aria-label="Close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                <asp:Label ID="lblMensajeSuccess" runat="server" Font-Bold="True"></asp:Label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ContentTemplate>
+        </asp:UpdatePanel>
+
+        <%--Mensaje de Error--%>
+        <asp:UpdatePanel ID="UpdatePanel2" runat="server">
+            <ContentTemplate>
+                <div class="container hidden-print">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="divErrorMaster" class="alert alert-danger alert-dismissible fade in" role="alert" runat="server" style="margin-top: 25px;" visible="false">
+                                <button class="close" type="button" aria-label="Close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                <asp:Label ID="lblMensajeError" runat="server" Font-Bold="True"></asp:Label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ContentTemplate>
+        </asp:UpdatePanel>
+
+        <%--Contenido--%>
+        <section id="main" style="margin-bottom: 60px;">
+            <asp:ContentPlaceHolder ID="mainContent" runat="server">
+                <asp:UpdatePanel ID="udpPrincipal" runat="server">
+                    <ContentTemplate>
+                        &nbsp;                
+                    </ContentTemplate>
+                </asp:UpdatePanel>
+            </asp:ContentPlaceHolder>
+        </section>
+
+        <%--Mensajes De Error Modal--%>
+        <asp:UpdatePanel ID="upnlMensajes" runat="server">
+            <ContentTemplate>
+                <div class="modal fade" id="divModalError">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button class="close" type="button" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div id="divErrorModalMaster" class="alert alert-danger alert-dismissible fade in" role="alert" runat="server">
+
+                                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                                <asp:Label ID="lblMensajeErrorModal" runat="server" Font-Bold="True"></asp:Label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <%--<span>Presione Esc para cerrar este mensaje.</span>--%>
+                                <button class="btn btn-default btn-sm" type="button" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                    function ejacutar_modal() {
+                        $('#divModalError').modal({
+                            keyboard: true
+                        });
+                    }
+                </script>
+            </ContentTemplate>
+        </asp:UpdatePanel>
+
+        <%--Mensajes de Carga en Progreso--%>
+        <asp:UpdateProgress ID="updateProgress" runat="server">
+            <ProgressTemplate>
+                <div style="position: fixed; text-align: center; height: 100%; width: 100%; top: 0; right: 0; left: 0; z-index: 9999999; background-color: #000000; opacity: 0.7;">
+                    <div class='loader'>
+                        <div class='circle'></div>
+                        <div class='circle'></div>
+                        <div class='circle'></div>
+                        <div class='circle'></div>
+                        <div class='circle'></div>
+                    </div>
+                </div>
+            </ProgressTemplate>
+        </asp:UpdateProgress>
+    </form>
+
+    <footer runat="server" id="footer">
+        <div class="container-fluid hidden-print">
+            <div class="row">
+                <div class="col-md-12" style="padding: 0;">
+                    <div style="height: 4px; background-color: #7bc342;"></div>
+                    <div style="height: 2px; background-color: #777777"></div>
+                </div>
+            </div>
+        </div>
+        <div class="container hidden-print" style="margin-top: 15px;">
+            <div class="row">
+                <div class="col-md-4 col-md-offset-8 col-sm-6 col-sm-offset-6 col-xs-12" style="text-align: center">
+                    <div class="pull-right" style="text-align: left">
+                        <img src="images/logo_footer.gif" width="33" height="51" />
+                    </div>
+                    <div class="pull-right" style="text-align: right">
+                        <span class="texto_footer3">www.bancopromerica.com.gt</span><br />
+                        <p class="texto_footer">
+                            ©<span id="spCopyright"></span>
+                            Banco Promerica
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <asp:ContentPlaceHolder ID="footerContent" runat="server">
+        </asp:ContentPlaceHolder>
+    </footer>
+    <script type="text/javascript">
+        const date = new Date();
+
+        const element = document.getElementById("spCopyright");
+
+        element.innerText = date.getFullYear();
+
+    </script>
+</body>
+</html>

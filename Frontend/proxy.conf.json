@@ -1,0 +1,8 @@
+{
+    "/_Servicios_QA": {
+        "target": "https://devflujosit.promerica.com.gt",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    }
+}

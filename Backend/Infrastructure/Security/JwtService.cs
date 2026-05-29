@@ -29,6 +29,7 @@ namespace Backend.Infrastructure.Security
             {
                 new Claim(JwtRegisteredClaimNames.Sub,        username),
                 new Claim(JwtRegisteredClaimNames.UniqueName, username),
+                new Claim(ClaimTypes.Name,                    username),
                 new Claim(ClaimTypes.Role,                    role),
                 new Claim(JwtRegisteredClaimNames.Jti,        Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat,

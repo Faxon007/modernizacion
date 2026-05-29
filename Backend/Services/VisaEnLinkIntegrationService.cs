@@ -37,11 +37,6 @@ namespace Backend.Services
             _httpClient = httpClient;
             _siteRepository = siteRepository;
             _options = options.Value;
-
-            if (Uri.TryCreate(_options.UrlVisa, UriKind.Absolute, out var baseUri))
-            {
-                _httpClient.BaseAddress = baseUri;
-            }
         }
 
         public async Task<string> GetOrGenerateTokenAsync()

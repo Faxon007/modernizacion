@@ -253,7 +253,7 @@ import { UiService } from '../../core/services/ui.service';
                   <label for="msgRemitente" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Remitente del Correo (Email Sender)</label>
                   <input 
                     id="msgRemitente" 
-                    type="email" 
+                    type="text" 
                     formControlName="msgRemitente"
                     class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] text-gray-800 font-medium">
                 </div>
@@ -375,7 +375,7 @@ import { UiService } from '../../core/services/ui.service';
             </button>
             <button 
               type="submit" 
-              [disabled]="paramForm.invalid || isSaving()"
+              [disabled]="isSaving()"
               class="px-8 py-3 bg-[#007139] hover:bg-[#007139]/90 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-md shadow-[#007139]/10 flex items-center justify-center gap-2">
               @if (isSaving()) {
                 <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
@@ -411,7 +411,7 @@ export class ParametrosComponent {
     freRevAutorizacion: ['U', [Validators.required]],
     freRevHrsRepetir: ['0', [Validators.required]],
     freGenLink: ['U', [Validators.required]],
-    freGenHora: ['', [Validators.required, Validators.pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)]],
+    freGenHora: ['', [Validators.required]],
     tcTipTransac: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
     tcSubtipTrans: ['', [Validators.required]],
     numCtaContaQtz: ['', [Validators.required]],
@@ -424,7 +424,7 @@ export class ParametrosComponent {
     codDepartamento: ['', [Validators.required]],
     codDeptoPr: ['', [Validators.required]],
     desTransaccion: ['', [Validators.required]],
-    msgRemitente: ['', [Validators.required, Validators.email]],
+    msgRemitente: [''],
     msgHeader: ['', [Validators.required]],
     msgFooter: ['', [Validators.required]],
     msgSms: ['', [Validators.required, Validators.maxLength(160)]],
@@ -544,7 +544,16 @@ export class ParametrosComponent {
   }
 
   onSave() {
-    if (this.paramForm.invalid) return;
+    if (this.paramForm.invalid) {
+      const invalidFields = [];
+      for (const controlName in this.paramForm.controls) {
+        if (this.paramForm.controls[controlName].invalid) {
+          invalidFields.push(controlName);
+        }
+      }
+      this.localError.set('Faltan campos obligatorios o el formato es incorrecto. Revise: ' + invalidFields.join(', '));
+      return;
+    }
     this.isSaving.set(true);
     this.localError.set(null);
 
@@ -595,3 +604,4 @@ export class ParametrosComponent {
     this.router.navigate(['/home']);
   }
 }
+

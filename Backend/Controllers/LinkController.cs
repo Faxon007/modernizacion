@@ -41,9 +41,18 @@ namespace Backend.Controllers
         {
             try
             {
-                string username = User.Identity?.Name ?? "SISTEMA";
+                string username = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value 
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                    ?? User.Identity?.Name 
+                    ?? "SISTEMA";
+                username = username.ToUpper();
+                // Log the raw search value from the DataTableRequest to debug frontend transmission or deserialization
+                _logger.LogInformation("GetLinks: Raw search value from DataTableRequest.Search.Value: '{RawSearchValue}'", request.Search?.Value);
                 string search = request.Search?.Value?.Replace(' ', '%') ?? string.Empty;
-                
+                _logger.LogInformation("GetLinks: Processed search string for repository: '{ProcessedSearch}'", search);
+ 
                 string orderCol = "FEC_EMISION";
                 string orderDir = "desc";
 
@@ -90,8 +99,17 @@ namespace Backend.Controllers
         {
             try
             {
-                string username = User.Identity?.Name ?? "SISTEMA";
+                string username = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value 
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                    ?? User.Identity?.Name 
+                    ?? "SISTEMA";
+                username = username.ToUpper();
+                // Log the raw search value from the DataTableRequest to debug frontend transmission or deserialization
+                _logger.LogInformation("GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: '{RawSearchValue}'", request.Search?.Value);
                 string search = request.Search?.Value?.Replace(' ', '%') ?? string.Empty;
+                _logger.LogInformation("GetLinksVerifica: Processed search string for repository: '{ProcessedSearch}'", search);
 
                 string orderCol = "FEC_EMISION";
                 string orderDir = "desc";
@@ -199,7 +217,13 @@ namespace Backend.Controllers
 
             try
             {
-                string username = User.Identity?.Name ?? "SISTEMA";
+                string username = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value 
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                    ?? User.Identity?.Name 
+                    ?? "SISTEMA";
+                username = username.ToUpper();
                 string shortUrl = await _linkBusinessService.EmitirLinkAsync(request.Link, request.ImgPublicitaria ?? string.Empty, username);
                 return Ok(new { success = true, data = shortUrl });
             }
@@ -218,14 +242,14 @@ namespace Backend.Controllers
                 var info = await _linkBusinessService.ValidarYConsultaLinkAsync(sku);
                 if (info == null)
                 {
-                    return NotFound(new { success = false, message = "Link no encontrado en Visa." });
+                    return Ok(new { success = false, errorMessage = "Link no encontrado en Visa." });
                 }
                 return Ok(new { success = true, data = info });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al validar link en Visa: {Sku}", sku);
-                return StatusCode(500, new { success = false, message = ex.Message });
+                return Ok(new { success = false, errorMessage = ex.Message });
             }
         }
 
@@ -239,7 +263,13 @@ namespace Backend.Controllers
 
             try
             {
-                string username = User.Identity?.Name ?? "SISTEMA";
+                string username = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value 
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                    ?? User.Identity?.Name 
+                    ?? "SISTEMA";
+                username = username.ToUpper();
                 bool result = await _linkBusinessService.CancelarLinkAsync(request.Sku, request.Nombre, request.Precio, username);
                 if (result)
                 {

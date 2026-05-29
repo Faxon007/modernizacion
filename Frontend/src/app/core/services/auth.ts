@@ -21,7 +21,7 @@ export class Auth {
     readonly isAuthenticated = computed(() => this._token() !== null);
 
     login(payload: LoginPayload) {
-        const url = `${environment.apiBase}/auth/token`;
+        const url = `${environment.apiBase}/auth/login`;
 
         return this.http.post<ApiResponse<AuthResponse>>(url, payload).pipe(
             tap(response => {

@@ -23,18 +23,6 @@ import { UiService } from '../../core/services/ui.service';
         </div>
       </div>
 
-      <!-- Alertas de Error/Éxito Locales -->
-      @if (localError()) {
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl flex items-start gap-3">
-          <span class="text-red-500 mt-0.5">⚠️</span>
-          <div class="flex-1">
-            <h4 class="font-bold text-red-800 text-sm">Error de Validación</h4>
-            <p class="text-red-700 text-xs mt-0.5">{{ localError() }}</p>
-          </div>
-          <button (click)="localError.set(null)" class="text-red-400 hover:text-red-600 text-lg font-bold">&times;</button>
-        </div>
-      }
-
       @if (generatedUrl()) {
         <div class="bg-gradient-to-r from-emerald-50 to-[#7bc342]/10 border border-emerald-200 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm animate-in zoom-in-95 duration-300">
           <div class="space-y-1 text-center md:text-left">
@@ -145,9 +133,9 @@ import { UiService } from '../../core/services/ui.service';
                   </span>
                   <input 
                     id="monto" 
-                    type="number" 
-                    step="0.01" 
+                    type="text" 
                     formControlName="monto"
+                    (input)="onMontoInput($event)"
                     (blur)="onMontoBlur()"
                     class="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] transition-all text-gray-800 font-semibold text-lg">
                 </div>
@@ -388,7 +376,8 @@ export class EmisionLinkComponent {
   });
 
   readonly linkForm = this.fb.group({
-    monto: [0, [Validators.required, Validators.min(0.01)]],
+    // Cambiamos el control para que maneje el string formateado. La validación numérica se hará manualmente.
+    monto: ['0.00', [Validators.required]],
     pagarDolares: [false],
     tipLink: ['2'], // '2' = No, '1' = Si
     diaMes: [new Date().getDate().toString()],
@@ -401,6 +390,8 @@ export class EmisionLinkComponent {
   constructor() {
     this.ui.title.set('Emisión de Links de Pago');
     this.loadSystemImage();
+    // Inicializar el campo de monto con el formato correcto
+    this.linkForm.get('monto')?.setValue(this.formatCurrency(0));
   }
 
   loadSystemImage() {
@@ -411,6 +402,61 @@ export class EmisionLinkComponent {
         }
       }
     });
+  }
+
+  private formatCurrency(value: any): string {
+    if (value === null || value === undefined || value === '') {
+      return '0.00';
+    }
+    const num = typeof value === 'string' ? this.parseCurrency(value) : value;
+    if (isNaN(num)) {
+      return '0.00';
+    }
+    // Usamos 'en-US' para obtener el formato ###,###,###.## (coma para miles, punto para decimal)
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  private parseCurrency(value: string | null | undefined): number {
+    if (!value) {
+      return 0;
+    }
+    // Para el formato ###,###,###.##, removemos las comas de miles antes de convertir a número.
+    const cleanedValue = String(value).replace(/,/g, '');
+    const num = parseFloat(cleanedValue);
+    return isNaN(num) ? 0 : num;
+  }
+
+  onMontoInput(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    let value = inputElement.value.replace(/[^0-9.]/g, '');
+
+    const parts = value.split('.');
+    if (parts.length > 2) {
+      value = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    let integerPart = parts[0];
+    let decimalPart = parts.length > 1 ? parts[1] : '';
+
+    if (integerPart) {
+      // Parse as integer to remove leading zeros, then format with commas
+      const num = parseInt(integerPart, 10);
+      integerPart = isNaN(num) ? '' : num.toString();
+      integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    
+    if (decimalPart.length > 2) {
+      decimalPart = decimalPart.substring(0, 2);
+    }
+
+    let finalValue = integerPart;
+    if (parts.length > 1) {
+      finalValue += '.' + decimalPart;
+    }
+
+    // Set the formatted value back to the control and the input element
+    this.linkForm.get('monto')?.setValue(finalValue, { emitEvent: false });
+    inputElement.value = finalValue;
   }
 
   isDolarPayment(): boolean {
@@ -439,7 +485,7 @@ export class EmisionLinkComponent {
           this.linkService.isClienteListaNegra('1', client.codCliente).subscribe({
             next: (blacklistRes) => {
               if (blacklistRes.success && blacklistRes.data === true) {
-                this.localError.set(`El cliente ${client.nomCliente} (${client.codCliente}) se encuentra en la Lista de Exclusiones/Lista Negra.`);
+                this.showError(`El cliente ${client.nomCliente} (${client.codCliente}) se encuentra en la Lista de Exclusiones/Lista Negra.`);
                 this.isSearching.set(false);
                 return;
               }
@@ -473,29 +519,29 @@ export class EmisionLinkComponent {
                     this.customerAccounts.set(accountsList);
                     this.showCuentasModal.set(true);
                   } else {
-                    this.localError.set('No se pudieron recuperar las cuentas asociadas al cliente.');
+                    this.showError('No se pudieron recuperar las cuentas asociadas al cliente.');
                   }
                 },
                 error: (err) => {
                   this.isSearching.set(false);
-                  this.localError.set('Error al recuperar las cuentas del cliente.');
+                  this.showError('Error al recuperar las cuentas del cliente.');
                 }
               });
             },
             error: () => {
               this.isSearching.set(false);
-              this.localError.set('Error al validar la lista negra del cliente.');
+              this.showError('Error al validar la lista negra del cliente.');
             }
           });
 
         } else {
           this.isSearching.set(false);
-          this.localError.set(clientRes.errorMessage || 'El número de cuenta ingresado no pertenece a ningún cliente.');
+          this.showError(clientRes.errorMessage || 'El número de cuenta ingresado no pertenece a ningún cliente.');
         }
       },
       error: (err) => {
         this.isSearching.set(false);
-        this.localError.set('Error de comunicación con el servidor al buscar cliente.');
+        this.showError('Error de comunicación con el servidor al buscar cliente.');
       }
     });
   }
@@ -551,27 +597,50 @@ export class EmisionLinkComponent {
 
   onMontoBlur() {
     this.localError.set(null);
-    const val = this.linkForm.value.monto || 0;
+    const control = this.linkForm.get('monto');
+    if (!control) return;
+
+    const val = this.parseCurrency(control.value);
     const max = this.maxMonto();
 
     if (val > max) {
       this.isMontoValido.set(false);
-      this.localError.set(`El monto ingresado (${val}) excede el límite máximo permitido para este producto (${max}).`);
+      this.showError(`El monto ingresado (${val}) excede el límite máximo permitido para este producto (${max}).`);
+    } else if (val <= 0) {
+      this.isMontoValido.set(false);
+      this.showError(`El monto a pagar debe ser mayor a cero.`);
     } else {
       this.isMontoValido.set(true);
     }
+
+    // Formatear el valor en el control para que se muestre correctamente en el input
+    const formattedValue = this.formatCurrency(val);
+    control.setValue(formattedValue);
   }
 
   setCanalEnvio(channel: string) {
     this.linkForm.patchValue({ tipEnvio: channel });
   }
 
+  showError(msg: string) {
+    this.localError.set(msg);
+    this.ui.showModal(msg);
+  }
+
   onSave() {
     if (this.linkForm.invalid || !this.isMontoValido()) return;
+    
+    const formVal = this.linkForm.value;
+    const amountVal = this.parseCurrency(formVal.monto);
+    if (amountVal <= 0) {
+      this.isMontoValido.set(false);
+      this.showError('El monto a pagar debe ser mayor a cero.');
+      return;
+    }
+    
     this.isSaving.set(true);
     this.localError.set(null);
 
-    const formVal = this.linkForm.value;
     const ac = this.selectedAccountInfo()!;
     const client = this.selectedClient()!;
 
@@ -581,12 +650,12 @@ export class EmisionLinkComponent {
         next: (res) => {
           if (res.success && res.data) {
             if (res.data.moneda === '840' && !formVal.pagarDolares) {
-              this.localError.set('Error: Debe seleccionar la opción de -Pagar en Dólares- para préstamos en dólares.');
+              this.showError('Error: Debe seleccionar la opción de -Pagar en Dólares- para préstamos en dólares.');
               this.isSaving.set(false);
               return;
             }
             if (res.data.moneda === '320' && formVal.pagarDolares) {
-              this.localError.set('Error: Solo se permite la opción de -Pagar en Dólares- para préstamos en dólares.');
+              this.showError('Error: Solo se permite la opción de -Pagar en Dólares- para préstamos en dólares.');
               this.isSaving.set(false);
               return;
             }
@@ -611,14 +680,14 @@ export class EmisionLinkComponent {
       if (formVal.tipEnvio === '1') {
         phone = formVal.customTelefono;
         if (!phone || !/^[0-9+]+$/.test(phone)) {
-          this.localError.set('ERROR: Se debe ingresar un valor de teléfono válido.');
+          this.showError('ERROR: Se debe ingresar un valor de teléfono válido.');
           this.isSaving.set(false);
           return;
         }
       } else {
         email = formVal.customEmail;
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
-          this.localError.set('ERROR: Se debe ingresar un correo electrónico válido.');
+          this.showError('ERROR: Se debe ingresar un correo electrónico válido.');
           this.isSaving.set(false);
           return;
         }
@@ -626,12 +695,12 @@ export class EmisionLinkComponent {
     } else {
       // Default
       if (formVal.tipEnvio === '1' && (!phone || phone.startsWith('Dato default no'))) {
-        this.localError.set('Se debe seleccionar otro medio de envío o digitar un número de teléfono.');
+        this.showError('Se debe seleccionar otro medio de envío o digitar un número de teléfono.');
         this.isSaving.set(false);
         return;
       }
       if (formVal.tipEnvio === '2' && (!email || email.startsWith('Dato default no'))) {
-        this.localError.set('Se debe seleccionar otro medio de envío o digitar un correo electrónico.');
+        this.showError('Se debe seleccionar otro medio de envío o digitar un correo electrónico.');
         this.isSaving.set(false);
         return;
       }
@@ -640,7 +709,7 @@ export class EmisionLinkComponent {
     const payload: LinkEntity = {
       numCuenta: ac.numCuenta,
       tipCuenta: ac.tipo === 'Tarjeta' ? 'TC' : 'PR',
-      monto: formVal.monto || 0,
+      monto: this.parseCurrency(formVal.monto) || 0,
       tipPago: formVal.pagarDolares ? '1' : '0',
       esDefault: formVal.esDefault,
       tipEnvio: formVal.tipEnvio,
@@ -662,12 +731,13 @@ export class EmisionLinkComponent {
           this.generatedUrl.set(res.data);
           this.ui.showSuccess('Link generado y guardado exitosamente.');
         } else {
-          this.localError.set(res.errorMessage || 'Ocurrió un error al registrar el link en Visa.');
+          this.showError(res.errorMessage || 'Ocurrió un error al registrar el link en Visa.');
         }
       },
       error: (err) => {
         this.isSaving.set(false);
-        this.localError.set('Error en el servidor al intentar emitir el link.');
+        const errMsg = err.error?.errorMessage || err.error?.message || err.message || 'Error en el servidor al intentar emitir el link.';
+        this.showError(`Error al emitir el link: ${errMsg}`);
       }
     });
   }
@@ -682,7 +752,7 @@ export class EmisionLinkComponent {
   resetForm() {
     this.generatedUrl.set(null);
     this.linkForm.reset({
-      monto: 0,
+      monto: this.formatCurrency(0),
       pagarDolares: false,
       tipLink: '2',
       diaMes: new Date().getDate().toString(),

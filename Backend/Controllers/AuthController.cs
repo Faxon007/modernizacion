@@ -99,9 +99,13 @@ namespace Backend.Controllers
                 string username = request.Username.Trim().ToUpper().Replace("PROMERICA\\", "");
 
                 // Validar RRHH
+                _logger.LogInformation("Validando estado en RRHH para el usuario: '{Username}'", username);
                 var rrhhActivo = await menuRepo.ValidateRRHHAsync(username);
+                _logger.LogInformation("Respuesta de RRHH_USUARIO.activo para '{Username}': '{Activo}'", username, rrhhActivo ?? "NULL");
+
                 if (string.IsNullOrEmpty(rrhhActivo) || rrhhActivo != "S")
                 {
+                    _logger.LogWarning("Autenticación denegada: Usuario '{Username}' no está activo en RRHH. Valor actual: '{Activo}'", username, rrhhActivo ?? "NULL");
                     return Unauthorized(new { success = false, message = "El usuario no se encuentra activo en RRHH." });
                 }
 
@@ -140,7 +144,7 @@ namespace Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al procesar roles y menú del usuario: {Username}", request.Username);
-                return StatusCode(500, new { success = false, message = "Error al recuperar privilegios de usuario." });
+                return StatusCode(500, new { success = false, message = "Error al recuperar privilegios de usuario.", detail = ex.Message });
             }
         }
     }

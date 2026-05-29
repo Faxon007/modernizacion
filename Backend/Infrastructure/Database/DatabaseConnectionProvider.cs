@@ -25,23 +25,36 @@ namespace Backend.Infrastructure.Database
         {
             _logger = logger;
             
-            var encPath = config["Database:EncryptedConfigPath"]
-                ?? throw new InvalidOperationException("Falta 'Database:EncryptedConfigPath' en la configuración.");
+            _logger.LogInformation("Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...");
+
+            var encPath = config["Database:EncryptedConfigPath"];
+            _logger.LogInformation("Ruta de archivo .cef2 obtenida: {EncPath}", encPath ?? "NULO");
+
+            if (string.IsNullOrWhiteSpace(encPath))
+                throw new InvalidOperationException("Falta 'Database:EncryptedConfigPath' en la configuración.");
 
             if (!File.Exists(encPath))
+            {
+                _logger.LogError("Archivo .cef2 no encontrado en la ruta: '{EncPath}'.", encPath);
                 throw new FileNotFoundException($"Archivo .cef2 no encontrado: '{encPath}'. ");
+            }
             
-            var privateKeyPem = ResolvePrivateKey(config);
+            _logger.LogInformation("Archivo .cef2 encontrado. Resolviendo llave privada...");
+            var privateKeyPem = ResolvePrivateKey(config, _logger);
             
+            _logger.LogInformation("Leyendo contenido del archivo .cef2 ({EncPath})...", encPath);
             var encryptedBase64 = File.ReadAllText(encPath).Trim();
             DatabaseConfig dbConfig;
 
             try
             {
+                _logger.LogInformation("Intentando desencriptar el archivo .cef2 con la llave privada...");
                 dbConfig = DatabaseConfigCrypto.Decrypt(encryptedBase64, privateKeyPem);
+                _logger.LogInformation("Desencriptación exitosa del archivo .cef2.");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "No se pudo desencriptar el archivo .cef2.");
                 throw new InvalidOperationException("No se pudo desencriptar el archivo .cef2. ", ex);
             }
             
@@ -89,14 +102,28 @@ namespace Backend.Infrastructure.Database
                 .ToList()
                 .AsReadOnly();
         
-        private static string ResolvePrivateKey(IConfiguration config)
+        private static string ResolvePrivateKey(IConfiguration config, ILogger logger)
         {
-            var keyPath = config["Database:PrivateKeyEnvVar"] ?? throw new InvalidOperationException("Se configuró Database:PrivateKeyEnvVar");
+            var keyPath = config["Database:PrivateKeyEnvVar"];
+            logger.LogInformation("Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': {KeyPath}", keyPath ?? "NULO");
+
+            if (string.IsNullOrWhiteSpace(keyPath))
+            {
+                logger.LogError("Falta 'Database:PrivateKeyEnvVar' en la configuración.");
+                throw new InvalidOperationException("Falta configurar Database:PrivateKeyEnvVar");
+            }
 
             if (!File.Exists(keyPath))
+            {
+                logger.LogError("Clave privada RSA no encontrada en la ruta: '{KeyPath}'.", keyPath);
                 throw new FileNotFoundException($"Clave privada RSA no encontrada en: '{keyPath}'.", keyPath);
+            }
 
-            return File.ReadAllText(keyPath).Trim();
+            logger.LogInformation("Clave privada RSA encontrada en '{KeyPath}'. Leyendo contenido...", keyPath);
+            var content = File.ReadAllText(keyPath).Trim();
+            logger.LogInformation("Contenido de clave privada leído exitosamente (longitud: {Length}).", content.Length);
+
+            return content;
         }
     }
 }

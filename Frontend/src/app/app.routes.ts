@@ -34,6 +34,11 @@ export const routes: Routes = [
         loadComponent: () => import('./feature/carga-masiva/carga-masiva.component').then(m => m.CargaMasivaComponent)
       },
       {
+        path: 'frmControlLink',
+        title: 'Control de Links | Banco Promerica',
+        loadComponent: () => import('./feature/control-link/control-link.component').then(m => m.ControlLinkComponent)
+      },
+      {
         path: 'frmVerificacionLink',
         title: 'Verificación de Links | Banco Promerica',
         loadComponent: () => import('./feature/verificacion-link/verificacion-link.component').then(m => m.VerificacionLinkComponent)

@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 using Dapper;
 using Oracle.ManagedDataAccess.Client;
 using Backend.Models;
+using Backend.Infrastructure.Database;
 
 namespace Backend.Repositories
 {
-    public class LinkRepository(string connectionString) : ILinkRepository
+    public class LinkRepository(string connectionString, Microsoft.Extensions.Logging.ILogger<LinkRepository>? logger = null) : ILinkRepository
     {
         public async Task<string?> InsertLinkAsync(LinkEntity link)
         {
             using var conn = new OracleConnection(connectionString);
-            var p = new DynamicParameters();
+            var p = new OracleDynamicParameters();
             
             p.Add("p_NumCuenta", string.IsNullOrEmpty(link.NumCuenta) ? (object)DBNull.Value : decimal.Parse(link.NumCuenta), DbType.Decimal, ParameterDirection.Input);
             p.Add("p_TipCuenta", link.TipCuenta, DbType.String, ParameterDirection.Input);
@@ -63,7 +64,7 @@ namespace Backend.Repositories
                     throw new Exception("Ya se encuentra pagado el link!!!");
 
                 // Ejecutar pago
-                var p = new DynamicParameters();
+                var p = new OracleDynamicParameters();
                 p.Add("pCodEmpresa", "1", DbType.String, ParameterDirection.Input);
                 p.Add("pCodAgencia", agencia, DbType.String, ParameterDirection.Input);
                 p.Add("pCodCliente", decimal.Parse(cliente), DbType.Decimal, ParameterDirection.Input);
@@ -119,7 +120,7 @@ namespace Backend.Repositories
                     throw new Exception("Ya se encuentra pagado el link!!!");
 
                 // Ejecutar pago
-                var p = new DynamicParameters();
+                var p = new OracleDynamicParameters();
                 p.Add("pCodEmpresa", "1", DbType.String, ParameterDirection.Input);
                 p.Add("pNumCtaCredito", pago.NumCta, DbType.String, ParameterDirection.Input);
                 p.Add("pTarjeta", DBNull.Value, DbType.Decimal, ParameterDirection.Input);
@@ -230,12 +231,19 @@ namespace Backend.Repositories
             // 1. Total Count
             string countTotalSql = @"SELECT COUNT(*) FROM BO.SCL_PARAMETROS_LINK LNK 
                                      WHERE TRUNC(LNK.FEC_EMISION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)";
+            logger?.LogInformation("Executing GetLinksPagedAsync for user: {Username}, Search: {Search}, Start: {Start}, Length: {Length}", username, search, start, length);
+            logger?.LogInformation("TotalCount SQL: {Sql}", countTotalSql); // Changed to Debug for less verbosity on common queries
             int totalCount = await conn.ExecuteScalarAsync<int>(countTotalSql);
+            logger?.LogInformation("TotalCount result: {Count}", totalCount); // Changed to Debug
 
             // 2. Filtered Count
             string filterSql = "";
-            var p = new DynamicParameters();
-            p.Add("username", username, DbType.String, ParameterDirection.Input);
+            
+            // Instancia 1: Para FilteredCount
+            var pCount = new OracleDynamicParameters();
+            
+            string cleanUsername = (username ?? "").Trim().ToUpper();
+            string safeUsername = cleanUsername.Replace("'", "''");
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -246,41 +254,69 @@ namespace Backend.Repositories
                     TO_CHAR(LNK.FEC_EMISION, 'dd/mm/yyyy') LIKE :search OR 
                     LNK.COD_USUARIO LIKE :search
                 )";
-                p.Add("search", $"%{search.ToUpper()}%", DbType.String, ParameterDirection.Input);
+                pCount.Add("search", $"%{search.Trim().ToUpper()}%", OracleDbType.Varchar2, ParameterDirection.Input);
             }
 
             string countFilterSql = $@"SELECT COUNT(*) FROM BO.SCL_PARAMETROS_LINK LNK 
                                       WHERE 1 = 1 
                                         AND TRUNC(FEC_EMISION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
-                                        AND NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), COD_USUARIO) = 
-                                            NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), :username)
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
+                                            OR UPPER(COD_USUARIO) = '{safeUsername}'
+                                        )
                                         {filterSql}";
-            int filteredCount = await conn.ExecuteScalarAsync<int>(countFilterSql, p);
+            
+            logger?.LogInformation("FilteredCount SQL: {Sql}", countFilterSql);
+            int filteredCount = await conn.ExecuteScalarAsync<int>(countFilterSql, pCount);
+            logger?.LogInformation("FilteredCount result: {Count}", filteredCount);
 
             // 3. Paged Data
-            p.Add("offset", start, DbType.Int32, ParameterDirection.Input);
-            p.Add("limit", length == -1 ? filteredCount : length, DbType.Int32, ParameterDirection.Input);
+            int limitValue = length == -1 ? filteredCount : length;
+            int maxRow = start + limitValue;
+            int minRow = start;
 
-            string dataSql = $@"SELECT 
-                                   LNK.COD_PARAMETRO AS Correlativo, 
-                                   TO_CHAR(LNK.NUM_CUENTA) AS Producto, 
-                                   LNK.MON_COBRO AS Monto, 
-                                   DECODE(LNK.TIP_PAGO,'1','Pagar en Dolares','Quetzales') AS Pago, 
-                                   TO_CHAR(LNK.FEC_EMISION,'dd/mm/yyyy') AS EmisionLink, 
-                                   LNK.COD_USUARIO AS Usuario, 
-                                   DECODE(LNK.TIP_ENVIO,'1','SMS','Correo') AS Envio, 
-                                   DECODE(LNK.TIP_LINK,'1','Automatico','Manual') AS TipoLink 
-                                 FROM BO.SCL_PARAMETROS_LINK LNK 
-                                 WHERE 1 = 1  
-                                   AND TRUNC(FEC_EMISION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
-                                   AND NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), COD_USUARIO) = 
-                                       NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), :username)
-                                   {filterSql}
-                                 ORDER BY {orderColClean} {orderDirClean}
-                                 OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
+            // Instancia 2: Para PagedData
+            var pData = new OracleDynamicParameters();
+            
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                pData.Add("search", $"%{search.Trim().ToUpper()}%", OracleDbType.Varchar2, ParameterDirection.Input);
+            }
 
-            var items = await conn.QueryAsync<LinkListItem>(dataSql, p);
-            return (items, totalCount, filteredCount);
+            pData.Add("maxRow", maxRow, OracleDbType.Int32, ParameterDirection.Input);
+            pData.Add("minRow", minRow, OracleDbType.Int32, ParameterDirection.Input);
+
+            string dataSql = $@"SELECT Correlativo, Producto, Monto, Pago, EmisionLink, Usuario, Envio, TipoLink 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_PARAMETRO) AS Correlativo, 
+                                         TO_CHAR(LNK.NUM_CUENTA) AS Producto, 
+                                         LNK.MON_COBRO AS Monto, 
+                                         DECODE(LNK.TIP_PAGO,'1','Pagar en Dolares','Quetzales') AS Pago, 
+                                         TO_CHAR(LNK.FEC_EMISION,'dd/mm/yyyy') AS EmisionLink, 
+                                         TO_CHAR(LNK.COD_USUARIO) AS Usuario, 
+                                         DECODE(LNK.TIP_ENVIO,'1','SMS','Correo') AS Envio, 
+                                         DECODE(LNK.TIP_LINK,'1','Automatico','Manual') AS TipoLink 
+                                       FROM BO.SCL_PARAMETROS_LINK LNK 
+                                       WHERE 1 = 1  
+                                         AND TRUNC(FEC_EMISION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
+                                             OR UPPER(COD_USUARIO) = '{safeUsername}'
+                                         )
+                                         {filterSql}
+                                       ORDER BY {orderColClean} {orderDirClean}
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow";
+
+            logger?.LogInformation("PagedData SQL: {Sql}", dataSql);
+            logger?.LogInformation("PagedData Params: username='{Username}', search='{Search}', minRow={MinRow}, maxRow={MaxRow}", cleanUsername, search, minRow, maxRow);
+            
+            var items = await conn.QueryAsync<LinkListItem>(dataSql, pData);
+            logger?.LogInformation("PagedData result count: {Count}", items?.Count() ?? 0);
+            return (items ?? Enumerable.Empty<LinkListItem>(), totalCount, filteredCount);
         }
 
         public async Task<(IEnumerable<LinkVerificaItem> Items, int TotalCount, int FilteredCount)> GetLinksVerificaPagedAsync(
@@ -305,61 +341,91 @@ namespace Backend.Repositories
             string countTotalSql = @"SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
                                      WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)";
+            logger?.LogInformation("TotalCount SQL (Verifica): {Sql}", countTotalSql); // Added Debug log
             int totalCount = await conn.ExecuteScalarAsync<int>(countTotalSql);
 
             // 2. Filtered Count
             string filterSql = "";
-            var p = new DynamicParameters();
-            p.Add("username", username, DbType.String, ParameterDirection.Input);
+            
+            // Instancia 1: Para FilteredCount
+            var pCount = new OracleDynamicParameters();
+            
+            string cleanUsername = (username ?? "").Trim().ToUpper();
+            string safeUsername = cleanUsername.Replace("'", "''");
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 filterSql = @" AND (
-                    TO_CHAR(LNK.COD_PARAMETRO) LIKE :search OR 
+                    TO_CHAR(LNK.COD_LINK) LIKE :search OR 
                     TO_CHAR(PAR.NUM_CUENTA) LIKE :search OR 
                     LNK.COD_SKU LIKE :search
                 )";
-                p.Add("search", $"%{search.ToUpper()}%", DbType.String, ParameterDirection.Input);
+                pCount.Add("search", $"%{search.Trim().ToUpper()}%", OracleDbType.Varchar2, ParameterDirection.Input);
             }
 
             string countFilterSql = $@"SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
                                       WHERE 1 = 1 
                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
-                                        AND NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), PAR.COD_USUARIO) = 
-                                            NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), :username)
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = '{safeUsername}'
+                                        )
                                         {filterSql}";
-            int filteredCount = await conn.ExecuteScalarAsync<int>(countFilterSql, p);
+            logger?.LogInformation("FilteredCount SQL (Verifica): {Sql}", countFilterSql);
+            int filteredCount = await conn.ExecuteScalarAsync<int>(countFilterSql, pCount);
 
             // 3. Paged Data
-            p.Add("offset", start, DbType.Int32, ParameterDirection.Input);
-            p.Add("limit", length == -1 ? filteredCount : length, DbType.Int32, ParameterDirection.Input);
+            int limitValue = length == -1 ? filteredCount : length;
+            int maxRow = start + limitValue;
+            int minRow = start;
 
-            string dataSql = $@"SELECT 
-                                   TO_CHAR(LNK.COD_LINK) AS Correlativo, 
-                                   TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
-                                   LNK.COD_SKU AS CodigoVisa, 
-                                   COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
-                                   COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
-                                   DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
-                                 FROM BO.SCL_LISTADO_LINKS LNK 
-                                 INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
-                                 WHERE 1 = 1  
-                                   AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
-                                   AND NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), PAR.COD_USUARIO) = 
-                                       NVL((SELECT USUARIO FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND USUARIO = :username), :username)
-                                   {filterSql}
-                                 ORDER BY {orderColClean} {orderDirClean}
-                                 OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
+            // Instancia 2: Para PagedData
+            var pData = new OracleDynamicParameters();
 
-            var items = await conn.QueryAsync<LinkVerificaItem>(dataSql, p);
-            return (items, totalCount, filteredCount);
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                pData.Add("search", $"%{search.Trim().ToUpper()}%", OracleDbType.Varchar2, ParameterDirection.Input);
+            }
+
+            pData.Add("maxRow", maxRow, OracleDbType.Int32, ParameterDirection.Input);
+            pData.Add("minRow", minRow, OracleDbType.Int32, ParameterDirection.Input);
+
+            string dataSql = $@"SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = '{safeUsername}'
+                                         )
+                                         {filterSql}
+                                       ORDER BY {orderColClean} {orderDirClean}
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow";
+
+            logger?.LogInformation("PagedData SQL (Verifica): {Sql}", dataSql);
+            logger?.LogInformation("PagedData Params (Verifica): username='{Username}', search='{Search}', minRow={MinRow}, maxRow={MaxRow}", cleanUsername, search, minRow, maxRow);
+
+            var items = await conn.QueryAsync<LinkVerificaItem>(dataSql, pData);
+            return (items ?? Enumerable.Empty<LinkVerificaItem>(), totalCount, filteredCount);
         }
 
         public async Task<string?> NotificaSMSAsync(SmsRequest sms)
         {
             using var conn = new OracleConnection(connectionString);
-            var p = new DynamicParameters();
+            var p = new OracleDynamicParameters();
             p.Add("p_NumCtaCredito", decimal.Parse(sms.NumCta), DbType.Decimal, ParameterDirection.Input);
             p.Add("p_NumTelefono", decimal.Parse(sms.Telefono), DbType.Decimal, ParameterDirection.Input);
             p.Add("P_SmsMensaje", sms.Mensaje, DbType.String, ParameterDirection.Input);
@@ -373,7 +439,7 @@ namespace Backend.Repositories
         public async Task<string?> NotificaMailAsync(MailRequest mail)
         {
             using var conn = new OracleConnection(connectionString);
-            var p = new DynamicParameters();
+            var p = new OracleDynamicParameters();
             p.Add("p_EMail", mail.Mail, DbType.String, ParameterDirection.Input);
             p.Add("p_Asunto", mail.Asunto, DbType.String, ParameterDirection.Input);
             p.Add("p_DesBody", mail.Link, DbType.String, ParameterDirection.Input);
@@ -387,7 +453,7 @@ namespace Backend.Repositories
         public async Task<bool> UpdateEstadoLinkAsync(string codParametro)
         {
             using var conn = new OracleConnection(connectionString);
-            var p = new DynamicParameters();
+            var p = new OracleDynamicParameters();
             p.Add("p_CodParametro", decimal.Parse(codParametro), DbType.Decimal, ParameterDirection.Input);
             p.Add("p_IndEstado", "I", DbType.String, ParameterDirection.Input);
             p.Add("P_MsgError", null, DbType.String, ParameterDirection.InputOutput, 4000);

@@ -79,7 +79,8 @@ else
         var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
         var cs = db.GetConnectionString(DatabaseKey.TC)
             ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
-        return new LinkRepository(cs);
+        var logger = sp.GetService<ILogger<LinkRepository>>();
+        return new LinkRepository(cs, logger);
     });
 
     builder.Services.AddScoped<IMenuRepository>(sp =>
@@ -128,7 +129,18 @@ builder.Services.Configure<VisaEnLinkOptions>(builder.Configuration.GetSection("
 builder.Services.Configure<UrlShortenerOptions>(builder.Configuration.GetSection("UrlShortener"));
 
 // Registrar Clientes HTTP para consumo de APIs externas
-builder.Services.AddHttpClient<IVisaEnLinkIntegrationService, VisaEnLinkIntegrationService>();
+builder.Services.AddHttpClient<IVisaEnLinkIntegrationService, VisaEnLinkIntegrationService>()
+    .ConfigurePrimaryHttpMessageHandler((sp) => {
+        var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<VisaEnLinkOptions>>().Value;
+        if (options.UseProxy && !string.IsNullOrEmpty(options.ProxyUrl)) {
+            var proxy = new System.Net.WebProxy(options.ProxyUrl);
+            if (!string.IsNullOrEmpty(options.ProxyUser)) {
+                proxy.Credentials = new System.Net.NetworkCredential(options.ProxyUser, options.ProxyPassword);
+            }
+            return new System.Net.Http.HttpClientHandler { Proxy = proxy, UseProxy = true };
+        }
+        return new System.Net.Http.HttpClientHandler();
+    });
 builder.Services.AddHttpClient<IUrlShortenerService, UrlShortenerService>();
 
 // Registrar Servicios de Negocio

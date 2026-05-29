@@ -39,13 +39,42 @@ namespace Backend.Infrastructure.Database
             _oracleParameters.Add(parameter);
         }
 
+        public void Add(string name, object? value = null, DbType? dbType = null, ParameterDirection? direction = null, int? size = null)
+        {
+            var parameter = new OracleParameter
+            {
+                ParameterName = name,
+                Value = value ?? DBNull.Value
+            };
+
+            if (dbType.HasValue)
+            {
+                parameter.DbType = dbType.Value;
+            }
+
+            if (direction.HasValue)
+            {
+                parameter.Direction = direction.Value;
+            }
+
+            if (size.HasValue)
+            {
+                parameter.Size = size.Value;
+            }
+
+            _oracleParameters.Add(parameter);
+        }
+
         public void AddParameters(IDbCommand command, SqlMapper.Identity identity)
         {
             if (command is OracleCommand oracleCommand)
             {
+                oracleCommand.BindByName = true;
                 foreach (var parameter in _oracleParameters)
                 {
-                    oracleCommand.Parameters.Add(parameter);
+                    // Clone the parameter to avoid ORA-50030 when reused across multiple queries
+                    var clone = (OracleParameter)((ICloneable)parameter).Clone();
+                    oracleCommand.Parameters.Add(clone);
                 }
             }
         }

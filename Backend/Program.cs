@@ -130,6 +130,12 @@ builder.Services.Configure<UrlShortenerOptions>(builder.Configuration.GetSection
 
 // Registrar Clientes HTTP para consumo de APIs externas
 builder.Services.AddHttpClient<IVisaEnLinkIntegrationService, VisaEnLinkIntegrationService>()
+    .ConfigureHttpClient((sp, client) => {
+        var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<VisaEnLinkOptions>>().Value;
+        if (!string.IsNullOrEmpty(options.UrlVisa)) {
+            client.BaseAddress = new Uri(options.UrlVisa);
+        }
+    })
     .ConfigurePrimaryHttpMessageHandler((sp) => {
         var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<VisaEnLinkOptions>>().Value;
         if (options.UseProxy && !string.IsNullOrEmpty(options.ProxyUrl)) {

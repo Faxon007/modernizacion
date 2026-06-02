@@ -171,6 +171,32 @@ import { UiService } from '../../core/services/ui.service';
                   <div class="animate-spin rounded-full h-8 w-8 border-4 border-[#7bc342] border-t-transparent mx-auto"></div>
                   <p class="text-gray-500 text-sm font-semibold">Consultando API de Visa...</p>
                 </div>
+              } @else if (!visaDetails()) {
+                <!-- Vista inicial del modal con detalles locales -->
+                <div class="space-y-4">
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="bg-gray-50 p-3 rounded-xl col-span-2">
+                      <span class="text-xs font-bold text-gray-400 block uppercase">Producto / Cuenta</span>
+                      <span class="font-semibold text-gray-800 mt-1 block">{{ selectedItem()?.producto }}</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl">
+                      <span class="text-xs font-bold text-gray-400 block uppercase">Código NeoLink</span>
+                      <span class="font-semibold text-gray-800 mt-1 block break-all">{{ selectedItem()?.codigoVisa }}</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl">
+                      <span class="text-xs font-bold text-gray-400 block uppercase">Correlativo</span>
+                      <span class="font-semibold text-gray-800 mt-1 block">#{{ selectedItem()?.correlativo }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex gap-3">
+                    <span class="text-blue-500 text-xl">ℹ️</span>
+                    <div>
+                      <h4 class="font-bold text-blue-800 text-sm">Consulta de Estatus</h4>
+                      <p class="text-blue-700 text-xs mt-0.5">Haga clic en 'Consultar Visa' para verificar el estado de este link en la plataforma de Visa en Link y buscar su número de autorización.</p>
+                    </div>
+                  </div>
+                </div>
               } @else if (visaDetails()) {
                 <div class="space-y-4">
                   <div class="grid grid-cols-2 gap-4 text-sm">
@@ -225,10 +251,17 @@ import { UiService } from '../../core/services/ui.service';
               <div class="border-t pt-4 flex justify-end gap-2 text-sm font-semibold">
                 <button 
                   (click)="closeModal()" 
-                  [disabled]="isApplying()"
+                  [disabled]="isApplying() || isCheckingVisa()"
                   class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all">
                   Cerrar
                 </button>
+                @if (!visaDetails() && !isCheckingVisa()) {
+                  <button 
+                    (click)="consultarEnVisa()" 
+                    class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-600/10 flex items-center gap-1.5">
+                    🔎 Consultar Visa
+                  </button>
+                }
                 @if (visaDetails()?.autorizacion && !isCheckingVisa()) {
                   <button 
                     (click)="aplicarPagoCore()" 
@@ -350,6 +383,14 @@ export class VerificacionLinkComponent implements OnInit {
   // Verification & Action
   verificarEnVisa(item: LinkVerificaItem) {
     this.selectedItem.set(item);
+    this.isCheckingVisa.set(false);
+    this.visaDetails.set(null);
+  }
+
+  consultarEnVisa() {
+    const item = this.selectedItem();
+    if (!item) return;
+
     this.isCheckingVisa.set(true);
     this.visaDetails.set(null);
 
@@ -360,13 +401,11 @@ export class VerificacionLinkComponent implements OnInit {
           this.visaDetails.set(res.data);
         } else {
           this.ui.showError(res.errorMessage || 'Link no encontrado en Visa.');
-          this.closeModal();
         }
       },
       error: () => {
         this.isCheckingVisa.set(false);
         this.ui.showError('Error de comunicación con el servicio de Visa.');
-        this.closeModal();
       }
     });
   }

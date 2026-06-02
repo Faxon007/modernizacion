@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Backend.Repositories;
 
 namespace Backend.Services
@@ -28,19 +30,28 @@ namespace Backend.Services
         private readonly HttpClient _httpClient;
         private readonly ISiteRepository _siteRepository;
         private readonly VisaEnLinkOptions _options;
+        private readonly IWebHostEnvironment _env;
 
         public VisaEnLinkIntegrationService(
             HttpClient httpClient, 
             ISiteRepository siteRepository, 
-            IOptions<VisaEnLinkOptions> options)
+            IOptions<VisaEnLinkOptions> options,
+            IWebHostEnvironment env)
         {
             _httpClient = httpClient;
             _siteRepository = siteRepository;
             _options = options.Value;
+            _env = env;
         }
 
         public async Task<string> GetOrGenerateTokenAsync()
         {
+            // If in Development environment, return a dummy token immediately
+            if (_env.IsDevelopment())
+            {
+                return "dummy_development_token";
+            }
+
             // 1. Check database for a valid token created today
             string? token = await _siteRepository.GetTokenInternoAsync();
             if (!string.IsNullOrEmpty(token))
@@ -80,6 +91,11 @@ namespace Backend.Services
 
         private async Task<string> GetFirstSocialNetworkAsync(string token)
         {
+            if (_env.IsDevelopment())
+            {
+                return "DUMMY_NETWORK";
+            }
+
             var content = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("llave", _options.Key),
@@ -104,6 +120,11 @@ namespace Backend.Services
             string imgPublicitaria, 
             string codigoInterno)
         {
+            if (_env.IsDevelopment())
+            {
+                return (codigoInterno, $"https://dummy.link/{codigoInterno}");
+            }
+
             string token = await GetOrGenerateTokenAsync();
             string networks = await GetFirstSocialNetworkAsync(token);
 
@@ -161,6 +182,20 @@ namespace Backend.Services
 
         public async Task<VisaLinkInfo?> ConsultaLinkAsync(string sku)
         {
+            // Development bypass as requested
+            if (_env.IsDevelopment())
+            {
+                return new VisaLinkInfo
+                {
+                    Sku = sku,
+                    LinkUrl = $"https://dummy.link/{sku}",
+                    Estado = "PAID",
+                    Nombre = "Dummy Link (Development Mode)",
+                    Monto = 100.00,
+                    Autorizacion = "8956540" // Dummy auth code from legacy code
+                };
+            }
+
             string token = await GetOrGenerateTokenAsync();
 
             var content = new FormUrlEncodedContent(new[]
@@ -198,6 +233,11 @@ namespace Backend.Services
 
         public async Task<bool> CambioEstadoAsync(string sku, string nombre, double precio, string estado)
         {
+            if (_env.IsDevelopment())
+            {
+                return true;
+            }
+
             string token = await GetOrGenerateTokenAsync();
             string networks = await GetFirstSocialNetworkAsync(token);
 

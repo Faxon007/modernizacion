@@ -244,6 +244,69 @@ namespace Backend.Controllers
                 {
                     return Ok(new { success = false, errorMessage = "Link no encontrado en Visa." });
                 }
+
+                // SIMULACIÓN DE PROCESAMIENTO EN DESARROLLO (Equivalente a btnConsultaPago_Click en frmVerificacionLink.aspx.cs)
+                string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+                if (env.Equals("Development", StringComparison.OrdinalIgnoreCase))
+                {
+                    var linkInfo = await _linkRepository.GetParametroAsync(sku);
+                    if (linkInfo != null)
+                    {
+                        // Preparar el PagoRequest con la información del link
+                        var pagoRequest = new PagoRequest
+                        {
+                            CodLink = linkInfo.CodLink ?? sku,
+                            NumCta = linkInfo.NumCuenta ?? string.Empty,
+                            CodSku = sku,
+                            AutVisa = info.Autorizacion ?? "8956540",
+                            MonPago = linkInfo.MonCobro // Asegurarse de que MonPago se asigne desde linkInfo.MonCobro
+                        };
+
+                        string moneda = linkInfo.TipPago == "0" ? "320" : "840";
+
+                        // --- INICIO DE LOGS PARA VALIDACIÓN DE FLUJO ---
+                        _logger.LogInformation("Development Simulation: Processing payment for SKU '{Sku}'.", sku);
+                        _logger.LogInformation("Development Simulation: linkInfo.TipCuenta = '{TipCuenta}', linkInfo.NumCuenta = '{NumCuenta}'", linkInfo.TipCuenta, linkInfo.NumCuenta);
+                        _logger.LogInformation("Development Simulation: PagoRequest: CodLink='{CodLink}', NumCta='{NumCta}', MonPago='{MonPago}', Moneda='{Moneda}'", pagoRequest.CodLink, pagoRequest.NumCta, pagoRequest.MonPago, moneda);
+                        // --- FIN DE LOGS PARA VALIDACIÓN DE FLUJO ---
+
+                        if (linkInfo.TipCuenta == "PR")
+                        {
+                            _logger.LogInformation("Development Simulation: Calling AplicaPagoPRAsync for PR account.");
+                            await _linkRepository.AplicaPagoPRAsync(pagoRequest, moneda);
+                        }
+                        else if (linkInfo.TipCuenta == "TC")
+                        {
+                            await _linkRepository.AplicaPagoTCAsync(pagoRequest, moneda);
+                        }
+
+                        // Manejar el caso de un tipo de cuenta inesperado
+                        else
+                        {
+                            _logger.LogWarning("Development Simulation: Unknown TipCuenta '{TipCuenta}' for SKU '{Sku}'. No payment applied.", linkInfo.TipCuenta, sku);
+                        }
+
+                        try
+                        {
+                            var bitacora = new BitacoraRequest
+                            {
+                                CodLink = linkInfo.CodLink, // Usar linkInfo.CodLink para la bitácora, como se revirtió previamente
+                                Descripcion = $"DESARROLLO: Se procedio con el pago  ({sku}) según link No.{linkInfo.CodLink} asociado al número de cuenta de No.{linkInfo.NumCuenta}, Valor = {pagoRequest.MonPago}",
+                                TipProcesamiento = "P"
+                            };
+                            await _siteRepository.RegistraBitacoraAsync(bitacora);
+                        }
+                        catch (Exception bitEx)
+                        {
+                            _logger.LogWarning(bitEx, "No se pudo registrar en la bitácora local en modo desarrollo.");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Development Simulation: linkInfo is null for SKU '{Sku}'. Cannot simulate payment.", sku);
+                    }
+                }
+
                 return Ok(new { success = true, data = info });
             }
             catch (Exception ex)
@@ -350,7 +413,7 @@ namespace Backend.Controllers
                 {
                     try
                     {
-                        string diaMes = info?.DiaMes ?? "N/A";
+                        string diaMes = info?.DiaMes! ?? "N/A"; // Suppress CS8601, as null is handled by ??
                         var bitacora = new BitacoraRequest
                         {
                             CodLink = "",
@@ -385,7 +448,7 @@ namespace Backend.Controllers
             try
             {
                 // 1. Obtener detalles del link desde la base de datos
-                var linkInfo = await _linkRepository.GetParametroAsync(request.CodLink);
+                var linkInfo = await _linkRepository.GetParametroAsync(request.CodSku);
                 if (linkInfo == null)
                 {
                     return BadRequest(new { success = false, message = "No se encontraron los detalles del link en el sistema." });

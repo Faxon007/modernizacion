@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { LinkService, LinkEntity, ClientEntity } from '../../core/services/link.service';
 import { ParameterService } from '../../core/services/parameter.service';
@@ -661,10 +662,27 @@ export class EmisionLinkComponent {
             }
             this.proceedSaveLink(formVal, ac, client);
           } else {
-            this.proceedSaveLink(formVal, ac, client);
+            this.showError('Inconsistencia: La cuenta se identificó como Préstamo, pero no se encontró información detallada del préstamo.'); // Mensaje para data: null
+            this.isSaving.set(false);
           }
-        },
-        error: () => this.proceedSaveLink(formVal, ac, client)
+        }, // Captura errores HTTP (ej. 404, 500)
+        error: (err: any) => {
+          this.isSaving.set(false);
+          let errMsg = 'Error al obtener detalles del préstamo.';
+
+          if (err instanceof HttpErrorResponse) {
+            if (err.status === 404) {
+              errMsg = `La cuenta ${ac.numCuenta} no es de tipo Préstamo o no se encontraron sus detalles.`;
+            } else if (err.error?.errorMessage) {
+              errMsg = err.error.errorMessage;
+            } else {
+              errMsg = `Error de comunicación con el servidor (${err.status}): ${err.message}`;
+            }
+          } else if (err instanceof Error) {
+            errMsg = err.message;
+          }
+          this.showError(`Error al validar préstamo: ${errMsg}`);
+        }
       });
     } else {
       this.proceedSaveLink(formVal, ac, client);

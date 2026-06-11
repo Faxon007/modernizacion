@@ -55,11 +55,28 @@ import { MenuService } from '../../../../core/services/menu.service';
   </div>
 </nav>
 
-    <div class="container mx-auto mt-4 px-4">
+    <!-- Global Toasts -->
+    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none print:hidden">
+      @if (ui.error()) {
+        <div class="bg-red-600 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 max-w-md pointer-events-auto animate-in slide-in-from-right duration-300">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⚠️</span>
+            <span class="font-medium text-sm">{{ ui.error() }}</span>
+          </div>
+          <button (click)="ui.error.set(null)" class="text-white/80 hover:text-white hover:bg-red-700 p-1.5 rounded-lg transition-colors flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      }
       @if (ui.success()) {
-        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 flex justify-between">
-          <span>{{ ui.success() }}</span>
-          <button (click)="ui.success.set(null)">×</button>
+        <div class="bg-emerald-600 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 max-w-md pointer-events-auto animate-in slide-in-from-right duration-300">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">✅</span>
+            <span class="font-medium text-sm">{{ ui.success() }}</span>
+          </div>
+          <button (click)="ui.success.set(null)" class="text-white/80 hover:text-white hover:bg-emerald-700 p-1.5 rounded-lg transition-colors flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
         </div>
       }
     </div>

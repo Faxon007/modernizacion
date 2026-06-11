@@ -10,8 +10,10 @@ using Backend.Infrastructure.Database;
 
 namespace Backend.Repositories
 {
-    public class SiteRepository(string connectionString) : ISiteRepository
+    public class SiteRepository(string connectionString, ILogger<SiteRepository> logger) : ISiteRepository
     {
+        private readonly ILogger<SiteRepository> _logger = logger;
+
         public async Task<SystemParameters?> GetParametrosAsync()
         {
             using var conn = new OracleConnection(connectionString);
@@ -230,12 +232,22 @@ namespace Backend.Repositories
         public async Task<bool> RegistraBitacoraAsync(BitacoraRequest request)
         {
             using var conn = new OracleConnection(connectionString);
+            
+            // Attempt to parse CodLink and CodParametro to decimal.
+            // If parsing fails (e.g., "EMISION" for CodParametro, or empty string for CodLink),
+            // pass null to the Oracle stored procedure, as it likely expects a NUMBER type.
+            decimal? codLinkNumeric = decimal.TryParse(request.CodLink, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal cl) ? cl : null;
+            decimal? codParametroNumeric = decimal.TryParse(request.CodParametro, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal cp) ? cp : null;
+
             var p = new OracleDynamicParameters();
-            p.Add("p_CodLink", request.CodLink, OracleDbType.Varchar2, ParameterDirection.Input);
-            p.Add("p_CodParametro", request.CodParametro, OracleDbType.Varchar2, ParameterDirection.Input);
-            p.Add("p_Descripcion", request.Descripcion, OracleDbType.Varchar2, ParameterDirection.Input);
+            p.Add("p_CodLink", codLinkNumeric, OracleDbType.Decimal, ParameterDirection.Input);
+            p.Add("p_CodParametro", codParametroNumeric, OracleDbType.Decimal, ParameterDirection.Input);
+            p.Add("p_Descripcion", request.Descripcion, OracleDbType.Varchar2, ParameterDirection.Input); 
             p.Add("p_TipoProcesamiento", request.TipProcesamiento, OracleDbType.Varchar2, ParameterDirection.Input);
             p.Add("P_MsgError", dbType: OracleDbType.Varchar2, direction: ParameterDirection.InputOutput, size: 2000, value: "NULL");
+
+            _logger.LogDebug("RegistraBitacoraAsync: Calling PkgScl_InsBitacoraLink with p_CodLink={CodLink}, p_CodParametro={CodParametro}, p_Descripcion='{Descripcion}', p_TipoProcesamiento='{TipoProcesamiento}'",
+                codLinkNumeric, codParametroNumeric, request.Descripcion, request.TipProcesamiento);
 
             await conn.ExecuteAsync("BO.PKG_SCL.PkgScl_InsBitacoraLink", p, commandType: CommandType.StoredProcedure);
             string? error = p.Get<string>("P_MsgError");

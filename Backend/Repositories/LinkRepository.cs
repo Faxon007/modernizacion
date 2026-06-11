@@ -16,22 +16,28 @@ namespace Backend.Repositories
         {
             using var conn = new OracleConnection(connectionString);
             var p = new OracleDynamicParameters();
-            
-            p.Add("p_NumCuenta", string.IsNullOrEmpty(link.NumCuenta) ? (object)DBNull.Value : decimal.Parse(link.NumCuenta), DbType.Decimal, ParameterDirection.Input);
+
+            p.Add("p_NumCuenta", string.IsNullOrEmpty(link.NumCuenta) ? null : decimal.Parse(link.NumCuenta, System.Globalization.CultureInfo.InvariantCulture), DbType.Decimal, ParameterDirection.Input);
             p.Add("p_TipCuenta", link.TipCuenta, DbType.String, ParameterDirection.Input);
-            p.Add("p_MonCobro", string.IsNullOrEmpty(link.MonCobro) ? (object)DBNull.Value : decimal.Parse(link.MonCobro), DbType.Decimal, ParameterDirection.Input);
+            p.Add("p_MonCobro", string.IsNullOrEmpty(link.MonCobro) ? null : decimal.Parse(link.MonCobro, System.Globalization.CultureInfo.InvariantCulture), DbType.Decimal, ParameterDirection.Input);
             p.Add("p_TipPago", link.TipPago, DbType.String, ParameterDirection.Input);
-            p.Add("p_EsDefault", string.IsNullOrEmpty(link.EsDefault) ? "NULL" : link.EsDefault, DbType.String, ParameterDirection.Input);
+            p.Add("p_EsDefault", string.IsNullOrEmpty(link.EsDefault) ? null : link.EsDefault, DbType.String, ParameterDirection.Input);
             p.Add("p_TipEnvio", link.TipEnvio, DbType.String, ParameterDirection.Input);
-            p.Add("p_NumTelefono", string.IsNullOrEmpty(link.NumTelefono) ? "NULL" : link.NumTelefono, DbType.String, ParameterDirection.Input);
-            p.Add("p_NomCorreo", string.IsNullOrEmpty(link.NomCorreo) ? "NULL" : link.NomCorreo, DbType.String, ParameterDirection.Input);
+            p.Add("p_NumTelefono", string.IsNullOrEmpty(link.NumTelefono) ? null : link.NumTelefono, DbType.String, ParameterDirection.Input);
+            p.Add("p_NomCorreo", string.IsNullOrEmpty(link.NomCorreo) ? null : link.NomCorreo, DbType.String, ParameterDirection.Input);
             p.Add("p_TipLink", link.TipLink, DbType.String, ParameterDirection.Input);
-            p.Add("p_DiaMes", string.IsNullOrEmpty(link.DiaMes) ? "NULL" : link.DiaMes, DbType.String, ParameterDirection.Input);
-            p.Add("p_IndEstado", link.IndEstado, DbType.String, ParameterDirection.Input);
-            p.Add("p_CodSku", string.IsNullOrEmpty(link.CodSku) ? "NULL" : link.CodSku, DbType.String, ParameterDirection.Input);
-            p.Add("p_Url", string.IsNullOrEmpty(link.UrlLink) ? "NULL" : link.UrlLink, DbType.String, ParameterDirection.Input);
-            p.Add("p_URLCorto", string.IsNullOrEmpty(link.UrlCorto) ? "NULL" : link.UrlCorto, DbType.String, ParameterDirection.Input);
+            p.Add("p_DiaMes", string.IsNullOrEmpty(link.DiaMes) ? null : link.DiaMes, DbType.String, ParameterDirection.Input);
+            p.Add("p_IndEstado", string.IsNullOrEmpty(link.IndEstado) ? null : link.IndEstado, DbType.String, ParameterDirection.Input);
+            p.Add("p_CodSku", string.IsNullOrEmpty(link.CodSku) ? null : link.CodSku, DbType.String, ParameterDirection.Input);
+            p.Add("p_Url", string.IsNullOrEmpty(link.UrlLink) ? null : link.UrlLink, DbType.String, ParameterDirection.Input);
+            p.Add("p_URLCorto", string.IsNullOrEmpty(link.UrlCorto) ? null : link.UrlCorto, DbType.String, ParameterDirection.Input);
             p.Add("P_MsgError", null, DbType.String, ParameterDirection.Output, 4000);
+
+            if (logger != null)
+            {
+                logger.LogInformation("Ejecutando PkgScl_InsParamLink con parámetros: p_NumCuenta={p_NumCuenta}, p_TipCuenta={p_TipCuenta}, p_MonCobro={p_MonCobro}, p_TipPago={p_TipPago}, p_EsDefault={p_EsDefault}, p_TipEnvio={p_TipEnvio}, p_NumTelefono={p_NumTelefono}, p_NomCorreo={p_NomCorreo}, p_TipLink={p_TipLink}, p_DiaMes={p_DiaMes}, p_IndEstado={p_IndEstado}, p_CodSku={p_CodSku}, p_Url={p_Url}, p_URLCorto={p_URLCorto}",
+                    link.NumCuenta, link.TipCuenta, link.MonCobro, link.TipPago, link.EsDefault, link.TipEnvio, link.NumTelefono, link.NomCorreo, link.TipLink, link.DiaMes, link.IndEstado, link.CodSku, link.UrlLink, link.UrlCorto);
+            }
 
             await conn.ExecuteAsync("BO.PKG_SCL.PkgScl_InsParamLink", p, commandType: CommandType.StoredProcedure);
             
@@ -47,10 +53,21 @@ namespace Backend.Repositories
             try
             {
                 // Obtener codigo_cliente
-                string prSql = "SELECT CODIGO_CLIENTE FROM PR_CREDITOS@\"tc_cbs\" WHERE NO_CREDITO = :numCta";
+                string prSql = "SELECT CODIGO_CLIENTE FROM PR_CREDITOS@TC_CBS WHERE NO_CREDITO = :numCta";
                 var cliente = await conn.ExecuteScalarAsync<string>(prSql, new { numCta = decimal.Parse(pago.NumCta) }, tx);
+                
                 if (string.IsNullOrEmpty(cliente))
-                    throw new Exception("Error al consultar dato del prestamo: no se encontró código de cliente.");
+                {
+                    var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+                    if (env.Equals("Development", StringComparison.OrdinalIgnoreCase))
+                    {
+                        cliente = "1"; // Fallback para entorno de desarrollo simulado
+                    }
+                    else
+                    {
+                        throw new Exception("Error al consultar dato del prestamo: no se encontró código de cliente.");
+                    }
+                }
 
                 // Obtener agencia
                 string agSql = "SELECT COD_AGENCIA FROM BO.SCL_PARAM_SISTEMA WHERE ROWNUM = 1";
@@ -161,14 +178,14 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<LinkParametroInfo?> GetParametroAsync(string codLink)
+        public async Task<LinkParametroInfo?> GetParametroAsync(string sku)
         {
             using var conn = new OracleConnection(connectionString);
-            string sql = @"SELECT P.NUM_CUENTA AS NumCuenta, P.TIP_CUENTA AS TipCuenta, P.TIP_PAGO AS TipPago, P.MON_COBRO AS MonCobro 
+            string sql = @"SELECT TO_CHAR(L.COD_LINK) AS CodLink, P.NUM_CUENTA AS NumCuenta, P.TIP_CUENTA AS TipCuenta, P.TIP_PAGO AS TipPago, P.MON_COBRO AS MonCobro 
                            FROM BO.SCL_LISTADO_LINKS L 
                            JOIN BO.SCL_PARAMETROS_LINK P ON P.COD_PARAMETRO = L.COD_PARAMETRO 
-                           WHERE L.COD_LINK = :codLink";
-            return await conn.QueryFirstOrDefaultAsync<LinkParametroInfo>(sql, new { codLink = decimal.Parse(codLink) });
+                           WHERE L.COD_SKU = :sku";
+            return await conn.QueryFirstOrDefaultAsync<LinkParametroInfo>(sql, new { sku = sku });
         }
 
         public async Task<LinkCtaInfo?> GetLinkCtaAsync(string numCta)
@@ -496,18 +513,45 @@ namespace Backend.Repositories
         public async Task<bool> UpdateURLCortoAsync(decimal numConsecutivo, string urlCorto)
         {
             using var conn = new OracleConnection(connectionString);
-            string sql = @"UPDATE BO.CLI_SHORT_LINKS 
+            string sql = @"UPDATE BO.CLI_SHORT_LINKS
                            SET SHORT_LINK = :urlCorto,
                                IND_INI_PROCESO = 1,
                                IND_FIN_PROCESO = 1,
-                               FEC_RESPUESTA = SYSDATE 
+                               FEC_RESPUESTA = SYSDATE
                            WHERE COD_CONSECUTIVO = :numConsecutivo";
             var result = await conn.ExecuteAsync(sql, new { urlCorto, numConsecutivo });
             return result > 0;
         }
 
-        public async Task<bool> RegistraBitacoraBDAsync(string urlLargo, string urlCorto, int codPeriferico)
+        public async Task<int> UpdateURLCortosBulkAsync(List<(decimal NumConsecutivo, string UrlCorto)> updates)
         {
+            if (updates == null || updates.Count == 0) return 0;
+
+            using var conn = new OracleConnection(connectionString);
+            await conn.OpenAsync();
+            using var cmd = conn.CreateCommand();
+
+            cmd.CommandText = @"UPDATE BO.CLI_SHORT_LINKS
+                                SET SHORT_LINK = :urlCorto,
+                                    IND_INI_PROCESO = 1,
+                                    IND_FIN_PROCESO = 1,
+                                    FEC_RESPUESTA = SYSDATE
+                                WHERE COD_CONSECUTIVO = :numConsecutivo";
+
+            // Configuramos ArrayBindCount para el procesamiento en bloque
+            cmd.ArrayBindCount = updates.Count;
+
+            // Extraemos los arrays para pasarlos a OracleParameter
+            var urlCortosArray = updates.Select(u => u.UrlCorto).ToArray();
+            var numConsecutivosArray = updates.Select(u => u.NumConsecutivo).ToArray();
+
+            cmd.Parameters.Add(new OracleParameter("urlCorto", OracleDbType.Varchar2) { Value = urlCortosArray });
+            cmd.Parameters.Add(new OracleParameter("numConsecutivo", OracleDbType.Decimal) { Value = numConsecutivosArray });
+
+            return await cmd.ExecuteNonQueryAsync();
+        }
+
+        public async Task<bool> RegistraBitacoraBDAsync(string urlLargo, string urlCorto, int codPeriferico)        {
             using var conn = new OracleConnection(connectionString);
             string detail = $"Se creo link corto ({urlCorto}) asociado al URL largo ({urlLargo})";
             string sql = @"INSERT INTO BO.PPL_BITACORA_WEBSERVICE (COD_PERIFERICO, DET_BITACORA) 

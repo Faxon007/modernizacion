@@ -90,6 +90,7 @@ namespace Backend.Models
 
     public class LinkParametroInfo
     {
+        public string CodLink { get; set; } = string.Empty;
         public string NumCuenta { get; set; } = string.Empty;
         public string TipCuenta { get; set; } = string.Empty;
         public string TipPago { get; set; } = string.Empty;

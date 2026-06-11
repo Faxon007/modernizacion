@@ -1,13 +1,14 @@
 export const environment = {
     production: true,
     useDummyData: false,
-    apiBase: 'https://api.promerica.com.gt/architect/api', // URL ficticia de prod
+    apiBase: 'http://10.16.16.133:84/api', // Actualizado a la IP del servidor de desarrollo
     noSistema: 509,
     palClave: 'Prmer!c@',
     palEncrypt: 'B4nc0Pr0m3r!c4',
-    strURLVisa: 'https://neolink.com.gt',
+    strURLVisa: 'https://admin.neolink.devneonet.com.gt',
     strKey: '24dd6249787d91870bf89b36fae4307bcbd21226',
+    strClaveVisa: 'Dev23Visa!',
     strUsuVisa: 'julio.rosales@bancopromerica.com.gt',
-    strServer: 'https://promerica.com.gt',
+    strServer: 'https://lc.promerica.com.gt',
     apiKey: 'ApiSL2025'
 };

@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { LinkService, LinkEntity } from '../../core/services/link.service';
 import { ParameterService } from '../../core/services/parameter.service';
@@ -347,28 +348,29 @@ export class CargaMasivaComponent implements OnInit {
     this.records.set(list);
 
     // 1. Validar cuenta y obtener cliente
-    this.linkService.getClienteCta(rec.numCuenta).pipe(
+    this.linkService.getClienteCta(rec.numCuenta).pipe( // Paso 1: Obtener cliente por cuenta
       switchMap((clientRes) => {
         if (!clientRes.success || !clientRes.data) {
           throw new Error('La cuenta no existe en el sistema.');
         }
+        const client = clientRes.data;
+        const codCliente = client.codCliente;
 
-        const codCliente = clientRes.data.codCliente;
-        // 2. Validar lista negra
+        // Paso 2: Verificar lista negra
         return this.linkService.isClienteListaNegra('1', codCliente).pipe(
           switchMap((blacklistRes) => {
             if (blacklistRes.success && blacklistRes.data) {
               throw new Error('El cliente de la cuenta se encuentra en lista negra.');
             }
-            return of(clientRes.data);
+            return of(client); // Pasa el objeto client al siguiente paso
           })
         );
       }),
-      switchMap((clientData) => {
-        // 3. Validar tipo de préstamo si aplica
+      switchMap((client) => { // Ahora 'client' está disponible aquí
+        // Paso 3: Validar tipo de préstamo si aplica (usando rec.tipoCuenta directamente)
         if (rec.tipoCuenta === 'PR') {
           return this.linkService.getTipoPrestamo(rec.numCuenta).pipe(
-            switchMap((loanRes) => {
+            switchMap((loanRes: ApiResponse<any>) => {
               if (loanRes.success && loanRes.data) {
                 const mon = loanRes.data.moneda;
                 if (mon === '840' && rec.tipoPago === '0') {
@@ -377,58 +379,87 @@ export class CargaMasivaComponent implements OnInit {
                 if (mon === '320' && rec.tipoPago === '1') {
                   throw new Error('La opción de pago (USD) es para un préstamo en quetzales.');
                 }
+              } else if (loanRes.success && loanRes.data === null) {
+                // Si el backend devuelve 200 OK pero data: null, significa que no hay detalles de préstamo
+                // o que la cuenta no es de tipo préstamo.
+                throw new Error(`La cuenta ${rec.numCuenta} no es de tipo Préstamo o no se encontraron sus detalles.`);
               }
-              return of(clientData);
+              // Si loanRes.success es false, el error será capturado por el catchError interno.
+              return of(client); // Pasa client al siguiente paso
+            }),
+            catchError((err: any) => { // Captura errores específicos de la llamada a getTipoPrestamo
+              let userMessage = `Error al consultar detalles de préstamo para la cuenta ${rec.numCuenta}.`;
+
+              if (err instanceof HttpErrorResponse) {
+                if (err.status === 404) {
+                  // Si el backend devuelve 404, significa que el recurso no fue encontrado,
+                  // lo cual en este contexto puede interpretarse como que no es un préstamo válido.
+                  userMessage = `La cuenta ${rec.numCuenta} no es de tipo Préstamo o no se encontraron sus detalles.`;
+                } else if (err.error?.errorMessage) {
+                  userMessage = `Error al consultar detalles de préstamo para la cuenta ${rec.numCuenta}: ${err.error.errorMessage}`;
+                } else {
+                  userMessage = `Error de comunicación con el servidor (${err.status}): ${err.message}`;
+                }
+              } else if (err instanceof Error) {
+                userMessage = err.message; // Maneja errores lanzados por `throw new Error(...)`
+              }
+              throw new Error(userMessage); // Relanza el error con el mensaje amigable
             })
           );
         }
-        return of(clientData);
+        return of(client); // Pasa client si no es un préstamo
       }),
-      switchMap((clientData) => {
-        // 4. Validar montos límites
-        const limitCall = rec.tipoCuenta === 'PR' 
-          ? this.linkService.getMontoPR(rec.numCuenta) 
+      switchMap((client) => { // Ahora 'client' está disponible aquí
+        // Paso 4: Validar montos límites (usando rec.tipoCuenta directamente)
+        const limitCall = rec.tipoCuenta === 'PR'
+          ? this.linkService.getMontoPR(rec.numCuenta)
           : this.linkService.getMontoTC(rec.numCuenta);
 
         return limitCall.pipe(
           switchMap((limitRes) => {
-            if (limitRes.success && limitRes.data !== undefined) {
+            if (limitRes.success && limitRes.data !== undefined && limitRes.data !== null) {
               if (rec.monto > limitRes.data) {
                 throw new Error(`El monto supera el límite permitido (${rec.tipoPago === '1' ? '$' : 'Q'}. ${limitRes.data.toFixed(2)}).`);
               }
+            } else if (limitRes.success && limitRes.data === null) {
+                throw new Error(`No se pudo obtener el límite de monto para la cuenta ${rec.numCuenta}.`);
             }
-            return of(clientData);
+            return of(client); // Pasa client al siguiente paso
           })
         );
       }),
-      switchMap((clientData) => {
-        // 5. Preparar objeto y emitir link
+      switchMap((client) => { // Ahora 'client' está disponible aquí
+        // Paso 5: Preparar objeto y emitir link
         const link: LinkEntity = {
           numCuenta: rec.numCuenta,
-          tipCuenta: rec.tipoCuenta,
+          tipCuenta: rec.tipoCuenta, // Usa rec.tipoCuenta directamente
           monto: rec.monto,
           tipPago: rec.tipoPago,
-          esDefault: 'S',
+          esDefault: '1',
           tipEnvio: rec.tipoEnvio,
           numTelefono: rec.tipoEnvio === '1' ? rec.datoEnvio : '',
           nomCorreo: rec.tipoEnvio === '2' ? rec.datoEnvio : '',
           tipLink: rec.tipoLink,
           diaMes: rec.diaMes,
-          nomProducto: rec.tipoCuenta === 'PR' ? 'PRESTAMO' : 'TARJETA DE CREDITO',
-          codCliente: clientData.codCliente
+          nomProducto: rec.tipoCuenta === 'PR' ? 'PRESTAMO' : 'TARJETA DE CREDITO', // Usa rec.tipoCuenta directamente
+          codCliente: client.codCliente
         };
 
-        return this.linkService.emitirLink(link, this.apiImagenBase64);
+        // Remove prefix for base64 from system image if it exists
+        const cleanImg = this.apiImagenBase64.replace(/^data:image\/\w+;base64,/, '');
+
+        return this.linkService.emitirLink(link, cleanImg);
       }),
       catchError((err) => {
+        // This catchError handles errors thrown by `throw new Error(...)` inside the pipe
         return of({ success: false, errorMessage: err.message || 'Error en las validaciones de negocio.', data: '' } as ApiResponse<string>);
       })
     ).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           rec.estado = 'Exitoso';
-          rec.codSku = res.data; // El API retorna el SKU o link acortado
-          rec.urlCorto = res.data; // En backend emitirLink retorna la URL acortada
+          rec.codSku = res.data; // La API retorna el SKU o link acortado
+          rec.urlCorto = res.data; // El backend emitirLink retorna la URL acortada
           this.successCount.set(this.successCount() + 1);
         } else {
           rec.estado = 'Error';
@@ -439,10 +470,10 @@ export class CargaMasivaComponent implements OnInit {
         this.updateProgress(index + 1, list.length);
         this.records.set(list);
         
-        // Process next row
+        // Procesa la siguiente fila
         this.procesarFila(index + 1);
       },
-      error: (err) => {
+      error: (err) => { // This error block is for network/subscription errors not caught by the pipe's catchError
         rec.estado = 'Error';
         rec.resultado = err.message || 'Error inesperado.';
         this.errorCount.set(this.errorCount() + 1);
@@ -450,7 +481,7 @@ export class CargaMasivaComponent implements OnInit {
         this.updateProgress(index + 1, list.length);
         this.records.set(list);
 
-        // Process next row
+        // Procesa la siguiente fila
         this.procesarFila(index + 1);
       }
     });

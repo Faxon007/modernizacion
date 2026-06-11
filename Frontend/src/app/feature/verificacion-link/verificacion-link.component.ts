@@ -400,12 +400,13 @@ export class VerificacionLinkComponent implements OnInit {
         if (res.success && res.data) {
           this.visaDetails.set(res.data);
         } else {
-          this.ui.showError(res.errorMessage || 'Link no encontrado en Visa.');
+          this.ui.showModal(this.cleanOracleError(res.errorMessage || 'Link no encontrado en Visa.'));
         }
       },
-      error: () => {
+      error: (err) => {
         this.isCheckingVisa.set(false);
-        this.ui.showError('Error de comunicación con el servicio de Visa.');
+        const msg = err.error?.message || err.error?.errorMessage || 'Error de comunicación con el servicio de Visa.';
+        this.ui.showModal(this.cleanOracleError(msg));
       }
     });
   }
@@ -432,14 +433,31 @@ export class VerificacionLinkComponent implements OnInit {
           this.closeModal();
           this.loadLinks(); // Refresh table
         } else {
-          this.ui.showError(res.errorMessage || 'No se pudo aplicar el pago en el Core.');
+          const rawError = res.errorMessage || res.message || 'No se pudo aplicar el pago en el Core.';
+          this.ui.showModal(this.cleanOracleError(rawError));
         }
       },
       error: (err) => {
         this.isApplying.set(false);
-        this.ui.showError(err.error?.errorMessage || 'Error de comunicación al aplicar el pago.');
+        const rawError = err.error?.message || err.error?.errorMessage || 'Error de comunicación al aplicar el pago.';
+        this.ui.showModal(this.cleanOracleError(rawError));
       }
     });
+  }
+
+  private cleanOracleError(errorMsg: string): string {
+    if (!errorMsg) return 'Error desconocido';
+    
+    const oraIndex = errorMsg.indexOf('ORA-');
+    if (oraIndex > 0) {
+      return errorMsg.substring(0, oraIndex).trim();
+    } else if (oraIndex === 0) {
+      const match = errorMsg.match(/ORA-\d+:\s*(.*)/);
+      if (match && match[1]) {
+        return match[1].split('ORA-')[0].split('\n')[0].trim();
+      }
+    }
+    return errorMsg;
   }
 
   closeModal() {
@@ -448,62 +466,93 @@ export class VerificacionLinkComponent implements OnInit {
   }
 
   // Export and Print features
-  copyToClipboard() {
-    if (!this.links() || this.links().length === 0) {
-      this.ui.showError('No hay datos para copiar');
+  private getAllDataForExport(callback: (data: LinkVerificaItem[]) => void, onError?: () => void) {
+    if (this.totalRecords() === 0) {
+      this.ui.showError('No hay datos para exportar');
+      if (onError) onError();
       return;
     }
-    
-    const headers = ['Correlativo', 'Cuenta / Producto', 'SKU Visa', 'Autorización', 'Movimiento Core', 'Estatus Local'];
-    const rows = this.links().map(l => [
-      l.correlativo, 
-      l.producto, 
-      l.codigoVisa, 
-      l.numAuto, 
-      l.numMov, 
-      l.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'
-    ]);
-    
-    const tsvContent = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
-    
-    navigator.clipboard.writeText(tsvContent).then(() => {
-      this.ui.showSuccess('Datos copiados al portapapeles');
-    }).catch(() => {
-      this.ui.showError('Error al copiar al portapapeles');
+
+    if (this.links().length === this.totalRecords()) {
+      callback(this.links());
+      return;
+    }
+
+    const request = {
+      draw: 1,
+      start: 0,
+      length: -1,
+      search: { value: this.searchQuery, regex: false },
+      order: [{ column: 0, dir: 'desc' }],
+      columns: [
+        { name: 'CORRELATIVO', searchable: true, orderable: true },
+        { name: 'PRODUCTO', searchable: true, orderable: true },
+        { name: 'CODIGO_VISA', searchable: true, orderable: true },
+        { name: 'NUM_AUTO', searchable: false, orderable: false },
+        { name: 'NUM_MOV', searchable: false, orderable: false }
+      ]
+    };
+
+    this.linkService.getLinksVerifica(request).subscribe({
+      next: (res) => {
+        callback(res.data);
+      },
+      error: () => {
+        this.ui.showError('Error al obtener los datos completos para exportar.');
+        if (onError) onError();
+      }
+    });
+  }
+
+  copyToClipboard() {
+    this.getAllDataForExport((data) => {
+      const headers = ['Correlativo', 'Cuenta / Producto', 'SKU Visa', 'Autorización', 'Movimiento Core', 'Estatus Local'];
+      const rows = data.map(l => [
+        l.correlativo, 
+        l.producto, 
+        l.codigoVisa, 
+        l.numAuto, 
+        l.numMov, 
+        l.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'
+      ]);
+      
+      const tsvContent = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
+      
+      navigator.clipboard.writeText(tsvContent).then(() => {
+        this.ui.showSuccess('Datos copiados al portapapeles');
+      }).catch(() => {
+        this.ui.showError('Error al copiar al portapapeles');
+      });
     });
   }
 
   exportToExcel() {
-    if (!this.links() || this.links().length === 0) {
-      this.ui.showError('No hay datos para exportar');
-      return;
-    }
-    
-    const headers = ['Correlativo', 'Cuenta / Producto', 'SKU Visa', 'Autorizacion', 'Movimiento Core', 'Estatus Local'];
-    const rows = this.links().map(l => [
-      l.correlativo, 
-      l.producto, 
-      l.codigoVisa, 
-      l.numAuto, 
-      l.numMov, 
-      l.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'
-    ]);
-    
-    // Agregamos BOM para que Excel reconozca correctamente el UTF-8
-    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `Verificacion_Links_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.getAllDataForExport((data) => {
+      const headers = ['Correlativo', 'Cuenta / Producto', 'SKU Visa', 'Autorizacion', 'Movimiento Core', 'Estatus Local'];
+      const rows = data.map(l => [
+        l.correlativo, 
+        l.producto, 
+        l.codigoVisa, 
+        l.numAuto, 
+        l.numMov, 
+        l.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'
+      ]);
+      
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Verificacion_Links_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   }
 
   print() {
-    if (!this.links() || this.links().length === 0) {
+    if (this.totalRecords() === 0) {
       this.ui.showError('No hay datos para imprimir');
       return;
     }
@@ -513,81 +562,87 @@ export class VerificacionLinkComponent implements OnInit {
       this.ui.showError('Por favor, permita las ventanas emergentes para imprimir.');
       return;
     }
+    
+    printWindow.document.write('<html><body><h2>Cargando datos para impresión...</h2></body></html>');
 
-    const now = new Date();
-    const dateStr = now.toLocaleDateString();
-    const timeStr = now.toLocaleTimeString();
+    this.getAllDataForExport((data) => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString();
+      const timeStr = now.toLocaleTimeString();
 
-    let html = `
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <title>Impresión - Verificación de Links</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-          .header { text-align: center; margin-bottom: 20px; }
-          h1 { color: #007139; margin-bottom: 5px; font-size: 24px; }
-          .info { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-          table { width: 100%; border-collapse: collapse; font-size: 12px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; color: #333; text-transform: uppercase; font-size: 11px; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>Verificación y Conciliación de Links</h1>
-        </div>
-        <div class="info">
-          <span><strong>Fecha:</strong> ${dateStr}</span>
-          <span><strong>Hora:</strong> ${timeStr}</span>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Correlativo</th>
-              <th>Cuenta / Producto</th>
-              <th>SKU Visa</th>
-              <th>Autorización</th>
-              <th>Movimiento Core</th>
-              <th>Estatus Local</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-
-    this.links().forEach(item => {
-      const estatus = item.edit === 'Pagado' ? 'Conciliado' : 'Por verificar';
-      
-      html += `
-        <tr>
-          <td>${item.correlativo}</td>
-          <td>${item.producto}</td>
-          <td>${item.codigoVisa}</td>
-          <td>${item.numAuto}</td>
-          <td>${item.numMov}</td>
-          <td>${estatus}</td>
-        </tr>
+      let html = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <title>Impresión - Verificación de Links</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+            .header { text-align: center; margin-bottom: 20px; }
+            h1 { color: #007139; margin-bottom: 5px; font-size: 24px; }
+            .info { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; color: #333; text-transform: uppercase; font-size: 11px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Verificación y Conciliación de Links</h1>
+          </div>
+          <div class="info">
+            <span><strong>Fecha:</strong> ${dateStr}</span>
+            <span><strong>Hora:</strong> ${timeStr}</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Correlativo</th>
+                <th>Cuenta / Producto</th>
+                <th>SKU Visa</th>
+                <th>Autorización</th>
+                <th>Movimiento Core</th>
+                <th>Estatus Local</th>
+              </tr>
+            </thead>
+            <tbody>
       `;
+
+      data.forEach(item => {
+        const estatus = item.edit === 'Pagado' ? 'Conciliado' : 'Por verificar';
+        
+        html += `
+          <tr>
+            <td>${item.correlativo}</td>
+            <td>${item.producto}</td>
+            <td>${item.codigoVisa}</td>
+            <td>${item.numAuto}</td>
+            <td>${item.numMov}</td>
+            <td>${estatus}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                window.onafterprint = function() { window.close(); }
+              }, 250);
+            }
+          </script>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }, () => {
+      printWindow.close();
     });
-
-    html += `
-          </tbody>
-        </table>
-        <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.print();
-              window.onafterprint = function() { window.close(); }
-            }, 250);
-          }
-        </script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
   }
 }

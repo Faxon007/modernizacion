@@ -20,6 +20,9 @@ using Backend.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Log Environment Name immediately
+Console.WriteLine($"[STARTUP] Current ASPNETCORE_ENVIRONMENT: {builder.Environment.EnvironmentName}");
+
 // Configurar Serilog para registro estructurado
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -37,7 +40,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDev", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.SetIsOriginAllowed(origin => true)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -64,62 +67,68 @@ else
 {
     // Registrar base de datos (.cef2)
     builder.Services.AddEncryptedDatabaseConnections();
+    
+    // Registrar utilidades para inyectar credenciales del usuario
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddDataProtection();
+    builder.Services.AddScoped<IUserConnectionProvider, UserConnectionProvider>();
 
-    // Registrar repositorios manualmente
+    // Registrar repositorios manualmente usando IUserConnectionProvider
     builder.Services.AddScoped<IClientRepository>(sp =>
     {
-        var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
-        var cs = db.GetConnectionString(DatabaseKey.TC)
-            ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
+        var db = sp.GetRequiredService<IUserConnectionProvider>();
+        var cs = db.GetUserConnectionString(db.DefaultKey)
+            ?? throw new InvalidOperationException($"Conexión {db.DefaultKey} no encontrada.");
         return new ClientRepository(cs);
     });
 
     builder.Services.AddScoped<ILinkRepository>(sp =>
     {
-        var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
-        var cs = db.GetConnectionString(DatabaseKey.TC)
-            ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
+        var db = sp.GetRequiredService<IUserConnectionProvider>();
+        var cs = db.GetUserConnectionString(db.DefaultKey)
+            ?? throw new InvalidOperationException($"Conexión {db.DefaultKey} no encontrada.");
         var logger = sp.GetService<ILogger<LinkRepository>>();
         return new LinkRepository(cs, logger);
     });
 
     builder.Services.AddScoped<IMenuRepository>(sp =>
     {
-        var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
-        var cs = db.GetConnectionString(DatabaseKey.TC)
-            ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
+        var db = sp.GetRequiredService<IUserConnectionProvider>();
+        var cs = db.GetUserConnectionString(db.DefaultKey)
+            ?? throw new InvalidOperationException($"Conexión {db.DefaultKey} no encontrada.");
         return new MenuRepository(cs);
     });
 
     builder.Services.AddScoped<IProductRepository>(sp =>
     {
-        var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
-        var cs = db.GetConnectionString(DatabaseKey.TC)
-            ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
+        var db = sp.GetRequiredService<IUserConnectionProvider>();
+        var cs = db.GetUserConnectionString(db.DefaultKey)
+            ?? throw new InvalidOperationException($"Conexión {db.DefaultKey} no encontrada.");
         return new ProductRepository(cs);
     });
 
     builder.Services.AddScoped<ISiteRepository>(sp =>
     {
-        var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
-        var cs = db.GetConnectionString(DatabaseKey.TC)
-            ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
-        return new SiteRepository(cs);
+        var db = sp.GetRequiredService<IUserConnectionProvider>();
+        var cs = db.GetUserConnectionString(db.DefaultKey)
+            ?? throw new InvalidOperationException($"Conexión {db.DefaultKey} no encontrada.");
+        var logger = sp.GetRequiredService<ILogger<SiteRepository>>();
+        return new SiteRepository(cs,logger);
     });
 
     builder.Services.AddScoped<ITransactionRepository>(sp =>
     {
-        var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
-        var cs = db.GetConnectionString(DatabaseKey.TC)
-            ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
+        var db = sp.GetRequiredService<IUserConnectionProvider>();
+        var cs = db.GetUserConnectionString(db.DefaultKey)
+            ?? throw new InvalidOperationException($"Conexión {db.DefaultKey} no encontrada.");
         return new TransactionRepository(cs);
     });
 
     builder.Services.AddScoped<ICarrierRepository>(sp =>
     {
-        var db = sp.GetRequiredService<IDatabaseConnectionProvider>();
-        var cs = db.GetConnectionString(DatabaseKey.TC)
-            ?? throw new InvalidOperationException("Conexión Oracle TC no encontrada en db.cef2.");
+        var db = sp.GetRequiredService<IUserConnectionProvider>();
+        var cs = db.GetUserConnectionString(db.DefaultKey)
+            ?? throw new InvalidOperationException($"Conexión {db.DefaultKey} no encontrada.");
         return new CarrierRepository(cs);
     });
 }

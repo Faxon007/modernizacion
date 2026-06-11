@@ -65,7 +65,7 @@ namespace Backend.Services
                 CodLink = sku,
                 CodParametro = "EMISION",
                 Descripcion = $"Se emitió link de pago {sku} para cliente {link.CodCliente} por monto {link.Monto}",
-                TipProcesamiento = "AUTOMATICO"
+                TipProcesamiento = "A" // Cambiado de "AUTOMATICO" a "A"
             });
 
             return shortUrl;
@@ -108,14 +108,20 @@ namespace Backend.Services
                 var urlsLargos = links.Select(l => l.LongLink).ToList();
                 var urlsCortos = await _shortenerService.ShortenUrlsBulkAsync(urlsLargos);
 
+                var updates = new List<(decimal NumConsecutivo, string UrlCorto)>();
                 for (int i = 0; i < links.Count; i++)
                 {
                     string shortUrl = urlsCortos.ElementAtOrDefault(i) ?? string.Empty;
                     if (!string.IsNullOrEmpty(shortUrl))
                     {
-                        await _linkRepository.UpdateURLCortoAsync(links[i].CodConsecutivo, shortUrl);
-                        totalProcesados++;
+                        updates.Add((links[i].CodConsecutivo, shortUrl));
                     }
+                }
+
+                if (updates.Any())
+                {
+                    await _linkRepository.UpdateURLCortosBulkAsync(updates);
+                    totalProcesados += updates.Count;
                 }
 
                 WriteLog($"Se procesó lote de {links.Count} enlaces.");
@@ -157,7 +163,7 @@ namespace Backend.Services
                 CodLink = sku,
                 CodParametro = "CANCELACION",
                 Descripcion = $"Se canceló/inactivó el link de pago {sku} por el usuario {username}",
-                TipProcesamiento = "MANUAL"
+                TipProcesamiento = "M" // Cambiado de "MANUAL" a "M"
             });
 
             return true;

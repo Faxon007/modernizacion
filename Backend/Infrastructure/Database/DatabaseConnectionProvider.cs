@@ -9,6 +9,7 @@ namespace Backend.Infrastructure.Database
 {
     public interface IDatabaseConnectionProvider
     {
+        DatabaseKey DefaultKey { get; }
         string? GetConnectionString(DatabaseKey key);
         bool IsAvailable(DatabaseKey key);
         IReadOnlyList<(DatabaseKey Key, string Alias)> GetAvailableConnections();
@@ -18,6 +19,7 @@ namespace Backend.Infrastructure.Database
     {
         private readonly Dictionary<DatabaseKey, (string ConnectionString, string Alias)> _connections = new();
         private readonly ILogger<DatabaseConnectionProvider> _logger;
+        public DatabaseKey DefaultKey { get; private set; }
 
         public DatabaseConnectionProvider(
             IConfiguration config,
@@ -58,36 +60,44 @@ namespace Backend.Infrastructure.Database
                 throw new InvalidOperationException("No se pudo desencriptar el archivo .cef2. ", ex);
             }
             
+            var defaultProviderStr = config["Database:DefaultProvider"] ?? "Oracle";
+            DefaultKey = defaultProviderStr.Equals("SQL", StringComparison.OrdinalIgnoreCase) ? DatabaseKey.SQL : DatabaseKey.Oracle;
+
+            var oracleAlias = config["Database:Oracle:Alias"] ?? "desarrollo";
+            var sqlAlias = config["Database:SQL:Alias"] ?? "sql_desarrollo";
+
             // Oracle
             var oracleList = dbConfig.Oracle ?? [];
-            for (int i = 0; i < oracleList.Count; i++)
+            foreach (var opt in oracleList)
             {
-                var opt = oracleList[i];
                 if (string.IsNullOrWhiteSpace(opt.TnsName))
                     continue;
 
-                var key = new DatabaseKey(DatabaseEngine.Oracle, i);
-                _connections[key] = (opt.BuildConnectionString(), opt.Alias);
-                _logger.LogInformation("Conexión Oracle[{Index}] ('{Alias}') cargada.", i, opt.Alias);
+                if (string.Equals(opt.Alias, oracleAlias, StringComparison.OrdinalIgnoreCase))
+                {
+                    _connections[DatabaseKey.Oracle] = (opt.BuildConnectionString(), opt.Alias);
+                    _logger.LogInformation("Conexión Oracle ('{Alias}') cargada.", opt.Alias);
+                }
             }
 
             // SQL Server
             var sqlList = dbConfig.SqlServer ?? [];
-            for (int i = 0; i < sqlList.Count; i++)
+            foreach (var opt in sqlList)
             {
-                var opt = sqlList[i];
                 if (string.IsNullOrWhiteSpace(opt.Host))
                     continue;
 
-                var key = new DatabaseKey(DatabaseEngine.SqlServer, i);
-                _connections[key] = (opt.BuildConnectionString(), opt.Alias);
-                _logger.LogInformation("Conexión SqlServer[{Index}] ('{Alias}') cargada.", i, opt.Alias);
+                if (string.Equals(opt.Alias, sqlAlias, StringComparison.OrdinalIgnoreCase))
+                {
+                    _connections[DatabaseKey.SQL] = (opt.BuildConnectionString(), opt.Alias);
+                    _logger.LogInformation("Conexión SqlServer ('{Alias}') cargada.", opt.Alias);
+                }
             }
 
             if (_connections.Count == 0)
-                _logger.LogWarning("El archivo .cef2 no contiene ninguna conexión configurada. ");
+                _logger.LogWarning("El archivo .cef2 no contiene ninguna conexión configurada que coincida con los alias.");
             else
-                _logger.LogInformation("DatabaseConnectionProvider listo: {Count} conexión(es) disponible(s).", _connections.Count);
+                _logger.LogInformation("DatabaseConnectionProvider listo: {Count} conexión(es) disponible(s). Default: {DefaultKey}", _connections.Count, DefaultKey);
         }
 
         public string? GetConnectionString(DatabaseKey key) =>

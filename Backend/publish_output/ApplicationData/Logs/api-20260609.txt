@@ -1,0 +1,938 @@
+2026-06-09 08:43:55.946 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 08:43:55.974 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 08:43:55.974 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 08:43:55.974 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 08:43:55.974 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 08:43:55.985 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 08:43:55.986 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 08:43:56.009 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 08:43:56.051 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 08:43:56.052 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 08:43:56.052 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 08:43:56.054 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 08:43:56.188 [INF] Now listening on: http://localhost:5000
+2026-06-09 08:43:56.188 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 08:43:56.188 [INF] Hosting environment: Production
+2026-06-09 08:43:56.188 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 09:07:24.867 [INF] [START] [d9184848-dda4-4a77-9d80-32392ce6d1cc] POST /api/auth/login
+2026-06-09 09:07:24.878 [WRN] Failed to determine the https port for redirect.
+2026-06-09 09:07:31.176 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-09 09:07:32.731 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-09 09:07:33.417 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-09 09:07:33.435 [INF] [END] [d9184848-dda4-4a77-9d80-32392ce6d1cc] POST /api/auth/login -> 200 | 8568ms
+2026-06-09 09:07:33.530 [INF] [START] [9189b8c6-dc43-41e0-bf78-7bdf4c8de522] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 09:07:33.698 [INF] [END] [9189b8c6-dc43-41e0-bf78-7bdf4c8de522] GET /api/Menu/items -> 200 | 167ms
+2026-06-09 09:07:46.921 [INF] [START] [c523ff52-ac3f-464b-862f-0e92eb62abe2] GET /api/parameters
+2026-06-09 09:07:47.989 [INF] [END] [c523ff52-ac3f-464b-862f-0e92eb62abe2] GET /api/parameters -> 200 | 1068ms
+2026-06-09 09:07:52.404 [INF] [START] [8a828ba7-50d9-442e-9974-c76d69fad9a0] GET /api/clients/1151917974
+2026-06-09 09:07:53.042 [INF] [END] [8a828ba7-50d9-442e-9974-c76d69fad9a0] GET /api/clients/1151917974 -> 200 | 637ms
+2026-06-09 09:07:53.062 [INF] [START] [ffc469f3-8ad7-4f82-9c9c-58473d2696a7] GET /api/clients/blacklist/1/951562039
+2026-06-09 09:07:53.255 [INF] [END] [ffc469f3-8ad7-4f82-9c9c-58473d2696a7] GET /api/clients/blacklist/1/951562039 -> 200 | 193ms
+2026-06-09 09:08:02.309 [INF] [START] [0f5cd652-7b7d-4fd0-823b-de26ac824605] GET /api/clients/11800098829
+2026-06-09 09:08:02.662 [INF] [END] [0f5cd652-7b7d-4fd0-823b-de26ac824605] GET /api/clients/11800098829 -> 200 | 352ms
+2026-06-09 09:08:02.675 [INF] [START] [1834f4ac-ed5c-449a-80b4-9c8f0c6e512e] GET /api/clients/blacklist/1/100000957
+2026-06-09 09:08:02.777 [INF] [END] [1834f4ac-ed5c-449a-80b4-9c8f0c6e512e] GET /api/clients/blacklist/1/100000957 -> 200 | 101ms
+2026-06-09 09:08:02.791 [INF] [START] [ddaf75e1-42f8-4b7e-a074-c6a311106174] GET /api/clients/100000957/cuentas
+2026-06-09 09:08:03.601 [INF] [END] [ddaf75e1-42f8-4b7e-a074-c6a311106174] GET /api/clients/100000957/cuentas -> 200 | 809ms
+2026-06-09 09:08:05.077 [INF] [START] [d9a20437-e93e-45a7-b5ec-8cbf76e6ed8d] GET /api/clients/100000957/telefono
+2026-06-09 09:08:05.077 [INF] [START] [493df499-c3aa-4d43-b862-f25d3a3fc267] GET /api/clients/100000957/correo
+2026-06-09 09:08:05.079 [INF] [START] [49eec164-0f70-4d58-8745-504455f24215] GET /api/clients/11800098829/prestamo
+2026-06-09 09:08:05.079 [INF] [START] [4ffc319f-c10f-49e4-bf14-c00ddb743abf] GET /api/clients/monto-pr/11800098829
+2026-06-09 09:08:05.209 [INF] [END] [d9a20437-e93e-45a7-b5ec-8cbf76e6ed8d] GET /api/clients/100000957/telefono -> 200 | 131ms
+2026-06-09 09:08:05.226 [INF] [END] [493df499-c3aa-4d43-b862-f25d3a3fc267] GET /api/clients/100000957/correo -> 200 | 148ms
+2026-06-09 09:08:05.485 [INF] [END] [49eec164-0f70-4d58-8745-504455f24215] GET /api/clients/11800098829/prestamo -> 200 | 406ms
+2026-06-09 09:08:06.205 [INF] [END] [4ffc319f-c10f-49e4-bf14-c00ddb743abf] GET /api/clients/monto-pr/11800098829 -> 200 | 1126ms
+2026-06-09 09:08:25.015 [INF] [START] [f38d3dbb-bf45-4730-950e-653c375b189f] GET /api/clients/11800098829/prestamo
+2026-06-09 09:08:25.217 [INF] [END] [f38d3dbb-bf45-4730-950e-653c375b189f] GET /api/clients/11800098829/prestamo -> 200 | 202ms
+2026-06-09 09:08:25.238 [INF] [START] [3bbc083e-c5c5-4f63-abde-ad5431da04dd] POST /api/links/emitir
+2026-06-09 09:08:25.487 [INF] Iniciando CrearLinkAsync para el código 78294
+2026-06-09 09:08:25.599 [INF] Iniciando GenerateNewTokenAsync
+2026-06-09 09:08:25.605 [INF] Enviando POST a /api/login para obtener token...
+2026-06-09 09:08:26.983 [INF] Token generado exitosamente.
+2026-06-09 09:08:27.140 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:08:27.140 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:08:27.375 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:08:27.375 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:08:27.658 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1134u74pgr3s5fk2q/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:08:27.659 [INF] Iniciando subida de imagen publicitaria para el código 78294...
+2026-06-09 09:08:28.210 [INF] Imagen subida exitosamente para 78294.
+2026-06-09 09:08:30.227 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 09:08:30.263 [ERR] [END] [3bbc083e-c5c5-4f63-abde-ad5431da04dd] POST /api/links/emitir -> 500 | 5024ms
+2026-06-09 09:10:38.534 [INF] [START] [e800a039-c14b-4a63-8b43-326ee0df30df] GET /api/clients/11800098829/prestamo
+2026-06-09 09:10:38.729 [INF] [END] [e800a039-c14b-4a63-8b43-326ee0df30df] GET /api/clients/11800098829/prestamo -> 200 | 195ms
+2026-06-09 09:10:38.739 [INF] [START] [5b2050bc-da3f-4d23-8985-187056ac225d] POST /api/links/emitir
+2026-06-09 09:10:38.839 [INF] Iniciando CrearLinkAsync para el código 78295
+2026-06-09 09:10:38.932 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:10:38.933 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:10:39.605 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:10:39.605 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:10:40.191 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1135ielrcfh619yo5/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:10:40.191 [INF] Iniciando subida de imagen publicitaria para el código 78295...
+2026-06-09 09:10:40.781 [INF] Imagen subida exitosamente para 78295.
+2026-06-09 09:10:41.271 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 09:10:41.274 [ERR] [END] [5b2050bc-da3f-4d23-8985-187056ac225d] POST /api/links/emitir -> 500 | 2535ms
+2026-06-09 09:11:55.790 [INF] [START] [716f025a-18d1-4016-9b3b-493711b7226e] GET /api/clients/11800098829/prestamo
+2026-06-09 09:11:55.990 [INF] [END] [716f025a-18d1-4016-9b3b-493711b7226e] GET /api/clients/11800098829/prestamo -> 200 | 200ms
+2026-06-09 09:11:56.001 [INF] [START] [3700e748-fcf5-446c-91d0-2f429c7243fb] POST /api/links/emitir
+2026-06-09 09:11:56.110 [INF] Iniciando CrearLinkAsync para el código 78296
+2026-06-09 09:11:56.209 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:11:56.209 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:11:56.830 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:11:56.830 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:11:57.099 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1136s0orleu9fpb8m/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:11:57.100 [INF] Iniciando subida de imagen publicitaria para el código 78296...
+2026-06-09 09:11:57.673 [INF] Imagen subida exitosamente para 78296.
+2026-06-09 09:11:58.183 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 09:11:58.187 [ERR] [END] [3700e748-fcf5-446c-91d0-2f429c7243fb] POST /api/links/emitir -> 500 | 2186ms
+2026-06-09 09:12:11.922 [INF] [START] [9dd32f3e-c5da-42b1-b791-420f7119e9df] GET /api/clients/11800098829/prestamo
+2026-06-09 09:12:12.125 [INF] [END] [9dd32f3e-c5da-42b1-b791-420f7119e9df] GET /api/clients/11800098829/prestamo -> 200 | 203ms
+2026-06-09 09:12:12.141 [INF] [START] [4e563188-f556-4004-a71d-49d2abc348a3] POST /api/links/emitir
+2026-06-09 09:12:12.245 [INF] Iniciando CrearLinkAsync para el código 78297
+2026-06-09 09:12:12.360 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:12:12.361 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:12:12.960 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:12:12.961 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:12:13.215 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1137igtxbjrpyd9l2/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:12:13.215 [INF] Iniciando subida de imagen publicitaria para el código 78297...
+2026-06-09 09:12:13.772 [INF] Imagen subida exitosamente para 78297.
+2026-06-09 09:12:14.061 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 09:12:14.064 [ERR] [END] [4e563188-f556-4004-a71d-49d2abc348a3] POST /api/links/emitir -> 500 | 1923ms
+2026-06-09 09:12:45.184 [INF] [START] [e57d074f-3b16-4a8d-a102-eba739175fcb] POST /api/auth/login
+2026-06-09 09:12:45.187 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-09 09:12:45.298 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-09 09:12:45.625 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-09 09:12:45.626 [INF] [END] [e57d074f-3b16-4a8d-a102-eba739175fcb] POST /api/auth/login -> 200 | 442ms
+2026-06-09 09:12:45.668 [INF] [START] [91d6a0a8-e4a3-4103-a7bc-782f343f9849] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 09:12:45.776 [INF] [END] [91d6a0a8-e4a3-4103-a7bc-782f343f9849] GET /api/Menu/items -> 200 | 108ms
+2026-06-09 09:12:48.435 [INF] [START] [e6800529-f895-429b-a04f-4cbfc6b51dd1] GET /api/parameters
+2026-06-09 09:12:49.232 [INF] [END] [e6800529-f895-429b-a04f-4cbfc6b51dd1] GET /api/parameters -> 200 | 797ms
+2026-06-09 09:13:38.573 [INF] [START] [8b706813-3106-4791-8f42-daabe0105d36] POST /api/auth/login
+2026-06-09 09:13:38.577 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-09 09:13:38.682 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-09 09:13:39.007 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-09 09:13:39.007 [INF] [END] [8b706813-3106-4791-8f42-daabe0105d36] POST /api/auth/login -> 200 | 434ms
+2026-06-09 09:13:39.064 [INF] [START] [6ae56472-9daf-4937-b4e5-137c0e2b75da] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 09:13:39.163 [INF] [END] [6ae56472-9daf-4937-b4e5-137c0e2b75da] GET /api/Menu/items -> 200 | 99ms
+2026-06-09 09:13:41.348 [INF] [START] [e8ce61f1-336e-460b-90bc-64d9f7bef57d] POST /api/links/get-links-verifica
+2026-06-09 09:13:41.407 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: ''
+2026-06-09 09:13:41.407 [INF] GetLinksVerifica: Processed search string for repository: ''
+2026-06-09 09:13:41.412 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 09:13:43.017 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                        
+2026-06-09 09:13:44.655 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                         
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 09:13:44.655 [INF] PagedData Params (Verifica): username='INGRID_M', search='', minRow=0, maxRow=10
+2026-06-09 09:13:44.736 [INF] [START] [082ae758-3ca7-4f1e-b55b-c3e72dfb5c5a] GET /api/parameters
+2026-06-09 09:13:44.778 [INF] [END] [e8ce61f1-336e-460b-90bc-64d9f7bef57d] POST /api/links/get-links-verifica -> 200 | 3429ms
+2026-06-09 09:13:45.521 [INF] [END] [082ae758-3ca7-4f1e-b55b-c3e72dfb5c5a] GET /api/parameters -> 200 | 784ms
+2026-06-09 09:14:25.572 [INF] [START] [979d3af2-bd47-42c2-a055-949a63889311] GET /api/clients/11800098829
+2026-06-09 09:14:25.919 [INF] [END] [979d3af2-bd47-42c2-a055-949a63889311] GET /api/clients/11800098829 -> 200 | 347ms
+2026-06-09 09:14:25.931 [INF] [START] [02c5acbf-da8b-473c-bfc9-94fa088d3e1c] GET /api/clients/blacklist/1/100000957
+2026-06-09 09:14:26.030 [INF] [END] [02c5acbf-da8b-473c-bfc9-94fa088d3e1c] GET /api/clients/blacklist/1/100000957 -> 200 | 98ms
+2026-06-09 09:14:26.041 [INF] [START] [57f9abe5-3c70-408a-9c8c-80cebff22efe] GET /api/clients/100000957/cuentas
+2026-06-09 09:14:26.393 [INF] [END] [57f9abe5-3c70-408a-9c8c-80cebff22efe] GET /api/clients/100000957/cuentas -> 200 | 351ms
+2026-06-09 09:14:28.240 [INF] [START] [0f76ea43-3890-48a2-b5e6-5ec3b4984cf6] GET /api/clients/100000957/correo
+2026-06-09 09:14:28.243 [INF] [START] [7fadc2d3-dc6c-4489-9691-0b4ce1c5e80e] GET /api/clients/100000957/telefono
+2026-06-09 09:14:28.246 [INF] [START] [4dd67f47-61b8-4cb7-bc69-2b56bfcd8ae2] GET /api/clients/11800098829/prestamo
+2026-06-09 09:14:28.257 [INF] [START] [11482874-6aa6-49b4-a338-2fc0830cb24a] GET /api/clients/monto-pr/11800098829
+2026-06-09 09:14:28.345 [INF] [END] [7fadc2d3-dc6c-4489-9691-0b4ce1c5e80e] GET /api/clients/100000957/telefono -> 200 | 101ms
+2026-06-09 09:14:28.346 [INF] [END] [0f76ea43-3890-48a2-b5e6-5ec3b4984cf6] GET /api/clients/100000957/correo -> 200 | 106ms
+2026-06-09 09:14:28.449 [INF] [END] [4dd67f47-61b8-4cb7-bc69-2b56bfcd8ae2] GET /api/clients/11800098829/prestamo -> 200 | 203ms
+2026-06-09 09:14:28.554 [INF] [END] [11482874-6aa6-49b4-a338-2fc0830cb24a] GET /api/clients/monto-pr/11800098829 -> 200 | 296ms
+2026-06-09 09:14:37.726 [INF] [START] [6a786baa-b631-4b1e-b370-1a7184ccf8e5] GET /api/clients/11800098829/prestamo
+2026-06-09 09:14:37.929 [INF] [END] [6a786baa-b631-4b1e-b370-1a7184ccf8e5] GET /api/clients/11800098829/prestamo -> 200 | 203ms
+2026-06-09 09:14:37.944 [INF] [START] [a63aa87b-e171-4ec4-81f2-138de48fb44f] POST /api/links/emitir
+2026-06-09 09:14:38.053 [INF] Iniciando CrearLinkAsync para el código 78298
+2026-06-09 09:14:38.149 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:14:38.150 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:14:38.756 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:14:38.756 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:14:39.013 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1138t9p4wqba6zcrx/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:14:39.013 [INF] Iniciando subida de imagen publicitaria para el código 78298...
+2026-06-09 09:14:39.563 [INF] Imagen subida exitosamente para 78298.
+2026-06-09 09:14:40.054 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 09:14:40.056 [ERR] [END] [a63aa87b-e171-4ec4-81f2-138de48fb44f] POST /api/links/emitir -> 500 | 2112ms
+2026-06-09 09:17:06.891 [INF] [START] [030d4d82-e584-435b-9527-69e277b88caf] GET /api/clients/11800098829/prestamo
+2026-06-09 09:17:07.081 [INF] [END] [030d4d82-e584-435b-9527-69e277b88caf] GET /api/clients/11800098829/prestamo -> 200 | 189ms
+2026-06-09 09:17:07.091 [INF] [START] [4d7a01d9-65d9-4c95-9bd2-180471812787] POST /api/links/emitir
+2026-06-09 09:17:07.188 [INF] Iniciando CrearLinkAsync para el código 78299
+2026-06-09 09:17:07.282 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:17:07.282 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:17:07.915 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:17:07.915 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:17:08.190 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL11390dux5norg6iwh/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:17:08.191 [INF] Iniciando subida de imagen publicitaria para el código 78299...
+2026-06-09 09:17:08.771 [INF] Imagen subida exitosamente para 78299.
+2026-06-09 09:17:09.258 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 09:17:09.260 [ERR] [END] [4d7a01d9-65d9-4c95-9bd2-180471812787] POST /api/links/emitir -> 500 | 2168ms
+2026-06-09 09:17:16.909 [INF] [START] [fc023b54-d3fb-4dfe-be86-aeb16c6e2bfc] GET /api/clients/11800098829/prestamo
+2026-06-09 09:17:17.115 [INF] [END] [fc023b54-d3fb-4dfe-be86-aeb16c6e2bfc] GET /api/clients/11800098829/prestamo -> 200 | 205ms
+2026-06-09 09:17:17.132 [INF] [START] [ff916434-4dd6-405b-8602-0d65cbc01651] POST /api/links/emitir
+2026-06-09 09:17:17.232 [INF] Iniciando CrearLinkAsync para el código 78300
+2026-06-09 09:17:17.327 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:17:17.327 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:17:17.973 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:17:17.974 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:17:18.251 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1140oh4vtjrli9anq/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:17:18.251 [INF] Iniciando subida de imagen publicitaria para el código 78300...
+2026-06-09 09:17:18.802 [INF] Imagen subida exitosamente para 78300.
+2026-06-09 09:17:19.324 [INF] [END] [ff916434-4dd6-405b-8602-0d65cbc01651] POST /api/links/emitir -> 200 | 2192ms
+2026-06-09 09:19:22.418 [INF] [START] [aabb822a-a841-4590-85e7-ca9c4c70748c] POST /api/links/get-links-verifica
+2026-06-09 09:19:22.419 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: ''
+2026-06-09 09:19:22.419 [INF] GetLinksVerifica: Processed search string for repository: ''
+2026-06-09 09:19:22.419 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 09:19:23.831 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                        
+2026-06-09 09:19:25.397 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                         
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 09:19:25.397 [INF] PagedData Params (Verifica): username='INGRID_M', search='', minRow=0, maxRow=10
+2026-06-09 09:19:25.499 [INF] [END] [aabb822a-a841-4590-85e7-ca9c4c70748c] POST /api/links/get-links-verifica -> 200 | 3081ms
+2026-06-09 09:22:53.149 [INF] [START] [ac73625e-de2f-42de-bc46-2a24e41663dc] POST /api/links/get-links-verifica
+2026-06-09 09:22:53.152 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: '78300'
+2026-06-09 09:22:53.152 [INF] GetLinksVerifica: Processed search string for repository: '78300'
+2026-06-09 09:22:53.152 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 09:22:54.864 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                         AND (
+                    TO_CHAR(LNK.COD_LINK) LIKE :search OR 
+                    TO_CHAR(PAR.NUM_CUENTA) LIKE :search OR 
+                    LNK.COD_SKU LIKE :search
+                )
+2026-06-09 09:22:57.080 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                          AND (
+                    TO_CHAR(LNK.COD_LINK) LIKE :search OR 
+                    TO_CHAR(PAR.NUM_CUENTA) LIKE :search OR 
+                    LNK.COD_SKU LIKE :search
+                )
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 09:22:57.080 [INF] PagedData Params (Verifica): username='INGRID_M', search='78300', minRow=0, maxRow=10
+2026-06-09 09:23:16.809 [INF] [END] [ac73625e-de2f-42de-bc46-2a24e41663dc] POST /api/links/get-links-verifica -> 200 | 23660ms
+2026-06-09 09:23:35.937 [INF] [START] [7c8c0532-c32f-467c-b69c-fd08cc7aa147] GET /api/links/validar/78300
+2026-06-09 09:23:36.079 [INF] Visa API ConsultaLinkAsync Request - URL: /api/link/single, Sku: 78300
+2026-06-09 09:23:36.896 [INF] Visa API ConsultaLinkAsync Response - StatusCode: "OK", Content: {
+    "result": "success",
+    "message": "\u00a1Busqueda exitosa!",
+    "data": {
+        "nombre_interno": "Pago Pr\u00e9stamo Promerica",
+        "codigo_interno": "78300",
+        "token": "VEL1140oh4vtjrli9anq",
+        "precio": 50,
+        "titulo": "Pago Pr\u00e9stamo Promerica",
+        "descripcion": "Pago Pr\u00e9stamo Promerica",
+        "imagen": "uploads/link/1140/uCZUAgalL1dRsoKe.jpg",
+        "visitas": 1,
+        "tipo": "Api",
+        "estado": "Bloqueado",
+        "moneda": "Q",
+        "total": 50,
+        "redes_sociales": [
+            {
+                "nombre": "Email",
+                "url": "https://paytest.neolink.com.gt/VEL1140oh4vtjrli9anq/1744413278c75d22b/1780337554a6ae522"
+            }
+        ],
+        "ventas": [
+            {
+                "terminal": "20260600",
+                "autorizacion": "013445",
+                "referencia": "616009000009",
+                "auditoria": "000009",
+                "suffix": "0010",
+                "monto": 50,
+                "cuota": "VC00 | Contado",
+                "fecha_pago": "09-06-2026 09:19",
+                "cliente": {
+                    "nombre": "undefined",
+                    "nit": "",
+                    "correo": "landerfaxon@gmail.com",
+                    "telefono": "57150050"
+                }
+            }
+        ],
+        "usuario": "julio.rosales@bancopromerica.com.gt"
+    }
+}
+2026-06-09 09:23:36.952 [INF] [END] [7c8c0532-c32f-467c-b69c-fd08cc7aa147] GET /api/links/validar/78300 -> 200 | 1014ms
+2026-06-09 09:23:41.283 [INF] [START] [cb3a5b37-dde6-4a49-a2e5-98233a14e690] POST /api/links/aplicar-pago
+2026-06-09 09:23:43.802 [ERR] Error al aplicar pago manual para link: 840373
+System.Exception: El monto del pago no puede ser mayor que el monto total de la deuda.
+ORA-20102: El monto del pago no puede ser mayor que el monto total de la deuda.
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 93
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 114
+   at Backend.Controllers.LinkController.AplicarPago(PagoRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 467
+2026-06-09 09:23:43.814 [ERR] [END] [cb3a5b37-dde6-4a49-a2e5-98233a14e690] POST /api/links/aplicar-pago -> 500 | 2530ms
+2026-06-09 09:24:48.147 [INF] [START] [814a8f17-4478-4852-b871-704362ab4f6c] GET /api/parameters
+2026-06-09 09:24:48.908 [INF] [END] [814a8f17-4478-4852-b871-704362ab4f6c] GET /api/parameters -> 200 | 760ms
+2026-06-09 09:24:51.225 [INF] [START] [d0b5df39-8293-4cb4-8128-369f002dd68e] GET /api/clients/11800098829
+2026-06-09 09:24:51.415 [INF] [END] [d0b5df39-8293-4cb4-8128-369f002dd68e] GET /api/clients/11800098829 -> 200 | 190ms
+2026-06-09 09:24:51.424 [INF] [START] [62d12f82-04a8-4715-904e-95253fb55a99] GET /api/clients/blacklist/1/100000957
+2026-06-09 09:24:51.518 [INF] [END] [62d12f82-04a8-4715-904e-95253fb55a99] GET /api/clients/blacklist/1/100000957 -> 200 | 94ms
+2026-06-09 09:24:51.530 [INF] [START] [0a90a2a6-aa8c-4bae-a70a-6772ab7c358e] GET /api/clients/100000957/cuentas
+2026-06-09 09:24:51.737 [INF] [END] [0a90a2a6-aa8c-4bae-a70a-6772ab7c358e] GET /api/clients/100000957/cuentas -> 200 | 207ms
+2026-06-09 09:24:52.968 [INF] [START] [b7e9ab75-f2bd-451d-b142-ac1bb3ee5958] GET /api/clients/100000957/correo
+2026-06-09 09:24:52.970 [INF] [START] [b8a8fb8c-490d-4041-835d-97670041e4b1] GET /api/clients/100000957/telefono
+2026-06-09 09:24:52.970 [INF] [START] [98384068-d2ed-4d8d-9caa-1307ca37efed] GET /api/clients/monto-pr/11800098829
+2026-06-09 09:24:52.970 [INF] [START] [f947a121-eff7-4afe-bc79-0c9494f57ce5] GET /api/clients/11800098829/prestamo
+2026-06-09 09:24:53.068 [INF] [END] [b7e9ab75-f2bd-451d-b142-ac1bb3ee5958] GET /api/clients/100000957/correo -> 200 | 100ms
+2026-06-09 09:24:53.068 [INF] [END] [b8a8fb8c-490d-4041-835d-97670041e4b1] GET /api/clients/100000957/telefono -> 200 | 98ms
+2026-06-09 09:24:53.162 [INF] [END] [f947a121-eff7-4afe-bc79-0c9494f57ce5] GET /api/clients/11800098829/prestamo -> 200 | 191ms
+2026-06-09 09:24:53.199 [INF] [END] [98384068-d2ed-4d8d-9caa-1307ca37efed] GET /api/clients/monto-pr/11800098829 -> 200 | 229ms
+2026-06-09 09:25:07.823 [INF] [START] [bd70b259-2ec3-4110-af51-a917e9e23ed2] GET /api/clients/11800098829/prestamo
+2026-06-09 09:25:08.021 [INF] [END] [bd70b259-2ec3-4110-af51-a917e9e23ed2] GET /api/clients/11800098829/prestamo -> 200 | 198ms
+2026-06-09 09:25:08.038 [INF] [START] [58ba14fe-7a7d-4b3e-a423-4aaef07d7e60] POST /api/links/emitir
+2026-06-09 09:25:08.139 [INF] Iniciando CrearLinkAsync para el código 78301
+2026-06-09 09:25:08.239 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 09:25:08.239 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 09:25:08.887 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 09:25:08.887 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 09:25:09.148 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1141foju4kmblwcdp/1744413278c75d22b/1780337554a6ae522
+2026-06-09 09:25:09.148 [INF] Iniciando subida de imagen publicitaria para el código 78301...
+2026-06-09 09:25:09.696 [INF] Imagen subida exitosamente para 78301.
+2026-06-09 09:25:10.207 [INF] [END] [58ba14fe-7a7d-4b3e-a423-4aaef07d7e60] POST /api/links/emitir -> 200 | 2168ms
+2026-06-09 09:27:41.813 [INF] [START] [30a28742-6faa-4fd9-8e40-5dd0c7358f5c] POST /api/links/get-links-verifica
+2026-06-09 09:27:41.817 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: ''
+2026-06-09 09:27:41.817 [INF] GetLinksVerifica: Processed search string for repository: ''
+2026-06-09 09:27:41.817 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 09:27:42.438 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                        
+2026-06-09 09:27:42.933 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                         
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 09:27:42.933 [INF] PagedData Params (Verifica): username='INGRID_M', search='', minRow=0, maxRow=10
+2026-06-09 09:27:43.031 [INF] [END] [30a28742-6faa-4fd9-8e40-5dd0c7358f5c] POST /api/links/get-links-verifica -> 200 | 1218ms
+2026-06-09 09:27:49.971 [INF] [START] [eec1d8d4-fe2f-4b68-a340-2ff993761e7f] GET /api/links/validar/78301
+2026-06-09 09:27:50.074 [INF] Visa API ConsultaLinkAsync Request - URL: /api/link/single, Sku: 78301
+2026-06-09 09:27:50.733 [INF] Visa API ConsultaLinkAsync Response - StatusCode: "OK", Content: {
+    "result": "success",
+    "message": "\u00a1Busqueda exitosa!",
+    "data": {
+        "nombre_interno": "Pago Pr\u00e9stamo Promerica",
+        "codigo_interno": "78301",
+        "token": "VEL1141foju4kmblwcdp",
+        "precio": 10,
+        "titulo": "Pago Pr\u00e9stamo Promerica",
+        "descripcion": "Pago Pr\u00e9stamo Promerica",
+        "imagen": "uploads/link/1141/Mn2yBDPtvmrNULhd.jpg",
+        "visitas": 1,
+        "tipo": "Api",
+        "estado": "Bloqueado",
+        "moneda": "Q",
+        "total": 10,
+        "redes_sociales": [
+            {
+                "nombre": "Email",
+                "url": "https://paytest.neolink.com.gt/VEL1141foju4kmblwcdp/1744413278c75d22b/1780337554a6ae522"
+            }
+        ],
+        "ventas": [
+            {
+                "terminal": "20260600",
+                "autorizacion": "013447",
+                "referencia": "616009000010",
+                "auditoria": "000010",
+                "suffix": "0010",
+                "monto": 10,
+                "cuota": "VC00 | Contado",
+                "fecha_pago": "09-06-2026 09:27",
+                "cliente": {
+                    "nombre": "undefined",
+                    "nit": "",
+                    "correo": "landerfaxon@gmail.com",
+                    "telefono": "57150050"
+                }
+            }
+        ],
+        "usuario": "julio.rosales@bancopromerica.com.gt"
+    }
+}
+2026-06-09 09:27:50.752 [INF] [END] [eec1d8d4-fe2f-4b68-a340-2ff993761e7f] GET /api/links/validar/78301 -> 200 | 780ms
+2026-06-09 09:27:52.304 [INF] [START] [9e21c6e0-2eec-4dda-9e91-f70a4d6fd63e] POST /api/links/aplicar-pago
+2026-06-09 09:27:53.453 [ERR] Error al aplicar pago manual para link: 840374
+System.Exception: El monto del pago no puede ser mayor que el monto total de la deuda.
+ORA-20102: El monto del pago no puede ser mayor que el monto total de la deuda.
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 93
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 114
+   at Backend.Controllers.LinkController.AplicarPago(PagoRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 467
+2026-06-09 09:27:53.454 [ERR] [END] [9e21c6e0-2eec-4dda-9e91-f70a4d6fd63e] POST /api/links/aplicar-pago -> 500 | 1149ms
+2026-06-09 11:12:16.977 [INF] [START] [728fa954-d59b-4680-b0b1-a2a72ddc0bb8] GET /api/parameters
+2026-06-09 11:12:17.100 [ERR] Error al obtener parámetros del sistema.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-03135: La conexión ha perdido contacto
+https://docs.oracle.com/error-help/db/ora-03135/
+ ---> OracleInternal.Network.NetworkException (0x80004005): ORA-03135: La conexión ha perdido contacto
+https://docs.oracle.com/error-help/db/ora-03135/
+ ---> System.Net.Sockets.SocketException (10054): Se ha forzado la interrupción de una conexión existente por el host remoto.
+   at System.Threading.Tasks.ValueTask`1.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at OracleInternal.Network.ReaderStream.asyncRead(OraBuf OB)
+   at OracleInternal.Network.ReaderStream.asyncRead(OraBuf OB)
+   at OracleInternal.TTC.OraBufReader.GetDataFromNetworkAsync(Boolean bAsync)
+   at OracleInternal.TTC.OraBufReader.ReadAsync(Boolean bAsync, Boolean bIgnoreData)
+   at OracleInternal.TTC.MarshallingEngine.UnmarshalUB1Async(Boolean bAsync, Boolean bIgnoreData)
+   at OracleInternal.TTC.TTCExecuteSql.ReceiveExecuteResponseAsync(Accessor[] bindAccessors, Boolean bHasReturningParams, SqlStatementType statementType, Int64 noOfRowsFetchedLastTime, Int32 noOfRowsToFetch, Int32 longFetchSize, Int64 clientInitialLOBFetchSize, Int64 initialLOBFetchSize, Int64 initialJSONFetchSize, Int64[] scnFromExecution, Boolean bAllInputBinds, Int32 arrayBindCount, Boolean bDefineDone, RER_RefAndOutParamArgCtx refOutArgCtx, Boolean bReadSqlId, Boolean bLOBArrayFetchRequired, Boolean bAsync)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 489
+   at Backend.Repositories.SiteRepository.GetParametrosAsync() in D:\git_lander\modernizacion\Backend\Repositories\SiteRepository.cs:line 44
+   at Backend.Controllers.ParametersController.GetParameters() in D:\git_lander\modernizacion\Backend\Controllers\ParametersController.cs:line 31
+2026-06-09 11:12:17.113 [ERR] [END] [728fa954-d59b-4680-b0b1-a2a72ddc0bb8] GET /api/parameters -> 500 | 136ms
+2026-06-09 11:12:19.753 [INF] [START] [e205f30e-ebf3-4f23-8af5-12bf679e486b] GET /api/clients/180004767096
+2026-06-09 11:12:21.197 [INF] [END] [e205f30e-ebf3-4f23-8af5-12bf679e486b] GET /api/clients/180004767096 -> 200 | 1444ms
+2026-06-09 11:12:21.212 [INF] [START] [c1e72f3b-9dac-454e-9a6d-2a7cba82ea5e] GET /api/clients/blacklist/1/901052534
+2026-06-09 11:12:21.319 [INF] [END] [c1e72f3b-9dac-454e-9a6d-2a7cba82ea5e] GET /api/clients/blacklist/1/901052534 -> 200 | 107ms
+2026-06-09 11:12:21.328 [INF] [START] [c4a5b01f-f555-4916-803b-4f2bd051f712] GET /api/clients/901052534/cuentas
+2026-06-09 11:12:21.575 [INF] [END] [c4a5b01f-f555-4916-803b-4f2bd051f712] GET /api/clients/901052534/cuentas -> 200 | 247ms
+2026-06-09 11:12:23.263 [INF] [START] [816cdf19-34f2-49fd-98a1-ae8d93c40052] GET /api/clients/901052534/correo
+2026-06-09 11:12:23.268 [INF] [START] [a958d82b-5fcb-4077-a010-de3c83942aa9] GET /api/clients/901052534/telefono
+2026-06-09 11:12:23.270 [INF] [START] [2aafc599-1c19-42e9-baa7-d65ad3211a84] GET /api/clients/monto-pr/180004767096
+2026-06-09 11:12:23.270 [INF] [START] [949597a2-f664-40b3-8287-1e668d8ef677] GET /api/clients/180004767096/prestamo
+2026-06-09 11:12:23.373 [INF] [END] [816cdf19-34f2-49fd-98a1-ae8d93c40052] GET /api/clients/901052534/correo -> 200 | 110ms
+2026-06-09 11:12:24.386 [INF] [END] [a958d82b-5fcb-4077-a010-de3c83942aa9] GET /api/clients/901052534/telefono -> 200 | 1118ms
+2026-06-09 11:12:24.987 [INF] [END] [949597a2-f664-40b3-8287-1e668d8ef677] GET /api/clients/180004767096/prestamo -> 200 | 1716ms
+2026-06-09 11:12:26.167 [INF] [END] [2aafc599-1c19-42e9-baa7-d65ad3211a84] GET /api/clients/monto-pr/180004767096 -> 200 | 2896ms
+2026-06-09 11:12:29.786 [INF] [START] [3e4c0df6-df16-4f99-88df-ca1f0cb653f0] GET /api/clients/180004767096/prestamo
+2026-06-09 11:12:29.994 [INF] [END] [3e4c0df6-df16-4f99-88df-ca1f0cb653f0] GET /api/clients/180004767096/prestamo -> 200 | 208ms
+2026-06-09 11:12:30.005 [INF] [START] [9670030d-1912-47ef-92ed-cd21e0721148] POST /api/links/emitir
+2026-06-09 11:12:30.110 [INF] Iniciando CrearLinkAsync para el código 78302
+2026-06-09 11:12:30.263 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 11:12:30.263 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 11:13:09.721 [ERR] Excepción ocurrida en GetFirstSocialNetworkAsync.
+System.Net.Http.HttpRequestException: The proxy tunnel request to proxy 'http://webproxy.promerica.com.gt:9095/' failed with status code '502'."
+   at System.Net.Http.HttpConnectionPool.EstablishProxyTunnelAsync(Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Backend.Services.VisaEnLinkIntegrationService.GetFirstSocialNetworkAsync(String token) in D:\git_lander\modernizacion\Backend\Services\VisaEnLinkIntegrationService.cs:line 130
+2026-06-09 11:13:09.746 [ERR] Error al emitir link.
+System.Net.Http.HttpRequestException: The proxy tunnel request to proxy 'http://webproxy.promerica.com.gt:9095/' failed with status code '502'."
+   at System.Net.Http.HttpConnectionPool.EstablishProxyTunnelAsync(Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Backend.Services.VisaEnLinkIntegrationService.GetFirstSocialNetworkAsync(String token) in D:\git_lander\modernizacion\Backend\Services\VisaEnLinkIntegrationService.cs:line 130
+   at Backend.Services.VisaEnLinkIntegrationService.CrearLinkAsync(String producto, String monto, String imgPublicitaria, String codigoInterno) in D:\git_lander\modernizacion\Backend\Services\VisaEnLinkIntegrationService.cs:line 169
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 47
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 11:13:09.751 [ERR] [END] [9670030d-1912-47ef-92ed-cd21e0721148] POST /api/links/emitir -> 500 | 39746ms
+2026-06-09 11:15:55.052 [INF] [START] [ad4887b4-993c-473f-93d9-817429f4e98f] GET /api/clients/180004767096/prestamo
+2026-06-09 11:15:55.509 [INF] [END] [ad4887b4-993c-473f-93d9-817429f4e98f] GET /api/clients/180004767096/prestamo -> 200 | 456ms
+2026-06-09 11:15:55.532 [INF] [START] [aa53f5ce-0515-46f7-b915-7de0cd531dc9] POST /api/links/emitir
+2026-06-09 11:15:55.684 [INF] Iniciando CrearLinkAsync para el código 78303
+2026-06-09 11:15:55.812 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 11:15:55.812 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 11:16:35.168 [ERR] Excepción ocurrida en GetFirstSocialNetworkAsync.
+System.Net.Http.HttpRequestException: The proxy tunnel request to proxy 'http://webproxy.promerica.com.gt:9095/' failed with status code '502'."
+   at System.Net.Http.HttpConnectionPool.EstablishProxyTunnelAsync(Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Backend.Services.VisaEnLinkIntegrationService.GetFirstSocialNetworkAsync(String token) in D:\git_lander\modernizacion\Backend\Services\VisaEnLinkIntegrationService.cs:line 130
+2026-06-09 11:16:35.170 [ERR] Error al emitir link.
+System.Net.Http.HttpRequestException: The proxy tunnel request to proxy 'http://webproxy.promerica.com.gt:9095/' failed with status code '502'."
+   at System.Net.Http.HttpConnectionPool.EstablishProxyTunnelAsync(Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Backend.Services.VisaEnLinkIntegrationService.GetFirstSocialNetworkAsync(String token) in D:\git_lander\modernizacion\Backend\Services\VisaEnLinkIntegrationService.cs:line 130
+   at Backend.Services.VisaEnLinkIntegrationService.CrearLinkAsync(String producto, String monto, String imgPublicitaria, String codigoInterno) in D:\git_lander\modernizacion\Backend\Services\VisaEnLinkIntegrationService.cs:line 169
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 47
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 11:16:35.171 [ERR] [END] [aa53f5ce-0515-46f7-b915-7de0cd531dc9] POST /api/links/emitir -> 500 | 39639ms
+2026-06-09 11:17:38.515 [INF] Application is shutting down...
+2026-06-09 11:17:53.953 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 11:17:53.976 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 11:17:53.977 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 11:17:53.977 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 11:17:53.977 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 11:17:53.986 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 11:17:53.987 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 11:17:54.005 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 11:17:54.062 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 11:17:54.064 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 11:17:54.064 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 11:17:54.071 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 11:17:54.232 [INF] Now listening on: http://localhost:5000
+2026-06-09 11:17:54.233 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 11:17:54.233 [INF] Hosting environment: Production
+2026-06-09 11:17:54.233 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 11:19:56.683 [INF] [START] [801215b8-491b-4270-aa01-c6c090fa3c2b] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 11:19:56.686 [WRN] Failed to determine the https port for redirect.
+2026-06-09 11:20:03.135 [INF] [END] [801215b8-491b-4270-aa01-c6c090fa3c2b] GET /api/Menu/items -> 200 | 6451ms
+2026-06-09 11:39:26.951 [INF] [START] [11e01e10-d651-440c-b201-9bce89a89851] POST /api/auth/login
+2026-06-09 11:39:27.009 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-09 11:39:28.778 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-09 11:39:29.151 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-09 11:39:29.172 [INF] [END] [11e01e10-d651-440c-b201-9bce89a89851] POST /api/auth/login -> 200 | 2221ms
+2026-06-09 11:39:29.225 [INF] [START] [6949144e-cba9-4780-bf8f-cc07762e740b] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 11:39:48.508 [ERR] Error al obtener items de menú para usuario INGRID_M
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-12570: Sesión de Red: error de lectura de paquete inesperado
+https://docs.oracle.com/error-help/db/ora-12570/
+ ---> OracleInternal.Network.NetworkException (0x80004005): ORA-12570: Sesión de Red: error de lectura de paquete inesperado
+https://docs.oracle.com/error-help/db/ora-12570/
+ ---> System.Net.Sockets.SocketException (10060): Se produjo un error durante el intento de conexión ya que la parte conectada no respondió adecuadamente tras un periodo de tiempo, o bien se produjo un error en la conexión establecida ya que el host conectado no ha podido responder.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask`1.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at OracleInternal.Network.ReaderStream.asyncRead(OraBuf OB)
+   at OracleInternal.Network.ReaderStream.asyncRead(OraBuf OB)
+   at OracleInternal.TTC.OraBufReader.GetDataFromNetworkAsync(Boolean bAsync)
+   at OracleInternal.TTC.OraBufReader.ReadAsync(Boolean bAsync, Boolean bIgnoreData)
+   at OracleInternal.TTC.MarshallingEngine.UnmarshalUB1Async(Boolean bAsync, Boolean bIgnoreData)
+   at OracleInternal.TTC.TTCExecuteSql.ReceiveExecuteResponseAsync(Accessor[] bindAccessors, Boolean bHasReturningParams, SqlStatementType statementType, Int64 noOfRowsFetchedLastTime, Int32 noOfRowsToFetch, Int32 longFetchSize, Int64 clientInitialLOBFetchSize, Int64 initialLOBFetchSize, Int64 initialJSONFetchSize, Int64[] scnFromExecution, Boolean bAllInputBinds, Int32 arrayBindCount, Boolean bDefineDone, RER_RefAndOutParamArgCtx refOutArgCtx, Boolean bReadSqlId, Boolean bLOBArrayFetchRequired, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Dapper.SqlMapper.QueryAsync[T](IDbConnection cnn, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 434
+   at Backend.Repositories.MenuRepository.GetMenuItemsAsync(String username, String systemCode) in D:\git_lander\modernizacion\Backend\Repositories\MenuRepository.cs:line 30
+   at Backend.Controllers.MenuController.GetMenuItems(String usuario, String sistema) in D:\git_lander\modernizacion\Backend\Controllers\MenuController.cs:line 38
+2026-06-09 11:39:49.438 [ERR] [END] [6949144e-cba9-4780-bf8f-cc07762e740b] GET /api/Menu/items -> 500 | 20212ms
+2026-06-09 11:40:37.405 [INF] [START] [a60e0694-1c9d-43f5-a08f-d5f67441d2f3] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 11:40:37.919 [INF] [END] [a60e0694-1c9d-43f5-a08f-d5f67441d2f3] GET /api/Menu/items -> 200 | 514ms
+2026-06-09 11:40:45.073 [INF] [START] [df630600-e74f-40b1-a268-b913dbac2550] GET /api/parameters
+2026-06-09 11:40:46.078 [INF] [END] [df630600-e74f-40b1-a268-b913dbac2550] GET /api/parameters -> 200 | 1004ms
+2026-06-09 11:41:11.826 [INF] [START] [b540f3b3-63fc-40ad-b543-5a19f1b9113e] GET /api/clients/180004767096
+2026-06-09 11:41:12.494 [INF] [END] [b540f3b3-63fc-40ad-b543-5a19f1b9113e] GET /api/clients/180004767096 -> 200 | 667ms
+2026-06-09 11:41:12.504 [INF] [START] [382c779e-8152-4581-a27e-a11bf5a88318] GET /api/clients/blacklist/1/901052534
+2026-06-09 11:41:12.633 [INF] [END] [382c779e-8152-4581-a27e-a11bf5a88318] GET /api/clients/blacklist/1/901052534 -> 200 | 128ms
+2026-06-09 11:41:12.644 [INF] [START] [a71f3dfc-1844-457e-aab2-523f84e4b016] GET /api/clients/901052534/cuentas
+2026-06-09 11:41:12.883 [INF] [END] [a71f3dfc-1844-457e-aab2-523f84e4b016] GET /api/clients/901052534/cuentas -> 200 | 239ms
+2026-06-09 11:41:14.141 [INF] [START] [522573cc-e592-48c6-b42a-7e747a4ada39] GET /api/clients/901052534/correo
+2026-06-09 11:41:14.142 [INF] [START] [68a4e467-d000-41b1-bef1-d036eb97fffa] GET /api/clients/901052534/telefono
+2026-06-09 11:41:14.142 [INF] [START] [5067a84c-24a7-4c8c-aaad-e73f6c601d34] GET /api/clients/180004767096/prestamo
+2026-06-09 11:41:14.151 [INF] [START] [efe94c3a-46bc-43e8-bbf2-2fc00d994a1b] GET /api/clients/monto-pr/180004767096
+2026-06-09 11:41:14.689 [INF] [END] [5067a84c-24a7-4c8c-aaad-e73f6c601d34] GET /api/clients/180004767096/prestamo -> 200 | 546ms
+2026-06-09 11:41:16.855 [INF] [END] [522573cc-e592-48c6-b42a-7e747a4ada39] GET /api/clients/901052534/correo -> 200 | 2713ms
+2026-06-09 11:41:18.751 [INF] [END] [68a4e467-d000-41b1-bef1-d036eb97fffa] GET /api/clients/901052534/telefono -> 200 | 4609ms
+2026-06-09 11:41:18.754 [INF] [END] [efe94c3a-46bc-43e8-bbf2-2fc00d994a1b] GET /api/clients/monto-pr/180004767096 -> 200 | 4603ms
+2026-06-09 11:41:24.553 [INF] [START] [a73df873-28a2-4c16-861c-dae2ba21c892] GET /api/clients/180004767096/prestamo
+2026-06-09 11:41:24.753 [INF] [END] [a73df873-28a2-4c16-861c-dae2ba21c892] GET /api/clients/180004767096/prestamo -> 200 | 200ms
+2026-06-09 11:41:24.778 [INF] [START] [955b7010-3750-47fa-a632-a7481a4cb60a] POST /api/links/emitir
+2026-06-09 11:41:24.999 [INF] Iniciando CrearLinkAsync para el código 78304
+2026-06-09 11:41:25.107 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 11:41:25.114 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 11:41:27.095 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 11:41:27.096 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 11:41:27.670 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL11459sa36txwcu21b/1744413278c75d22b/1780337554a6ae522
+2026-06-09 11:41:27.670 [INF] Iniciando subida de imagen publicitaria para el código 78304...
+2026-06-09 11:41:29.895 [INF] Imagen subida exitosamente para 78304.
+2026-06-09 11:41:31.166 [INF] [END] [955b7010-3750-47fa-a632-a7481a4cb60a] POST /api/links/emitir -> 200 | 6387ms
+2026-06-09 11:43:30.541 [INF] [START] [1da7f930-39c1-4efc-a564-45711b7247b3] POST /api/links/get-links-verifica
+2026-06-09 11:43:30.571 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: ''
+2026-06-09 11:43:30.571 [INF] GetLinksVerifica: Processed search string for repository: ''
+2026-06-09 11:43:30.576 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 11:43:31.351 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                        
+2026-06-09 11:43:32.372 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                         
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 11:43:32.372 [INF] PagedData Params (Verifica): username='INGRID_M', search='', minRow=0, maxRow=10
+2026-06-09 11:43:32.485 [INF] [END] [1da7f930-39c1-4efc-a564-45711b7247b3] POST /api/links/get-links-verifica -> 200 | 1943ms
+2026-06-09 11:43:39.148 [INF] [START] [48bd6baf-4231-460b-93af-c184451782fd] GET /api/links/validar/78304
+2026-06-09 11:43:39.277 [INF] Visa API ConsultaLinkAsync Request - URL: /api/link/single, Sku: 78304
+2026-06-09 11:43:40.362 [INF] Visa API ConsultaLinkAsync Response - StatusCode: "OK", Content: {
+    "result": "success",
+    "message": "\u00a1Busqueda exitosa!",
+    "data": {
+        "nombre_interno": "Pago Pr\u00e9stamo Promerica",
+        "codigo_interno": "78304",
+        "token": "VEL11459sa36txwcu21b",
+        "precio": 10,
+        "titulo": "Pago Pr\u00e9stamo Promerica",
+        "descripcion": "Pago Pr\u00e9stamo Promerica",
+        "imagen": "uploads/link/1145/0fo7kzTS9Mqv8wmc.jpg",
+        "visitas": 1,
+        "tipo": "Api",
+        "estado": "Bloqueado",
+        "moneda": "Q",
+        "total": 10,
+        "redes_sociales": [
+            {
+                "nombre": "Email",
+                "url": "https://paytest.neolink.com.gt/VEL11459sa36txwcu21b/1744413278c75d22b/1780337554a6ae522"
+            }
+        ],
+        "ventas": [
+            {
+                "terminal": "20260600",
+                "autorizacion": "013488",
+                "referencia": "616011000011",
+                "auditoria": "000011",
+                "suffix": "0010",
+                "monto": 10,
+                "cuota": "VC00 | Contado",
+                "fecha_pago": "09-06-2026 11:42",
+                "cliente": {
+                    "nombre": "undefined",
+                    "nit": "",
+                    "correo": "landerfaxon@gmail.com",
+                    "telefono": "57150050"
+                }
+            }
+        ],
+        "usuario": "julio.rosales@bancopromerica.com.gt"
+    }
+}
+2026-06-09 11:43:40.409 [INF] [END] [48bd6baf-4231-460b-93af-c184451782fd] GET /api/links/validar/78304 -> 200 | 1260ms
+2026-06-09 11:43:44.323 [INF] [START] [f235b4dc-d8d7-4f6e-91ca-8dba34f446b4] POST /api/links/aplicar-pago
+2026-06-09 11:43:49.380 [INF] [END] [f235b4dc-d8d7-4f6e-91ca-8dba34f446b4] POST /api/links/aplicar-pago -> 200 | 5057ms
+2026-06-09 11:43:49.395 [INF] [START] [05a541eb-422d-4010-aa26-9780f4481b66] POST /api/links/get-links-verifica
+2026-06-09 11:43:49.397 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: ''
+2026-06-09 11:43:49.398 [INF] GetLinksVerifica: Processed search string for repository: ''
+2026-06-09 11:43:49.398 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 11:43:49.884 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                        
+2026-06-09 11:43:50.364 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                         
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 11:43:50.364 [INF] PagedData Params (Verifica): username='INGRID_M', search='', minRow=0, maxRow=10
+2026-06-09 11:43:50.466 [INF] [END] [05a541eb-422d-4010-aa26-9780f4481b66] POST /api/links/get-links-verifica -> 200 | 1070ms
+2026-06-09 11:52:55.395 [INF] [START] [c2b467b4-b14d-4f36-ad75-cb9f8e01176a] GET /api/parameters
+2026-06-09 11:52:56.777 [INF] [END] [c2b467b4-b14d-4f36-ad75-cb9f8e01176a] GET /api/parameters -> 200 | 1381ms
+2026-06-09 11:53:04.204 [INF] [START] [2fefe961-99de-4d87-86ad-23f84b4794ec] GET /api/clients/180004767096
+2026-06-09 11:53:04.534 [INF] [END] [2fefe961-99de-4d87-86ad-23f84b4794ec] GET /api/clients/180004767096 -> 200 | 330ms
+2026-06-09 11:53:04.545 [INF] [START] [a46e6c20-4e70-45b4-b572-a10fab0ccece] GET /api/clients/blacklist/1/901052534
+2026-06-09 11:53:04.641 [INF] [END] [a46e6c20-4e70-45b4-b572-a10fab0ccece] GET /api/clients/blacklist/1/901052534 -> 200 | 96ms
+2026-06-09 11:53:04.654 [INF] [START] [05236771-d747-4598-a0b5-3026de315869] GET /api/clients/901052534/cuentas
+2026-06-09 11:53:05.479 [INF] [END] [05236771-d747-4598-a0b5-3026de315869] GET /api/clients/901052534/cuentas -> 200 | 825ms
+2026-06-09 11:53:06.862 [INF] [START] [e34525a9-4ceb-430e-a3a1-9c3d8a297f04] GET /api/clients/901052534/correo
+2026-06-09 11:53:06.862 [INF] [START] [bfa9af1a-a18c-4dba-95fb-5e85641ddf86] GET /api/clients/901052534/telefono
+2026-06-09 11:53:06.864 [INF] [START] [3a04ccbf-7fca-43b1-8a7d-ce831e441335] GET /api/clients/monto-pr/180004767096
+2026-06-09 11:53:06.867 [INF] [START] [f86fbb26-1e13-45b7-89ff-ea0c7d6a1af6] GET /api/clients/180004767096/prestamo
+2026-06-09 11:53:06.957 [INF] [END] [bfa9af1a-a18c-4dba-95fb-5e85641ddf86] GET /api/clients/901052534/telefono -> 200 | 94ms
+2026-06-09 11:53:07.273 [INF] [END] [e34525a9-4ceb-430e-a3a1-9c3d8a297f04] GET /api/clients/901052534/correo -> 200 | 410ms
+2026-06-09 11:53:07.313 [INF] [END] [3a04ccbf-7fca-43b1-8a7d-ce831e441335] GET /api/clients/monto-pr/180004767096 -> 200 | 449ms
+2026-06-09 11:53:09.790 [INF] [END] [f86fbb26-1e13-45b7-89ff-ea0c7d6a1af6] GET /api/clients/180004767096/prestamo -> 200 | 2923ms
+2026-06-09 11:53:17.063 [INF] [START] [f6d8fed0-0816-435e-927f-cee356b54433] GET /api/clients/180004767096/prestamo
+2026-06-09 11:53:17.266 [INF] [END] [f6d8fed0-0816-435e-927f-cee356b54433] GET /api/clients/180004767096/prestamo -> 200 | 202ms
+2026-06-09 11:53:17.275 [INF] [START] [8019248b-e40b-46d2-8f98-d5ddcb4aa887] POST /api/links/emitir
+2026-06-09 11:53:17.379 [INF] Iniciando CrearLinkAsync para el código 78305
+2026-06-09 11:53:17.476 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 11:53:17.476 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 11:53:18.429 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 11:53:18.429 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 11:53:18.753 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1146615yxf8jlkzwt/1744413278c75d22b/1780337554a6ae522
+2026-06-09 11:53:18.754 [INF] Iniciando subida de imagen publicitaria para el código 78305...
+2026-06-09 11:53:21.877 [INF] Imagen subida exitosamente para 78305.
+2026-06-09 11:53:28.955 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 11:53:28.960 [ERR] [END] [8019248b-e40b-46d2-8f98-d5ddcb4aa887] POST /api/links/emitir -> 500 | 11684ms
+2026-06-09 11:54:44.746 [INF] [START] [4c77b48f-fffa-4973-99b2-29862f4b4dfc] GET /api/clients/180004767096/prestamo
+2026-06-09 11:54:44.940 [INF] [END] [4c77b48f-fffa-4973-99b2-29862f4b4dfc] GET /api/clients/180004767096/prestamo -> 200 | 193ms
+2026-06-09 11:54:44.946 [INF] [START] [2feb50d6-c67e-43dc-a2d6-013803606087] POST /api/links/emitir
+2026-06-09 11:54:45.044 [INF] Iniciando CrearLinkAsync para el código 78306
+2026-06-09 11:54:45.140 [INF] Iniciando GetFirstSocialNetworkAsync
+2026-06-09 11:54:45.140 [INF] Enviando POST a /api/network/all para consultar redes...
+2026-06-09 11:54:45.772 [INF] Redes consultadas exitosamente, retornando primera red: 1744413278c75d22b
+2026-06-09 11:54:45.772 [INF] Enviando POST a /api/link/maintenance para crear link...
+2026-06-09 11:54:46.050 [INF] Link creado exitosamente. Url: https://paytest.neolink.com.gt/VEL1147sc3brfm8jxano/1744413278c75d22b/1780337554a6ae522
+2026-06-09 11:54:46.050 [INF] Iniciando subida de imagen publicitaria para el código 78306...
+2026-06-09 11:54:46.599 [INF] Imagen subida exitosamente para 78306.
+2026-06-09 11:54:47.086 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 35
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 11:54:47.088 [ERR] [END] [2feb50d6-c67e-43dc-a2d6-013803606087] POST /api/links/emitir -> 500 | 2141ms
+2026-06-09 12:05:59.950 [INF] Application is shutting down...

@@ -256,66 +256,91 @@ export class ControlLinkComponent implements OnInit {
   }
 
   // Export and Print features
-  copyToClipboard() {
-    if (!this.links() || this.links().length === 0) {
-      this.ui.showError('No hay datos para copiar');
+  private getAllDataForExport(callback: (data: LinkListItem[]) => void, onError?: () => void) {
+    if (this.totalRecords() === 0) {
+      this.ui.showError('No hay datos para exportar');
+      if (onError) onError();
       return;
     }
-    
-    const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emisión', 'Usuario', 'Envío', 'Tipo Link'];
-    const rows = this.links().map(l => [
-      l.correlativo, 
-      l.producto, 
-      l.monto.toString(), 
-      l.pago, 
-      l.emisionLink, 
-      l.usuario, 
-      l.envio, 
-      l.tipoLink === 'U' ? 'Único' : (l.tipoLink === 'M' ? 'Múltiple' : l.tipoLink)
-    ]);
-    
-    const tsvContent = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
-    
-    navigator.clipboard.writeText(tsvContent).then(() => {
-      this.ui.showSuccess('Datos copiados al portapapeles');
-    }).catch(() => {
-      this.ui.showError('Error al copiar al portapapeles');
+
+    if (this.links().length === this.totalRecords()) {
+      callback(this.links());
+      return;
+    }
+
+    const request = {
+      draw: 1,
+      start: 0,
+      length: -1,
+      search: { value: this.searchQuery, regex: false },
+      order: [{ column: 0, dir: this.sortDirection }],
+      columns: [{ name: this.sortColumn, searchable: true, orderable: true }]
+    };
+
+    this.linkService.getLinks(request).subscribe({
+      next: (res) => {
+        callback(res.data as unknown as LinkListItem[]);
+      },
+      error: () => {
+        this.ui.showError('Error al obtener los datos completos para exportar.');
+        if (onError) onError();
+      }
+    });
+  }
+
+  copyToClipboard() {
+    this.getAllDataForExport((data) => {
+      const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emisión', 'Usuario', 'Envío', 'Tipo Link'];
+      const rows = data.map(l => [
+        l.correlativo, 
+        l.producto, 
+        l.monto.toString(), 
+        l.pago, 
+        l.emisionLink, 
+        l.usuario, 
+        l.envio, 
+        l.tipoLink === 'U' ? 'Único' : (l.tipoLink === 'M' ? 'Múltiple' : l.tipoLink)
+      ]);
+      
+      const tsvContent = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
+      
+      navigator.clipboard.writeText(tsvContent).then(() => {
+        this.ui.showSuccess('Datos copiados al portapapeles');
+      }).catch(() => {
+        this.ui.showError('Error al copiar al portapapeles');
+      });
     });
   }
 
   exportToExcel() {
-    if (!this.links() || this.links().length === 0) {
-      this.ui.showError('No hay datos para exportar');
-      return;
-    }
-    
-    const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emision', 'Usuario', 'Envio', 'Tipo Link'];
-    const rows = this.links().map(l => [
-      l.correlativo, 
-      l.producto, 
-      l.monto.toString(), 
-      l.pago, 
-      l.emisionLink, 
-      l.usuario, 
-      l.envio, 
-      l.tipoLink === 'U' ? 'Unico' : (l.tipoLink === 'M' ? 'Multiple' : l.tipoLink)
-    ]);
-    
-    // Agregamos BOM para que Excel reconozca correctamente el UTF-8
-    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `Control_Links_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.getAllDataForExport((data) => {
+      const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emision', 'Usuario', 'Envio', 'Tipo Link'];
+      const rows = data.map(l => [
+        l.correlativo, 
+        l.producto, 
+        l.monto.toString(), 
+        l.pago, 
+        l.emisionLink, 
+        l.usuario, 
+        l.envio, 
+        l.tipoLink === 'U' ? 'Unico' : (l.tipoLink === 'M' ? 'Multiple' : l.tipoLink)
+      ]);
+      
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Control_Links_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   }
 
   print() {
-    if (!this.links() || this.links().length === 0) {
+    if (this.totalRecords() === 0) {
       this.ui.showError('No hay datos para imprimir');
       return;
     }
@@ -325,88 +350,93 @@ export class ControlLinkComponent implements OnInit {
       this.ui.showError('Por favor, permita las ventanas emergentes para imprimir.');
       return;
     }
+    
+    printWindow.document.write('<html><body><h2>Cargando datos para impresión...</h2></body></html>');
 
-    const now = new Date();
-    const dateStr = now.toLocaleDateString();
-    const timeStr = now.toLocaleTimeString();
+    this.getAllDataForExport((data) => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString();
+      const timeStr = now.toLocaleTimeString();
 
-    let html = `
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <title>Impresión - Control de Links</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-          .header { text-align: center; margin-bottom: 20px; }
-          h1 { color: #007139; margin-bottom: 5px; font-size: 24px; }
-          .info { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-          table { width: 100%; border-collapse: collapse; font-size: 12px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; color: #333; text-transform: uppercase; font-size: 11px; }
-          .monto { font-weight: bold; font-family: monospace; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>Control de Links</h1>
-        </div>
-        <div class="info">
-          <span><strong>Fecha:</strong> ${dateStr}</span>
-          <span><strong>Hora:</strong> ${timeStr}</span>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Correlativo</th>
-              <th>Producto</th>
-              <th>Monto</th>
-              <th>Pago</th>
-              <th>Emisión</th>
-              <th>Usuario</th>
-              <th>Envío</th>
-              <th>Tipo Link</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-
-    this.links().forEach(item => {
-      const tipo = item.tipoLink === 'U' ? 'Único' : (item.tipoLink === 'M' ? 'Múltiple' : item.tipoLink);
-      // Format number to 2 decimals manually to ensure consistency
-      const montoFormatted = Number(item.monto).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      
-      html += `
-        <tr>
-          <td>${item.correlativo}</td>
-          <td>${item.producto}</td>
-          <td class="monto">Q/$. ${montoFormatted}</td>
-          <td>${item.pago}</td>
-          <td>${item.emisionLink}</td>
-          <td>${item.usuario}</td>
-          <td>${item.envio}</td>
-          <td>${tipo}</td>
-        </tr>
+      let html = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <title>Impresión - Control de Links</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+            .header { text-align: center; margin-bottom: 20px; }
+            h1 { color: #007139; margin-bottom: 5px; font-size: 24px; }
+            .info { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; color: #333; text-transform: uppercase; font-size: 11px; }
+            .monto { font-weight: bold; font-family: monospace; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Control de Links</h1>
+          </div>
+          <div class="info">
+            <span><strong>Fecha:</strong> ${dateStr}</span>
+            <span><strong>Hora:</strong> ${timeStr}</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Correlativo</th>
+                <th>Producto</th>
+                <th>Monto</th>
+                <th>Pago</th>
+                <th>Emisión</th>
+                <th>Usuario</th>
+                <th>Envío</th>
+                <th>Tipo Link</th>
+              </tr>
+            </thead>
+            <tbody>
       `;
+
+      data.forEach(item => {
+        const tipo = item.tipoLink === 'U' ? 'Único' : (item.tipoLink === 'M' ? 'Múltiple' : item.tipoLink);
+        const montoFormatted = Number(item.monto).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        
+        html += `
+          <tr>
+            <td>${item.correlativo}</td>
+            <td>${item.producto}</td>
+            <td class="monto">Q/$. ${montoFormatted}</td>
+            <td>${item.pago}</td>
+            <td>${item.emisionLink}</td>
+            <td>${item.usuario}</td>
+            <td>${item.envio}</td>
+            <td>${tipo}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                window.onafterprint = function() { window.close(); }
+              }, 250);
+            }
+          </script>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }, () => {
+      printWindow.close();
     });
-
-    html += `
-          </tbody>
-        </table>
-        <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.print();
-              window.onafterprint = function() { window.close(); }
-            }, 250);
-          }
-        </script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
   }
 }

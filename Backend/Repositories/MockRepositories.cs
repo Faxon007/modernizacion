@@ -42,9 +42,10 @@ namespace Backend.Repositories
         public Task<bool> AplicaPagoTCAsync(PagoRequest pago, string moneda) =>
             Task.FromResult(true);
 
-        public Task<LinkParametroInfo?> GetParametroAsync(string codLink) =>
+        public Task<LinkParametroInfo?> GetParametroAsync(string sku) =>
             Task.FromResult<LinkParametroInfo?>(new LinkParametroInfo
             {
+                CodLink = "9999",
                 NumCuenta = "4019283746",
                 TipCuenta = "TC",
                 TipPago = "Contado",
@@ -94,6 +95,7 @@ namespace Backend.Repositories
         public Task<int> ExistenPendientesAsync() => Task.FromResult(0);
         public Task<bool> ExistePerifericoAsync(int codPeriferico) => Task.FromResult(false);
         public Task<bool> UpdateURLCortoAsync(decimal numConsecutivo, string urlCorto) => Task.FromResult(true);
+        public Task<int> UpdateURLCortosBulkAsync(List<(decimal NumConsecutivo, string UrlCorto)> updates) => Task.FromResult(updates?.Count ?? 0);
         public Task<bool> RegistraBitacoraBDAsync(string urlLargo, string urlCorto, int codPeriferico) => Task.FromResult(true);
     }
 

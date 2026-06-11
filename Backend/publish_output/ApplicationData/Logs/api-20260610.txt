@@ -1,0 +1,104 @@
+2026-06-10 14:58:51.180 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-10 14:58:51.225 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-10 14:58:51.226 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-10 14:58:51.226 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-10 14:58:51.226 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-10 14:58:51.236 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-10 14:58:51.237 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-10 14:58:51.275 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-10 14:58:51.344 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-10 14:58:51.345 [INF] Conexión Oracle ('Desarrollo') cargada.
+2026-06-10 14:58:51.348 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s). Default: Oracle[Oracle]
+2026-06-10 14:58:51.352 [INF] Base de datos disponible: Oracle[Oracle] -> Desarrollo
+2026-06-10 14:58:51.625 [INF] Now listening on: http://localhost:5000
+2026-06-10 14:58:51.625 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-10 14:58:51.625 [INF] Hosting environment: Development
+2026-06-10 14:58:51.625 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-10 14:59:30.856 [INF] [START] [9fd7931b-4387-42db-a4e6-a3581846855f] POST /api/auth/login
+2026-06-10 14:59:30.861 [WRN] Failed to determine the https port for redirect.
+2026-06-10 14:59:36.638 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-10 14:59:38.611 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-10 14:59:39.439 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-10 14:59:39.494 [INF] [END] [9fd7931b-4387-42db-a4e6-a3581846855f] POST /api/auth/login -> 200 | 8638ms
+2026-06-10 14:59:39.540 [INF] [START] [676dcd4a-b54a-4f6b-a976-6c0d0a454eb8] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-10 14:59:39.869 [INF] [END] [676dcd4a-b54a-4f6b-a976-6c0d0a454eb8] GET /api/Menu/items -> 200 | 329ms
+2026-06-10 14:59:59.220 [INF] [START] [ce520c81-f682-4051-919e-8c1c9781c21f] GET /api/parameters
+2026-06-10 15:00:00.560 [INF] [END] [ce520c81-f682-4051-919e-8c1c9781c21f] GET /api/parameters -> 200 | 1340ms
+2026-06-10 15:00:03.431 [INF] [START] [4dd29233-1e5f-4dcd-9124-9ff8c35ef3f7] GET /api/clients/180004767096
+2026-06-10 15:00:03.870 [INF] [END] [4dd29233-1e5f-4dcd-9124-9ff8c35ef3f7] GET /api/clients/180004767096 -> 200 | 438ms
+2026-06-10 15:00:03.885 [INF] [START] [e93640ef-406f-4308-a796-468a64ac4722] GET /api/clients/blacklist/1/901052534
+2026-06-10 15:00:04.071 [INF] [END] [e93640ef-406f-4308-a796-468a64ac4722] GET /api/clients/blacklist/1/901052534 -> 200 | 186ms
+2026-06-10 15:00:04.082 [INF] [START] [694a4e99-4ed0-4051-b04d-c562f0881ed1] GET /api/clients/901052534/cuentas
+2026-06-10 15:00:05.020 [INF] [END] [694a4e99-4ed0-4051-b04d-c562f0881ed1] GET /api/clients/901052534/cuentas -> 200 | 938ms
+2026-06-10 15:00:06.559 [INF] [START] [0adb0b33-0206-4763-a6f5-634b7af636da] GET /api/clients/901052534/correo
+2026-06-10 15:00:06.562 [INF] [START] [35b43cfb-07e3-4559-9310-a5e4fad284e8] GET /api/clients/901052534/telefono
+2026-06-10 15:00:06.562 [INF] [START] [18b4270c-a8b2-45c4-9302-46f38b89cc37] GET /api/clients/180004767096/prestamo
+2026-06-10 15:00:06.566 [INF] [START] [016e60a2-0374-404d-b37f-2017d320d1db] GET /api/clients/monto-pr/180004767096
+2026-06-10 15:00:06.667 [INF] [END] [0adb0b33-0206-4763-a6f5-634b7af636da] GET /api/clients/901052534/correo -> 200 | 113ms
+2026-06-10 15:00:06.673 [INF] [END] [35b43cfb-07e3-4559-9310-a5e4fad284e8] GET /api/clients/901052534/telefono -> 200 | 111ms
+2026-06-10 15:00:07.043 [INF] [END] [18b4270c-a8b2-45c4-9302-46f38b89cc37] GET /api/clients/180004767096/prestamo -> 200 | 481ms
+2026-06-10 15:00:07.502 [INF] [END] [016e60a2-0374-404d-b37f-2017d320d1db] GET /api/clients/monto-pr/180004767096 -> 200 | 936ms
+2026-06-10 18:49:12.944 [INF] [START] [74c77d96-e58e-4150-8fb0-ea781b88a3a2] POST /api/auth/login
+2026-06-10 18:49:23.306 [WRN] Intento de login fallido para usuario: ALEXF_DM, ORA-1017
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Backend.Controllers.AuthController.Login(LoginRequest request) in D:\git_lander\modernizacion\Backend\Controllers\AuthController.cs:line 74
+2026-06-10 18:49:23.397 [WRN] [END] [74c77d96-e58e-4150-8fb0-ea781b88a3a2] POST /api/auth/login -> 401 | 10461ms
+2026-06-10 18:52:36.088 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-10 18:52:36.135 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-10 18:52:36.136 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-10 18:52:36.136 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-10 18:52:36.136 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-10 18:52:36.155 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-10 18:52:36.156 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-10 18:52:36.180 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-10 18:52:36.289 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-10 18:52:36.290 [WRN] El archivo .cef2 no contiene ninguna conexión configurada que coincida con los alias.
+2026-06-10 18:52:36.751 [INF] Now listening on: http://localhost:5000
+2026-06-10 18:52:36.751 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-10 18:52:36.751 [INF] Hosting environment: Development
+2026-06-10 18:52:36.751 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-10 18:55:17.560 [INF] [START] [e78603ad-fdfc-48aa-bf29-7efcd4933c05] POST /api/auth/login
+2026-06-10 18:55:17.568 [WRN] Failed to determine the https port for redirect.
+2026-06-10 18:55:21.645 [ERR] La conexión base de Oracle no está disponible en db.cef2.
+2026-06-10 18:55:21.691 [ERR] [END] [e78603ad-fdfc-48aa-bf29-7efcd4933c05] POST /api/auth/login -> 500 | 4134ms
+2026-06-10 18:58:36.791 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-10 18:58:36.826 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-10 18:58:36.826 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-10 18:58:36.827 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-10 18:58:36.827 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-10 18:58:36.829 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-10 18:58:36.830 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-10 18:58:36.831 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-10 18:58:36.888 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-10 18:58:36.889 [INF] Conexión Oracle ('TCQA17') cargada.
+2026-06-10 18:58:36.891 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s). Default: Oracle[Oracle]
+2026-06-10 18:58:36.894 [INF] Base de datos disponible: Oracle[Oracle] -> TCQA17
+2026-06-10 18:58:37.094 [INF] Now listening on: http://localhost:5000
+2026-06-10 18:58:37.094 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-10 18:58:37.095 [INF] Hosting environment: Development
+2026-06-10 18:58:37.095 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-10 18:59:14.386 [INF] [START] [0b11845a-e26f-4e6b-b4ff-da9c3a6bb1c8] POST /api/auth/login
+2026-06-10 18:59:14.396 [WRN] Failed to determine the https port for redirect.
+2026-06-10 18:59:17.529 [INF] Validando estado en RRHH para el usuario: 'ALEXF_DM'
+2026-06-10 18:59:20.270 [INF] Respuesta de RRHH_USUARIO.activo para 'ALEXF_DM': 'S'
+2026-06-10 18:59:21.858 [INF] Usuario ALEXF_DM autenticado correctamente con el rol USUARIO
+2026-06-10 18:59:21.925 [INF] [END] [0b11845a-e26f-4e6b-b4ff-da9c3a6bb1c8] POST /api/auth/login -> 200 | 7539ms
+2026-06-10 18:59:21.980 [INF] [START] [c4c5ad86-537e-44e9-bed4-9bb8e97239e4] GET /api/Menu/items?usuario=ALEXF_DM&sistema=509
+2026-06-10 18:59:22.331 [INF] [END] [c4c5ad86-537e-44e9-bed4-9bb8e97239e4] GET /api/Menu/items -> 200 | 351ms
+2026-06-10 18:59:37.306 [INF] [START] [936016a8-2e57-4389-a0b3-ec567a4364f7] GET /api/Menu/items?usuario=ALEXF_DM&sistema=509
+2026-06-10 18:59:37.521 [INF] [END] [936016a8-2e57-4389-a0b3-ec567a4364f7] GET /api/Menu/items -> 200 | 215ms
+2026-06-10 19:02:28.928 [INF] [START] [dc1715f4-0578-417d-aa66-add782c0d652] POST /api/auth/login
+2026-06-10 19:02:32.677 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-10 19:02:35.517 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-10 19:02:36.457 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-10 19:02:36.464 [INF] [END] [dc1715f4-0578-417d-aa66-add782c0d652] POST /api/auth/login -> 200 | 7535ms
+2026-06-10 19:02:36.484 [INF] [START] [11eb03bc-cf5a-4305-9189-0e8cd33feb5f] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-10 19:02:36.751 [INF] [END] [11eb03bc-cf5a-4305-9189-0e8cd33feb5f] GET /api/Menu/items -> 200 | 267ms

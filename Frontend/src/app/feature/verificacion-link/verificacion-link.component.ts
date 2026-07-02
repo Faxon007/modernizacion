@@ -1,13 +1,14 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LinkService, LinkVerificaItem, PagoRequest } from '../../core/services/link.service';
 import { UiService } from '../../core/services/ui.service';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-verificacion-link',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-300">
       <!-- Encabezado -->
@@ -21,9 +22,8 @@ import { UiService } from '../../core/services/ui.service';
         <div class="flex-1 max-w-md relative">
           <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">🔍</span>
           <input 
-            type="text" 
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="onSearchChange()"
+            type="text"
+            [formControl]="searchControl"
             placeholder="Buscar por cuenta, correlativo o SKU..."
             class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] transition-all text-sm">
         </div>
@@ -31,7 +31,7 @@ import { UiService } from '../../core/services/ui.service';
         <div class="flex items-center gap-3">
           <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Mostrar</label>
           <select 
-            [(ngModel)]="pageSize" 
+            [formControl]="pageSizeControl"
             (change)="loadLinks()" 
             class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7bc342]">
             <option [value]="10">10 registros</option>
@@ -283,9 +283,10 @@ import { UiService } from '../../core/services/ui.service';
     </div>
   `
 })
-export class VerificacionLinkComponent implements OnInit {
+export class VerificacionLinkComponent implements OnInit, OnDestroy {
   private readonly linkService = inject(LinkService);
   private readonly ui = inject(UiService);
+  private readonly destroy$ = new Subject<void>();
 
   // States
   links = signal<LinkVerificaItem[]>([]);
@@ -293,9 +294,10 @@ export class VerificacionLinkComponent implements OnInit {
   
   // Pagination
   currentPage = signal(1);
-  pageSize = 10;
   totalRecords = signal(0);
-  searchQuery = '';
+  
+  searchControl = new FormControl('');
+  pageSizeControl = new FormControl(10);
 
   // Modal details
   selectedItem = signal<LinkVerificaItem | null>(null);
@@ -308,19 +310,37 @@ export class VerificacionLinkComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadLinks();
+    this.searchControl.valueChanges.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      tap(() => {
+        this.currentPage.set(1); // Resetea a la primera página en cada búsqueda
+      }),
+      switchMap(() => this.loadLinks()),
+      takeUntil(this.destroy$)
+    ).subscribe();
+
+    // Carga inicial
+    this.searchControl.setValue('', { emitEvent: true });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadLinks() {
     this.isLoading.set(true);
-    const start = (this.currentPage() - 1) * this.pageSize;
+    const pageSize = this.pageSizeControl.value || 10;
+    const start = (this.currentPage() - 1) * pageSize;
+    const searchQuery = this.searchControl.value || '';
 
     const request = {
       draw: this.currentPage(),
       start: start,
-      length: this.pageSize,
+      length: pageSize,
       search: {
-        value: this.searchQuery,
+        value: searchQuery,
         regex: false
       },
       order: [
@@ -338,7 +358,7 @@ export class VerificacionLinkComponent implements OnInit {
       ]
     };
 
-    this.linkService.getLinksVerifica(request).subscribe({
+    return this.linkService.getLinksVerifica(request).pipe(tap({
       next: (res) => {
         this.isLoading.set(false);
         this.links.set(res.data);
@@ -348,21 +368,19 @@ export class VerificacionLinkComponent implements OnInit {
         this.isLoading.set(false);
         this.ui.showError('Error al cargar la lista de verificación.');
       }
-    });
-  }
-
-  onSearchChange() {
-    this.currentPage.set(1);
-    this.loadLinks();
+    }));
   }
 
   // Pagination getters
   startRecord() {
-    return (this.currentPage() - 1) * this.pageSize + 1;
+    const pageSize = this.pageSizeControl.value || 10;
+    if (this.totalRecords() === 0) return 0;
+    return (this.currentPage() - 1) * pageSize + 1;
   }
 
   endRecord() {
-    const end = this.currentPage() * this.pageSize;
+    const pageSize = this.pageSizeControl.value || 10;
+    const end = this.currentPage() * pageSize;
     return end > this.totalRecords() ? this.totalRecords() : end;
   }
 
@@ -481,8 +499,8 @@ export class VerificacionLinkComponent implements OnInit {
     const request = {
       draw: 1,
       start: 0,
-      length: -1,
-      search: { value: this.searchQuery, regex: false },
+      length: -1, // -1 para obtener todos los registros
+      search: { value: this.searchControl.value || '', regex: false },
       order: [{ column: 0, dir: 'desc' }],
       columns: [
         { name: 'CORRELATIVO', searchable: true, orderable: true },

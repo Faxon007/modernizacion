@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { LinkService, LinkEntity, ClientEntity } from '../../core/services/link.service';
 import { ParameterService } from '../../core/services/parameter.service';
 import { UiService } from '../../core/services/ui.service';
@@ -235,8 +236,13 @@ import { UiService } from '../../core/services/ui.service';
                         id="customTelefono"
                         type="text"
                         formControlName="customTelefono"
-                        placeholder="Ej: 50255555555"
+                        placeholder="Ej: 55555555"
                         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] transition-all text-gray-800 font-medium">
+                        @if (linkForm.get('customTelefono')?.invalid && (linkForm.get('customTelefono')?.dirty || linkForm.get('customTelefono')?.touched)) {
+                          <div class="text-red-500 text-xs mt-1">
+                            El número de teléfono debe tener 8 dígitos.
+                          </div>
+                        }
                     } @else {
                       <label for="customEmail" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Correo Electrónico a Enviar</label>
                       <input 
@@ -245,6 +251,11 @@ import { UiService } from '../../core/services/ui.service';
                         formControlName="customEmail"
                         placeholder="cliente@ejemplo.com"
                         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] transition-all text-gray-800 font-medium">
+                        @if (linkForm.get('customEmail')?.invalid && (linkForm.get('customEmail')?.dirty || linkForm.get('customEmail')?.touched)) {
+                          <div class="text-red-500 text-xs mt-1">
+                            Debe ingresar un correo válido.
+                          </div>
+                        }
                     }
                   </div>
                 }
@@ -384,8 +395,8 @@ export class EmisionLinkComponent {
     diaMes: [new Date().getDate().toString()],
     tipEnvio: ['2'], // '1' = SMS, '2' = Correo
     esDefault: ['1'], // '1' = Default, '2' = Editado
-    customTelefono: [''],
-    customEmail: ['']
+    customTelefono: ['', [Validators.pattern(/^[0-9]{8}$/)]],
+    customEmail: ['', [Validators.email]]
   });
 
   constructor() {
@@ -469,82 +480,76 @@ export class EmisionLinkComponent {
     return `${symbol} ${this.maxMonto().toLocaleString('es-GT', { minimumFractionDigits: 2 })}`;
   }
 
-  onSearch() {
+  async onSearch() {
     if (this.searchForm.invalid) return;
     this.isSearching.set(true);
     this.localError.set(null);
 
     const cta = this.searchForm.value.numCuenta!;
 
-    // 1. Get client by account
-    this.linkService.getClienteCta(cta).subscribe({
-      next: (clientRes) => {
-        if (clientRes.success && clientRes.data) {
-          const client = clientRes.data;
-          
-          // 2. Check blacklist (Empresa "1")
-          this.linkService.isClienteListaNegra('1', client.codCliente).subscribe({
-            next: (blacklistRes) => {
-              if (blacklistRes.success && blacklistRes.data === true) {
-                this.showError(`El cliente ${client.nomCliente} (${client.codCliente}) se encuentra en la Lista de Exclusiones/Lista Negra.`);
-                this.isSearching.set(false);
-                return;
-              }
+    try {
+      // 1. Get client by account
+      const clientRes = await firstValueFrom(this.linkService.getClienteCta(cta));
 
-              // 3. Not blacklisted. Set client and get all customer accounts
-              this.selectedClient.set(client);
-
-              this.linkService.getCuentasCliente(client.codCliente).subscribe({
-                next: (accountsRes) => {
-                  this.isSearching.set(false);
-                  if (accountsRes.success && accountsRes.data) {
-                    // Cuentas maps as array of items, typically serialized by Oracle.
-                    // We expect items like: { numCuenta: string, tipo: string, estado: string }
-                    // Map correctly if it's strings or objects
-                    const accountsList = accountsRes.data.map((ac: any) => {
-                      if (typeof ac === 'string') {
-                        // fallback if only account numbers list
-                        return {
-                          numCuenta: ac,
-                          tipo: ac.length > 10 ? 'Tarjeta' : 'Prestamo',
-                          estado: 'ACTIVA'
-                        };
-                      }
-                      return {
-                        numCuenta: ac.numCuenta || ac.NUM_CUENTA || ac.num_cuenta || '',
-                        tipo: ac.tipo || ac.TIPO || '',
-                        estado: ac.estado || ac.ESTADO || 'ACTIVA'
-                      };
-                    });
-
-                    this.customerAccounts.set(accountsList);
-                    this.showCuentasModal.set(true);
-                  } else {
-                    this.showError('No se pudieron recuperar las cuentas asociadas al cliente.');
-                  }
-                },
-                error: (err) => {
-                  this.isSearching.set(false);
-                  this.showError('Error al recuperar las cuentas del cliente.');
-                }
-              });
-            },
-            error: () => {
-              this.isSearching.set(false);
-              this.showError('Error al validar la lista negra del cliente.');
-            }
-          });
-
-        } else {
-          this.isSearching.set(false);
-          this.showError(clientRes.errorMessage || 'El número de cuenta ingresado no pertenece a ningún cliente.');
-        }
-      },
-      error: (err) => {
+      if (!clientRes.success || !clientRes.data) {
+        this.showError(clientRes.errorMessage || 'El número de cuenta ingresado no pertenece a ningún cliente.');
         this.isSearching.set(false);
-        this.showError('Error de comunicación con el servidor al buscar cliente.');
+        return;
       }
-    });
+
+      const client = clientRes.data;
+
+      // 2. Check blacklist (Empresa "1")
+      const blacklistRes = await firstValueFrom(this.linkService.isClienteListaNegra('1', client.codCliente));
+      if (blacklistRes.success && blacklistRes.data === true) {
+        this.showError(`El cliente ${client.nomCliente} (${client.codCliente}) se encuentra en la Lista de Exclusiones/Lista Negra.`);
+        this.isSearching.set(false);
+        return;
+      }
+
+      // 3. Not blacklisted. Set client and get all customer accounts
+      this.selectedClient.set(client);
+
+      const accountsRes = await firstValueFrom(this.linkService.getCuentasCliente(client.codCliente));
+      this.isSearching.set(false);
+
+      if (accountsRes.success && accountsRes.data) {
+        // Cuentas maps as array of items, typically serialized by Oracle.
+        // We expect items like: { numCuenta: string, tipo: string, estado: string }
+        // Map correctly if it's strings or objects
+        const accountsList = accountsRes.data.map((ac: any) => {
+          if (typeof ac === 'string') {
+            // fallback if only account numbers list
+            return {
+              numCuenta: ac,
+              tipo: ac.length > 10 ? 'Tarjeta' : 'Prestamo',
+              estado: 'ACTIVA'
+            };
+          }
+          return {
+            numCuenta: ac.numCuenta || ac.NUM_CUENTA || ac.num_cuenta || '',
+            tipo: ac.tipo || ac.TIPO || '',
+            estado: ac.estado || ac.ESTADO || 'ACTIVA'
+          };
+        });
+
+        this.customerAccounts.set(accountsList);
+        this.showCuentasModal.set(true);
+      } else {
+        this.showError(accountsRes.errorMessage || 'No se pudieron recuperar las cuentas asociadas al cliente.');
+      }
+    } catch (err) {
+      this.isSearching.set(false);
+      let errorMessage = 'Error de comunicación con el servidor al buscar cliente.';
+      if (err instanceof HttpErrorResponse) {
+        if (err.error && (err.error.errorMessage || err.error.message)) {
+          errorMessage = err.error.errorMessage || err.error.message;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      this.showError(errorMessage);
+    }
   }
 
   selectAccount(ac: any) {
@@ -792,6 +797,17 @@ export class EmisionLinkComponent {
     this.maxMonto.set(999999);
     this.isMontoValido.set(true);
     this.searchForm.reset();
+    this.linkForm.reset({
+      monto: this.formatCurrency(0),
+      pagarDolares: false,
+      tipLink: '2',
+      diaMes: new Date().getDate().toString(),
+      tipEnvio: '2',
+      esDefault: '1',
+      customTelefono: '',
+      customEmail: ''
+    });
+    this.generatedUrl.set(null);
   }
 
   closeCuentasModal() {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -56,10 +56,11 @@ interface BulkRecord {
           <!-- Input File Drag & Drop -->
           <div class="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-[#7bc342] transition-colors relative cursor-pointer bg-gray-50 group">
             <input 
+              #fileInput
               type="file" 
               accept=".csv"
               (change)="onFileSelected($event)"
-              class="absolute inset-0 opacity-0 cursor-pointer">
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
             <div class="space-y-2">
               <span class="text-3xl block group-hover:scale-110 transition-transform">📄</span>
               <span class="text-xs font-bold text-gray-600 block">
@@ -229,6 +230,7 @@ export class CargaMasivaComponent implements OnInit {
   private readonly ui = inject(UiService);
   private readonly router = inject(Router);
 
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   selectedFileName = signal<string | null>(null);
   records = signal<BulkRecord[]>([]);
   isProcessing = signal(false);
@@ -265,6 +267,14 @@ export class CargaMasivaComponent implements OnInit {
     const file = event.target.files[0];
     if (!file) return;
 
+    // 1. Validar que la extensión sea .csv
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (extension !== 'csv') {
+      this.ui.showError('Tipo de archivo no válido. Por favor, seleccione un archivo con extensión .csv');
+      (event.target as HTMLInputElement).value = ''; // Limpiar el input para permitir una nueva selección
+      return;
+    }
+
     this.selectedFileName.set(file.name);
     this.records.set([]);
     this.resetStats();
@@ -278,20 +288,30 @@ export class CargaMasivaComponent implements OnInit {
   }
 
   private parseCsvText(text: string) {
-    const lines = text.split('\n');
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l); // Limpia líneas vacías
     if (lines.length <= 1) {
       this.ui.showError('El archivo CSV está vacío o no contiene registros.');
+      return;
+    }
+
+    // 1. Validar el encabezado del archivo
+    const header = lines[0].toUpperCase();
+    const expectedHeader = "TIPO_CUENTA,NUM_CUENTA,MONTO,TIPO_PAGO,TIPO_LINK,DIA_MES,TIPO_ENVIO,DATO_ENVIO";
+
+    if (header.replace(/\s/g, '') !== expectedHeader.replace(/\s/g, '')) {
+      this.ui.showError('El encabezado del archivo CSV no es válido. Por favor, use la plantilla descargable.');
+      this.clearFile(); // Limpiamos el archivo cargado si el header es incorrecto
       return;
     }
 
     const tempRecords: BulkRecord[] = [];
     let recordIndex = 1;
 
+    // 2. Procesar las filas de datos (a partir de la segunda línea)
     for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
+      const line = lines[i];
       if (!line) continue;
 
-      // Split by comma
       const cols = line.split(',');
       if (cols.length < 8) {
         continue; // skip malformed lines
@@ -451,8 +471,16 @@ export class CargaMasivaComponent implements OnInit {
         return this.linkService.emitirLink(link, cleanImg);
       }),
       catchError((err) => {
-        // This catchError handles errors thrown by `throw new Error(...)` inside the pipe
-        return of({ success: false, errorMessage: err.message || 'Error en las validaciones de negocio.', data: '' } as ApiResponse<string>);
+        // Este catchError maneja tanto errores de HTTP (HttpErrorResponse) como errores lanzados manualmente (new Error).
+        let customErrorMessage = 'Error en las validaciones de negocio.';
+        if (err instanceof HttpErrorResponse) {
+          // Si es un error HTTP, intentamos obtener el mensaje específico del backend.
+          customErrorMessage = err.error?.message || err.error?.errorMessage || err.message;
+        } else if (err instanceof Error) {
+          // Si es un error lanzado manualmente, usamos su mensaje.
+          customErrorMessage = err.message;
+        }
+        return of({ success: false, errorMessage: customErrorMessage, data: '' } as ApiResponse<string>);
       })
     ).subscribe({
       next: (res) => {
@@ -505,6 +533,10 @@ export class CargaMasivaComponent implements OnInit {
     this.records.set([]);
     this.resetStats();
     this.totalRecords.set(0);
+    // 2. Resetear el valor del input de archivo para permitir volver a cargar el mismo archivo.
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   downloadTemplate() {

@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { LinkService } from '../../core/services/link.service';
+import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { LinkService, DataTableResponse, LinkEntity } from '../../core/services/link.service';
 import { UiService } from '../../core/services/ui.service';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, tap, finalize, map, Observable } from 'rxjs';
 
 export interface LinkListItem {
   correlativo: string;
@@ -18,7 +19,7 @@ export interface LinkListItem {
 @Component({
   selector: 'app-control-link',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   providers: [DecimalPipe],
   template: `
     <div class="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-300">
@@ -34,8 +35,7 @@ export interface LinkListItem {
           <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">🔍</span>
           <input 
             type="text" 
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="onSearchChange()"
+            [formControl]="searchControl"
             placeholder="Buscar por cuenta, correlativo o producto..."
             class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] transition-all text-sm">
         </div>
@@ -44,7 +44,7 @@ export interface LinkListItem {
           <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Mostrar</label>
           <select 
             [(ngModel)]="pageSize" 
-            (change)="loadLinks()" 
+            (change)="manualLoad()" 
             class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7bc342]">
             <option [value]="10">10 registros</option>
             <option [value]="25">25 registros</option>
@@ -53,7 +53,7 @@ export interface LinkListItem {
           </select>
           
           <button 
-            (click)="loadLinks()" 
+            (click)="manualLoad()" 
             class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-all flex items-center gap-1.5 print:hidden">
             🔄 Actualizar
           </button>
@@ -110,7 +110,8 @@ export interface LinkListItem {
                   <tr class="hover:bg-gray-50/50 transition-colors">
                     <td class="px-6 py-4 font-mono font-bold text-gray-600">#{{ item.correlativo }}</td>
                     <td class="px-6 py-4 font-mono font-semibold text-gray-700">{{ item.producto }}</td>
-                    <td class="px-6 py-4 font-mono text-gray-800 font-bold">Q/$. {{ item.monto | number:'1.2-2' }}</td>
+                    
+                    <td class="px-6 py-4 font-mono text-gray-800 font-bold text-right">{{ item.pago.includes('Quetzales') ? 'Q.' : '$.' }} {{ item.monto | number:'1.2-2' }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ item.pago }}</td>
                     <td class="px-6 py-4 font-mono text-gray-500 text-xs">{{ item.emisionLink }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ item.usuario }}</td>
@@ -153,19 +154,22 @@ export interface LinkListItem {
     </div>
   `
 })
-export class ControlLinkComponent implements OnInit {
+export class ControlLinkComponent implements OnInit, OnDestroy {
   private readonly linkService = inject(LinkService);
   private readonly ui = inject(UiService);
+  private readonly destroy$ = new Subject<void>();
 
   // States
   links = signal<LinkListItem[]>([]);
-  isLoading = signal(false);
+  isLoading = signal(true);
   
+  // Search and Filtering
+  searchControl = new FormControl('');
+
   // Pagination and sorting
   currentPage = signal(1);
   pageSize = 25;
   totalRecords = signal(0);
-  searchQuery = '';
   sortColumn = 'EMISION_LINK';
   sortDirection: 'asc' | 'desc' = 'desc';
 
@@ -174,49 +178,96 @@ export class ControlLinkComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadLinks();
+    this.searchControl.valueChanges.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      tap(() => {
+        this.currentPage.set(1);
+        this.isLoading.set(true);
+      }),
+      switchMap((query) => 
+        this.loadLinks(query ?? '').pipe(
+          map((res: any): any => ({
+            ...res,
+            data: (res.data || []).map((link: any) => ({
+                                  correlativo: link.correlativo || 'N/A',
+                    producto: link.producto  || 'N/A',
+                    monto: link.monto || link.Monto || 0,
+                    pago: link.pago || 'N/A',
+                    emisionLink: link.emisionLink || 'N/A',
+                    usuario: link.usuario || 'N/A',
+                    envio: link.envio || link.envio || 'N/A',
+                    tipoLink: link.tipLink || link.TipLink || 'U'
+            }))
+          }))
+        )
+      ),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (res) => {
+        this.links.set(res.data);
+        this.totalRecords.set(res.recordsFiltered);
+      },
+      error: () => this.ui.showError('Error al buscar la lista de links.'),
+      complete: () => this.isLoading.set(false)
+    });
+    
+    // Initial load
+    this.searchControl.setValue('', { emitEvent: true });
   }
 
-  loadLinks() {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadLinks(query: string, length?: number): Observable<DataTableResponse<LinkListItem>> {
     this.isLoading.set(true);
-    const start = (this.currentPage() - 1) * this.pageSize;
+    const pageSize = length !== undefined ? length : this.pageSize;
+    const start = pageSize === -1 ? 0 : (this.currentPage() - 1) * this.pageSize;
 
     const request = {
       draw: this.currentPage(),
       start: start,
-      length: this.pageSize,
+      length: pageSize,
       search: {
-        value: this.searchQuery,
+        value: query,
         regex: false
       },
-      order: [
-        {
-          column: 0,
-          dir: this.sortDirection
-        }
-      ],
-      columns: [
-        { name: this.sortColumn, searchable: true, orderable: true }
-      ]
+      order: [{ column: 0, dir: this.sortDirection }],
+      columns: [{ name: this.sortColumn, searchable: true, orderable: true }]
     };
 
-    this.linkService.getLinks(request).subscribe({
-      next: (res) => {
-        this.isLoading.set(false);
-        // Cast to LinkListItem[] since the actual response matches this shape
-        this.links.set(res.data as unknown as LinkListItem[]);
-        this.totalRecords.set(res.recordsFiltered);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.ui.showError('Error al cargar la lista de links.');
-      }
-    });
+     return (this.linkService.getLinks(request) as Observable<any>).pipe(
+        map((res: any): DataTableResponse<LinkListItem> => {
+            return {
+                ...res,
+                data: (res.data || []).map((link: any): LinkListItem => ({
+                    correlativo: link.correlativo || 'N/A',
+                    producto: link.producto  || 'N/A',
+                    monto: link.monto || link.Monto || 0,
+                    pago: link.pago || 'N/A',
+                    emisionLink: link.emisionLink || 'N/A',
+                    usuario: link.usuario || 'N/A',
+                    envio: link.envio || link.envio || 'N/A',
+                    tipoLink: link.tipLink || link.TipLink || 'U'
+                }))
+            };
+        }),
+        finalize(() => this.isLoading.set(false))
+    );
   }
-
-  onSearchChange() {
-    this.currentPage.set(1);
-    this.loadLinks();
+  
+    manualLoad() {
+    this.loadLinks(this.searchControl.value ?? '').pipe(
+      takeUntil(this.destroy$) 
+    ).subscribe({
+        next: (res) => {
+            this.links.set(res.data);
+            this.totalRecords.set(res.recordsFiltered);
+        },
+        error: () => this.ui.showError('Error al recargar los links.')
+    });
   }
 
   sort(column: string) {
@@ -226,8 +277,7 @@ export class ControlLinkComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    this.currentPage.set(1);
-    this.loadLinks();
+    this.manualLoad();
   }
 
   // Pagination getters
@@ -244,18 +294,80 @@ export class ControlLinkComponent implements OnInit {
   prevPage() {
     if (this.currentPage() > 1) {
       this.currentPage.set(this.currentPage() - 1);
-      this.loadLinks();
+      this.manualLoad();
     }
   }
 
   nextPage() {
     if (this.endRecord() < this.totalRecords()) {
       this.currentPage.set(this.currentPage() + 1);
-      this.loadLinks();
+      this.manualLoad();
     }
   }
 
-  // Export and Print features
+  // Export and Print features... (rest of the file is unchanged)
+  copyToClipboard() {
+    const data = this.links();
+    if (data.length === 0) {
+      this.ui.showInfo('No hay datos para copiar.');
+      return;
+    }
+
+    const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emisión', 'Usuario', 'Envío', 'Tipo Link'];
+    const rows = data.map(item => 
+      [
+        item.correlativo,
+        item.producto,
+        item.monto.toFixed(2),
+        item.pago,
+        item.emisionLink,
+        item.usuario,
+        item.envio,
+        item.tipoLink
+      ].join('\t')
+    );
+
+    const clipboardText = [headers.join('\t'), ...rows].join('\n');
+    navigator.clipboard.writeText(clipboardText).then(() => {
+      this.ui.showSuccess('Datos copiados al portapapeles.');
+    }).catch(err => {
+      this.ui.showError('No se pudo copiar al portapapeles.');
+      console.error('Error al copiar: ', err);
+    });
+  }
+
+  exportToExcel() {
+    const data = this.links();
+    if (data.length === 0) {
+      this.ui.showInfo('No hay datos para exportar.');
+      return;
+    }
+
+    const headers = 'Correlativo,Producto,Monto,Pago,Emision,Usuario,Envio,TipoLink\n';
+    const rows = data.map(item => 
+      [
+        `"${item.correlativo}"`,
+        `"${item.producto}"`,
+        item.monto.toFixed(2),
+        `"${item.pago}"`,
+        `"${item.emisionLink}"`,
+        `"${item.usuario}"`,
+        `"${item.envio}"`,
+        `"${item.tipoLink}"`
+      ].join(',')
+    ).join('\n');
+
+    const csvContent = headers + rows;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `control_links_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   private getAllDataForExport(callback: (data: LinkListItem[]) => void, onError?: () => void) {
     if (this.totalRecords() === 0) {
       this.ui.showError('No hay datos para exportar');
@@ -263,80 +375,24 @@ export class ControlLinkComponent implements OnInit {
       return;
     }
 
+    // Si ya tenemos todos los datos cargados en la vista actual y coinciden con el total, los usamos.
     if (this.links().length === this.totalRecords()) {
       callback(this.links());
       return;
     }
 
-    const request = {
-      draw: 1,
-      start: 0,
-      length: -1,
-      search: { value: this.searchQuery, regex: false },
-      order: [{ column: 0, dir: this.sortDirection }],
-      columns: [{ name: this.sortColumn, searchable: true, orderable: true }]
-    };
-
-    this.linkService.getLinks(request).subscribe({
-      next: (res) => {
-        callback(res.data as unknown as LinkListItem[]);
-      },
-      error: () => {
-        this.ui.showError('Error al obtener los datos completos para exportar.');
-        if (onError) onError();
-      }
-    });
-  }
-
-  copyToClipboard() {
-    this.getAllDataForExport((data) => {
-      const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emisión', 'Usuario', 'Envío', 'Tipo Link'];
-      const rows = data.map(l => [
-        l.correlativo, 
-        l.producto, 
-        l.monto.toString(), 
-        l.pago, 
-        l.emisionLink, 
-        l.usuario, 
-        l.envio, 
-        l.tipoLink === 'U' ? 'Único' : (l.tipoLink === 'M' ? 'Múltiple' : l.tipoLink)
-      ]);
-      
-      const tsvContent = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
-      
-      navigator.clipboard.writeText(tsvContent).then(() => {
-        this.ui.showSuccess('Datos copiados al portapapeles');
-      }).catch(() => {
-        this.ui.showError('Error al copiar al portapapeles');
+    // Si no, hacemos una llamada para obtener todos los registros que coinciden con el filtro.
+    this.loadLinks(this.searchControl.value || '', -1) // Usamos -1 para indicar que queremos todos los registros
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          callback(response.data);
+        },
+        error: () => {
+          this.ui.showError('Error al obtener los datos completos para la operación.');
+          if (onError) onError();
+        }
       });
-    });
-  }
-
-  exportToExcel() {
-    this.getAllDataForExport((data) => {
-      const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emision', 'Usuario', 'Envio', 'Tipo Link'];
-      const rows = data.map(l => [
-        l.correlativo, 
-        l.producto, 
-        l.monto.toString(), 
-        l.pago, 
-        l.emisionLink, 
-        l.usuario, 
-        l.envio, 
-        l.tipoLink === 'U' ? 'Unico' : (l.tipoLink === 'M' ? 'Multiple' : l.tipoLink)
-      ]);
-      
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
-      
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `Control_Links_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
   }
 
   print() {
@@ -350,92 +406,48 @@ export class ControlLinkComponent implements OnInit {
       this.ui.showError('Por favor, permita las ventanas emergentes para imprimir.');
       return;
     }
-    
-    printWindow.document.write('<html><body><h2>Cargando datos para impresión...</h2></body></html>');
 
-    this.getAllDataForExport((data) => {
+    printWindow.document.write('<html><head><title>Imprimiendo...</title></head><body><h2>Cargando datos para impresión...</h2></body></html>');
+
+    this.getAllDataForExport((data: LinkListItem[]) => {
       const now = new Date();
-      const dateStr = now.toLocaleDateString();
-      const timeStr = now.toLocaleTimeString();
-
       let html = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <title>Impresión - Control de Links</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-            .header { text-align: center; margin-bottom: 20px; }
-            h1 { color: #007139; margin-bottom: 5px; font-size: 24px; }
-            .info { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; color: #333; text-transform: uppercase; font-size: 11px; }
-            .monto { font-weight: bold; font-family: monospace; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Control de Links</h1>
-          </div>
-          <div class="info">
-            <span><strong>Fecha:</strong> ${dateStr}</span>
-            <span><strong>Hora:</strong> ${timeStr}</span>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Correlativo</th>
-                <th>Producto</th>
-                <th>Monto</th>
-                <th>Pago</th>
-                <th>Emisión</th>
-                <th>Usuario</th>
-                <th>Envío</th>
-                <th>Tipo Link</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
+        <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Control de Links</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+          h1 { color: #007139; font-size: 22px; }
+          p { font-size: 12px; color: #666; }
+          table { width: 100%; border-collapse: collapse; font-size: 10px; }
+          th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+          th { background-color: #f2f2f2; text-transform: uppercase; }
+        </style>
+        </head><body>
+        <h1>Control de Links</h1>
+        <p>Reporte generado el ${now.toLocaleDateString()} a las ${now.toLocaleTimeString()}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Correlativo</th><th>Producto</th><th>Monto</th><th>Pago</th><th>Emisión</th><th>Usuario</th><th>Envío</th><th>Tipo</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
-      data.forEach(item => {
-        const tipo = item.tipoLink === 'U' ? 'Único' : (item.tipoLink === 'M' ? 'Múltiple' : item.tipoLink);
-        const montoFormatted = Number(item.monto).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        
-        html += `
-          <tr>
-            <td>${item.correlativo}</td>
-            <td>${item.producto}</td>
-            <td class="monto">Q/$. ${montoFormatted}</td>
-            <td>${item.pago}</td>
-            <td>${item.emisionLink}</td>
-            <td>${item.usuario}</td>
-            <td>${item.envio}</td>
-            <td>${tipo}</td>
-          </tr>
-        `;
+      data.forEach((item: LinkListItem) => {
+        const monto = `${item.pago.includes('Quetzales') ? 'Q' : '$'} ${item.monto.toFixed(2)}`;
+        html += `<tr><td>${item.correlativo}</td><td>${item.producto}</td><td>${monto}</td><td>${item.pago}</td><td>${item.emisionLink}</td><td>${item.usuario}</td><td>${item.envio}</td><td>${item.tipoLink}</td></tr>`;
       });
 
       html += `
-            </tbody>
-          </table>
-          <script>
-            window.onload = function() {
-              setTimeout(function() {
-                window.print();
-                window.onafterprint = function() { window.close(); }
-              }, 250);
-            }
-          </script>
-        </body>
-        </html>
-      `;
+          </tbody>
+        </table>
+        <script>window.onload=function(){setTimeout(function(){window.print();window.onafterprint=function(){window.close()}},250)}</script>
+        </body></html>`;
 
       printWindow.document.open();
       printWindow.document.write(html);
       printWindow.document.close();
     }, () => {
+      // Si hay un error al obtener los datos, cerramos la ventana emergente.
       printWindow.close();
     });
   }

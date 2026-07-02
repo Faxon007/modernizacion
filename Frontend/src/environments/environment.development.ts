@@ -1,7 +1,7 @@
 export const environment = {
     production: false,
     useDummyData: false,
-    apiBase: 'http://10.16.16.133:84/api', // Actualizado a la IP del servidor de desarrollo
+    apiBase: 'http://localhost:5000/api', // Actualizado a la IP del servidor de desarrollo
     noSistema: 509,
     palClave: 'Prmer!c@',
     palEncrypt: 'B4nc0Pr0m3r!c4',

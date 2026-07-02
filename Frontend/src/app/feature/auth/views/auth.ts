@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth as AuthService } from '../../../core/services/auth';
-// Importamos NgOptimizedImage para carga ultrarrápida del logo del banco
 import { NgOptimizedImage } from '@angular/common';
 
 @Component({
@@ -99,6 +98,10 @@ export class Auth {
 
         this.authService.login(payload).subscribe({
             next: (res) => {
+              console.log('--- RESPUESTA EXITOSA DEL BACKEND ---');
+        console.log('Estructura completa:', res);
+        console.log('¿Fue exitoso?:', res?.success);
+        console.log('Mensaje de error si existe:', res?.errorMessage);
                 if (res.success) {
                     // Si el token es válido, el sistema navega al dashboard de campañas
                     this.router.navigate(['/home']);
@@ -106,9 +109,11 @@ export class Auth {
                     this.errorMsg.set(res.errorMessage || 'Credenciales incorrectas');
                     this.isLoading.set(false);
                 }
+                
             },
-            error: () => {
-                this.errorMsg.set('Error de conexión con el servidor bancario.');
+            error: (err) => {
+                const errorMessage = err?.error?.message || 'Error de conexión con el servidor.';
+                this.errorMsg.set(errorMessage);
                 this.isLoading.set(false);
             }
         });

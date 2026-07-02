@@ -2,8 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "rootDir": "src",            
-    "types": []
+    "rootDir": "src",
+    "types": [],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true
   },
   "files": [
     "src/main.ts"                 
@@ -12,7 +15,6 @@
     "src/**/*.ts"                 
   ],
   "exclude": [
-    "src/**/*.spec.ts",           
-    "node_modules"
+    "src/**/*.spec.ts"
   ]
 }

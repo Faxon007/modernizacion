@@ -112,9 +112,9 @@ import { UiService } from '../../core/services/ui.service';
                   <label for="freGenHora" class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Hora de Generación</label>
                   <input 
                     id="freGenHora" 
-                    type="text" 
+                    type="time" 
                     formControlName="freGenHora"
-                    placeholder="Ej: 08:30"
+                    (keydown)="preventManualInput($event)"
                     class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] text-gray-800 font-semibold font-mono text-sm">
                 </div>
               </div>
@@ -436,6 +436,55 @@ export class ParametrosComponent {
     this.loadParameters();
   }
 
+  preventManualInput(event: KeyboardEvent) {
+    // Permite teclas de navegación (Tab, flechas) y de borrado, pero bloquea la escritura de números y letras.
+    const allowedKeys = ['Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete', 'Backspace'];
+    if (allowedKeys.includes(event.key)) {
+      return; // Permite la acción
+    }
+    // Para cualquier otra tecla, previene la acción por defecto (escribir en el input).
+    event.preventDefault();
+  }
+
+  private convertTo24HourFormat(time12h: string): string {
+    if (!time12h || !time12h.includes(' ')) {
+      // Si ya está en formato HH:mm o está vacío, lo devolvemos.
+      if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(time12h)) {
+        return time12h;
+      }
+      return '';
+    }
+
+    const [time, modifier] = time12h.split(' ');
+    let [hours, minutes] = time.split(':');
+
+    if (hours === '12') {
+      hours = '00';
+    }
+    if (modifier.toUpperCase() === 'PM') {
+      hours = (parseInt(hours, 10) + 12).toString();
+    }
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+  }
+
+  private convertTo12HourFormat(time24h: string): string {
+    if (!time24h || !time24h.includes(':')) {
+      return ''; // Devuelve vacío si no es un formato de hora válido
+    }
+
+    const [hoursStr, minutes] = time24h.split(':');
+    let hours = parseInt(hoursStr, 10);
+
+    const ampm = hours >= 12 ? 'PM' : 'AM'; // Determina si es AM o PM
+    let hours12 = hours % 12;
+    hours12 = hours12 ? hours12 : 12; // La hora '0' (medianoche) se convierte en '12'
+
+    const finalHours = hours12.toString();
+    const finalMinutes = minutes.padStart(2, '0');
+
+    return `${finalHours}:${finalMinutes} ${ampm}`;
+  }
+
   loadParameters() {
     this.isLoading.set(true);
     this.localError.set(null);
@@ -451,7 +500,7 @@ export class ParametrosComponent {
             freRevAutorizacion: data.freRevAutorizacion || 'U',
             freRevHrsRepetir: data.freRevHrsRepetir ? String(parseInt(data.freRevHrsRepetir, 10)) : '0',
             freGenLink: data.freGenLink || 'U',
-            freGenHora: data.freGenHora || '',
+            freGenHora: this.convertTo24HourFormat(data.freGenHora || ''),
             tcTipTransac: data.tcTipTransac || '',
             tcSubtipTrans: data.tcSubtipTrans || '',
             numCtaContaQtz: data.numCtaContaQtz || '',
@@ -563,7 +612,7 @@ export class ParametrosComponent {
       freRevAutorizacion: formVal.freRevAutorizacion,
       freRevHrsRepetir: String(formVal.freRevHrsRepetir),
       freGenLink: formVal.freGenLink,
-      freGenHora: formVal.freGenHora,
+      freGenHora: this.convertTo12HourFormat(formVal.freGenHora),
       tcTipTransac: String(formVal.tcTipTransac),
       tcSubtipTrans: formVal.tcSubtipTrans,
       numCtaContaQtz: formVal.numCtaContaQtz,
@@ -604,4 +653,3 @@ export class ParametrosComponent {
     this.router.navigate(['/home']);
   }
 }
-

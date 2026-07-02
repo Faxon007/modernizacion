@@ -32,8 +32,10 @@ namespace Backend.Infrastructure.Security
 
             var key    = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds  = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expHrs = int.Parse(_config["Jwt:ExpirationHours"] ?? "8");
-            var expiry = DateTime.UtcNow.AddHours(expHrs);
+            
+            // Corregido: Leer la configuración en horas para que coincida con appsettings.json
+            var expHours = double.Parse(_config["Jwt:ExpirationHours"] ?? "2"); // Fallback a 2 horas si no está configurado
+            var expiry = DateTime.UtcNow.AddHours(expHours);
 
             // Encriptamos la clave del usuario para que viaje en el JWT pero no sea legible
             var encryptedPwd = _protector.Protect(password);

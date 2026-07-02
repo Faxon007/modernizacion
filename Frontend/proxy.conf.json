@@ -4,5 +4,10 @@
         "secure": false,
         "changeOrigin": true,
         "logLevel": "debug"
-    }
+    },
+    "/api": {
+    "target": "https://localhost:5000", 
+    "secure": false,
+    "changeOrigin": true
+  }
 }

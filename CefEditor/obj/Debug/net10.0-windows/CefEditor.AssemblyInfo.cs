@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CefEditor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0825090ba3c9b14fbeacf29593c96c8f9ba9402e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+816aaef4d2ea5852fe86c88f7891e83145ea9ffd")]
 [assembly: System.Reflection.AssemblyProductAttribute("CefEditor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CefEditor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -203,7 +203,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    c.OperationFilter<TransactionIdHeaderFilter>();
+    //c.OperationFilter<TransactionIdHeaderFilter>();
 });
 
 var app = builder.Build();
@@ -220,7 +220,7 @@ app.UseSwaggerUI(c =>
 });
 
 // Usar middlewares en orden correcto para peticiones de API
-app.UseMiddleware<TransactionIdMiddleware>();
+// app.UseMiddleware<TransactionIdMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseHttpsRedirection();

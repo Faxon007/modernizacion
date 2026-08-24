@@ -10,7 +10,7 @@ namespace Backend.Repositories
         Task<string?> InsertLinkAsync(LinkEntity link);
         Task<bool> AplicaPagoPRAsync(PagoRequest pago, string moneda);
         Task<bool> AplicaPagoTCAsync(PagoRequest pago, string moneda);
-        Task<LinkParametroInfo?> GetParametroAsync(string codLink);
+        Task<LinkParametroInfo?> GetParametroAsync(string sku);
         Task<LinkCtaInfo?> GetLinkCtaAsync(string numCta);
         Task<LinkCtaInfo?> GetLinkParametroAsync(string codParametro);
         Task<(IEnumerable<LinkListItem> Items, int TotalCount, int FilteredCount)> GetLinksPagedAsync(
@@ -24,6 +24,7 @@ namespace Backend.Repositories
         Task<int> ExistenPendientesAsync();
         Task<bool> ExistePerifericoAsync(int codPeriferico);
         Task<bool> UpdateURLCortoAsync(decimal numConsecutivo, string urlCorto);
+        Task<int> UpdateURLCortosBulkAsync(List<(decimal NumConsecutivo, string UrlCorto)> updates);
         Task<bool> RegistraBitacoraBDAsync(string urlLargo, string urlCorto, int codPeriferico);
     }
 }

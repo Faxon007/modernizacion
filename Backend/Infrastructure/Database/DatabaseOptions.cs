@@ -31,14 +31,12 @@ namespace Backend.Infrastructure.Database
             $"Server={Host};Database={Database};User Id={User};Password={Password};TrustServerCertificate=True;";
     }
 
-    public record DatabaseKey(DatabaseEngine Engine, int Index = 0)
+    public record DatabaseKey(DatabaseEngine Engine, string KeyName)
     {
-        public static readonly DatabaseKey TC = new(DatabaseEngine.Oracle, 0);
-        public static readonly DatabaseKey CBS = new(DatabaseEngine.Oracle, 1);
-        public static readonly DatabaseKey CBS_CORTO = new(DatabaseEngine.Oracle, 2);
-        public static readonly DatabaseKey SQL = new(DatabaseEngine.SqlServer, 0);
+        public static readonly DatabaseKey Oracle = new(DatabaseEngine.Oracle, "Oracle");
+        public static readonly DatabaseKey SQL = new(DatabaseEngine.SqlServer, "SQL");
 
-        public override string ToString() => $"{Engine}[{Index}]";
+        public override string ToString() => $"{Engine}[{KeyName}]";
     }
 
     public enum DatabaseEngine { Oracle, SqlServer }

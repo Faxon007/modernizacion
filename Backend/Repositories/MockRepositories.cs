@@ -42,9 +42,10 @@ namespace Backend.Repositories
         public Task<bool> AplicaPagoTCAsync(PagoRequest pago, string moneda) =>
             Task.FromResult(true);
 
-        public Task<LinkParametroInfo?> GetParametroAsync(string codLink) =>
+        public Task<LinkParametroInfo?> GetParametroAsync(string sku) =>
             Task.FromResult<LinkParametroInfo?>(new LinkParametroInfo
             {
+                CodLink = "9999",
                 NumCuenta = "4019283746",
                 TipCuenta = "TC",
                 TipPago = "Contado",
@@ -94,6 +95,7 @@ namespace Backend.Repositories
         public Task<int> ExistenPendientesAsync() => Task.FromResult(0);
         public Task<bool> ExistePerifericoAsync(int codPeriferico) => Task.FromResult(false);
         public Task<bool> UpdateURLCortoAsync(decimal numConsecutivo, string urlCorto) => Task.FromResult(true);
+        public Task<int> UpdateURLCortosBulkAsync(List<(decimal NumConsecutivo, string UrlCorto)> updates) => Task.FromResult(updates?.Count ?? 0);
         public Task<bool> RegistraBitacoraBDAsync(string urlLargo, string urlCorto, int codPeriferico) => Task.FromResult(true);
     }
 
@@ -102,7 +104,7 @@ namespace Backend.Repositories
         public Task<IEnumerable<MenuItem>> GetMenuItemsAsync(string username, string systemCode) =>
             Task.FromResult<IEnumerable<MenuItem>>(new List<MenuItem>
             {
-                new MenuItem { CodMenuItem = 1, Nombre = "Cobros Visa En Link", Path = "", Descripcion = "Gestión de cobros", CodItemPadre = 0, Visible = "S" },
+                new MenuItem { CodMenuItem = 1, Nombre = "Cobros Neo En Link", Path = "", Descripcion = "Gestión de cobros", CodItemPadre = 0, Visible = "S" },
                 new MenuItem { CodMenuItem = 2, Nombre = "Emisión de Link", Path = "frmEmisionLink", Descripcion = "Emitir un nuevo link", CodItemPadre = 1, Visible = "S" },
                 new MenuItem { CodMenuItem = 3, Nombre = "Activación de Link", Path = "frmActivacion", Descripcion = "Activación manual", CodItemPadre = 1, Visible = "S" },
                 new MenuItem { CodMenuItem = 4, Nombre = "Cancelar Link", Path = "frmCancelarLink", Descripcion = "Cancelar programaciones", CodItemPadre = 1, Visible = "S" },
@@ -148,7 +150,7 @@ namespace Backend.Repositories
             CodSubtipoPr = "05",
             CodDepartamento = "01",
             CodDeptoPr = "01",
-            DesTransaccion = "Cobro Visa En Link Promerica",
+            DesTransaccion = "Cobro Neo En Link Promerica",
             ApiImagenBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
             MsgRemitente = "Banco Promerica Guatemala",
             MsgHeader = "Estimado Cliente, Banco Promerica le envía su link de pago seguro:",

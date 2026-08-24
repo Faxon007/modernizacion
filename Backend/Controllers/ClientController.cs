@@ -49,10 +49,8 @@ namespace Backend.Controllers
             try
             {
                 var prestamo = await _clientRepo.GetTipoPrestamoAsync(numCta);
-                if (prestamo == null)
-                {
-                    return NotFound(new { success = false, message = "Información de préstamo no encontrada." });
-                }
+                // Retorna 200 OK con data: null si no se encuentra, en lugar de 404 Not Found.
+                // Esto permite al frontend manejar la ausencia de datos de forma más controlada.
                 return Ok(new { success = true, data = prestamo });
             }
             catch (Exception ex)

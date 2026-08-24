@@ -39,11 +39,8 @@ namespace Backend.Controllers
         [HttpPost("get-links")]
         public async Task<IActionResult> GetLinks([FromBody] DataTableRequest request)
         {
-            try
-            {
-                string username = User.Identity?.Name ?? "SISTEMA";
-                string search = request.Search?.Value?.Replace(' ', '%') ?? string.Empty;
-                
+            try {
+                string search = request.Search?.Value ?? string.Empty;
                 string orderCol = "FEC_EMISION";
                 string orderDir = "desc";
 
@@ -61,6 +58,10 @@ namespace Backend.Controllers
                     }
                 }
 
+                // Se obtiene el nombre de usuario para pasarlo al repositorio.
+                string username = User.Identity?.Name?.ToUpper() ?? "SISTEMA";
+
+                // OPTIMIZACIÓN: El método del repositorio ahora devuelve solo los items y el conteo filtrado en una sola consulta.
                 var (items, totalCount, filteredCount) = await _linkRepository.GetLinksPagedAsync(
                     request.Start,
                     request.Length,
@@ -77,9 +78,7 @@ namespace Backend.Controllers
                     recordsFiltered = filteredCount,
                     data = items
                 });
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 _logger.LogError(ex, "Error al obtener listado de links paginados.");
                 return StatusCode(500, new { success = false, message = "Error al consultar los links." });
             }
@@ -90,8 +89,17 @@ namespace Backend.Controllers
         {
             try
             {
-                string username = User.Identity?.Name ?? "SISTEMA";
+                string username = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value 
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                    ?? User.Identity?.Name 
+                    ?? "SISTEMA";
+                username = username.ToUpper();
+                // Log the raw search value from the DataTableRequest to debug frontend transmission or deserialization
+                _logger.LogInformation("GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: '{RawSearchValue}'", request.Search?.Value);
                 string search = request.Search?.Value?.Replace(' ', '%') ?? string.Empty;
+                _logger.LogInformation("GetLinksVerifica: Processed search string for repository: '{ProcessedSearch}'", search);
 
                 string orderCol = "FEC_EMISION";
                 string orderDir = "desc";
@@ -199,7 +207,13 @@ namespace Backend.Controllers
 
             try
             {
-                string username = User.Identity?.Name ?? "SISTEMA";
+                string username = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value 
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                    ?? User.Identity?.Name 
+                    ?? "SISTEMA";
+                username = username.ToUpper();
                 string shortUrl = await _linkBusinessService.EmitirLinkAsync(request.Link, request.ImgPublicitaria ?? string.Empty, username);
                 return Ok(new { success = true, data = shortUrl });
             }
@@ -218,14 +232,77 @@ namespace Backend.Controllers
                 var info = await _linkBusinessService.ValidarYConsultaLinkAsync(sku);
                 if (info == null)
                 {
-                    return NotFound(new { success = false, message = "Link no encontrado en Visa." });
+                    return Ok(new { success = false, errorMessage = "Link no encontrado en Neo." });
                 }
+
+                // SIMULACIÓN DE PROCESAMIENTO EN DESARROLLO (Equivalente a btnConsultaPago_Click en frmVerificacionLink.aspx.cs)
+                string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+                if (env.Equals("Development", StringComparison.OrdinalIgnoreCase))
+                {
+                    var linkInfo = await _linkRepository.GetParametroAsync(sku);
+                    if (linkInfo != null)
+                    {
+                        // Preparar el PagoRequest con la información del link
+                        var pagoRequest = new PagoRequest
+                        {
+                            CodLink = linkInfo.CodLink ?? sku,
+                            NumCta = linkInfo.NumCuenta ?? string.Empty,
+                            CodSku = sku,
+                            AutVisa = info.Ventas?.FirstOrDefault()?.Autorizacion ?? "8956540",
+                            MonPago = linkInfo.MonCobro // Asegurarse de que MonPago se asigne desde linkInfo.MonCobro
+                        };
+
+                        string moneda = linkInfo.TipPago == "0" ? "320" : "840";
+
+                        // --- INICIO DE LOGS PARA VALIDACIÓN DE FLUJO ---
+                        _logger.LogInformation("Development Simulation: Processing payment for SKU '{Sku}'.", sku);
+                        _logger.LogInformation("Development Simulation: linkInfo.TipCuenta = '{TipCuenta}', linkInfo.NumCuenta = '{NumCuenta}'", linkInfo.TipCuenta, linkInfo.NumCuenta);
+                        _logger.LogInformation("Development Simulation: PagoRequest: CodLink='{CodLink}', NumCta='{NumCta}', MonPago='{MonPago}', Moneda='{Moneda}'", pagoRequest.CodLink, pagoRequest.NumCta, pagoRequest.MonPago, moneda);
+                        // --- FIN DE LOGS PARA VALIDACIÓN DE FLUJO ---
+
+                        if (linkInfo.TipCuenta == "PR")
+                        {
+                            _logger.LogInformation("Development Simulation: Calling AplicaPagoPRAsync for PR account.");
+                            await _linkRepository.AplicaPagoPRAsync(pagoRequest, moneda);
+                        }
+                        else if (linkInfo.TipCuenta == "TC")
+                        {
+                            await _linkRepository.AplicaPagoTCAsync(pagoRequest, moneda);
+                        }
+
+                        // Manejar el caso de un tipo de cuenta inesperado
+                        else
+                        {
+                            _logger.LogWarning("Development Simulation: Unknown TipCuenta '{TipCuenta}' for SKU '{Sku}'. No payment applied.", linkInfo.TipCuenta, sku);
+                        }
+
+                        try
+                        {
+                            var bitacora = new BitacoraRequest
+                            {
+                                CodLink = linkInfo.CodLink, // Usar linkInfo.CodLink para la bitácora, como se revirtió previamente
+                                Descripcion = $"Se procedio con el pago  ({sku}) según link No.{linkInfo.CodLink} asociado al número de cuenta de No.{linkInfo.NumCuenta}, Valor = {pagoRequest.MonPago}",
+                                TipProcesamiento = "P"
+                            };
+                            await _siteRepository.RegistraBitacoraAsync(bitacora);
+                        }
+                        catch (Exception bitEx)
+                        {
+                            _logger.LogWarning(bitEx, "No se pudo registrar en la bitácora local en modo desarrollo.");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Development Simulation: linkInfo is null for SKU '{Sku}'. Cannot simulate payment.", sku);
+                    }
+                }
+
                 return Ok(new { success = true, data = info });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al validar link en Visa: {Sku}", sku);
-                return StatusCode(500, new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Error al validar link en Neo: {Sku}", sku);
+                return Ok(new { success = false, errorMessage = ex.Message });
             }
         }
 
@@ -239,13 +316,19 @@ namespace Backend.Controllers
 
             try
             {
-                string username = User.Identity?.Name ?? "SISTEMA";
+                string username = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value 
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                    ?? User.Identity?.Name 
+                    ?? "SISTEMA";
+                username = username.ToUpper();
                 bool result = await _linkBusinessService.CancelarLinkAsync(request.Sku, request.Nombre, request.Precio, username);
                 if (result)
                 {
                     return Ok(new { success = true, message = "Link cancelado exitosamente." });
                 }
-                return BadRequest(new { success = false, message = "No se pudo cancelar el link en Visa." });
+                return BadRequest(new { success = false, message = "No se pudo cancelar el link en Neo." });
             }
             catch (Exception ex)
             {
@@ -320,7 +403,7 @@ namespace Backend.Controllers
                 {
                     try
                     {
-                        string diaMes = info?.DiaMes ?? "N/A";
+                        string diaMes = info?.DiaMes! ?? "N/A"; // Suppress CS8601, as null is handled by ??
                         var bitacora = new BitacoraRequest
                         {
                             CodLink = "",
@@ -355,7 +438,7 @@ namespace Backend.Controllers
             try
             {
                 // 1. Obtener detalles del link desde la base de datos
-                var linkInfo = await _linkRepository.GetParametroAsync(request.CodLink);
+                var linkInfo = await _linkRepository.GetParametroAsync(request.CodSku);
                 if (linkInfo == null)
                 {
                     return BadRequest(new { success = false, message = "No se encontraron los detalles del link en el sistema." });
@@ -368,6 +451,9 @@ namespace Backend.Controllers
                 // TipPago = "0" -> Quetzales (320), TipPago = "1" -> Dólares (840)
                 string moneda = linkInfo.TipPago == "0" ? "320" : "840";
                 bool result = false;
+                
+                _logger.LogInformation("Iniciando llamada a SP de core bancario para SKU: {CodSku}, Cuenta: {NumCta}", request.CodSku, request.NumCta);
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                 if (linkInfo.TipCuenta == "PR")
                 {
@@ -379,8 +465,13 @@ namespace Backend.Controllers
                 }
                 else
                 {
+                    stopwatch.Stop();
+                    _logger.LogWarning("Tipo de cuenta no soportado para aplicar pagos para SKU: {CodSku}, Tipo: {TipCuenta}. Tiempo transcurrido: {ElapsedMs}ms", request.CodSku, linkInfo.TipCuenta, stopwatch.ElapsedMilliseconds);
                     return BadRequest(new { success = false, message = "Tipo de cuenta no soportado para aplicar pagos." });
                 }
+
+                stopwatch.Stop();
+                _logger.LogInformation("Llamada a SP de core bancario finalizada para SKU: {CodSku} en {ElapsedMs}ms. Resultado: {Result}", request.CodSku, stopwatch.ElapsedMilliseconds, result);
 
                 if (result)
                 {

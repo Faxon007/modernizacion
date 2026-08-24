@@ -112,9 +112,9 @@ import { UiService } from '../../core/services/ui.service';
                   <label for="freGenHora" class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Hora de Generación</label>
                   <input 
                     id="freGenHora" 
-                    type="text" 
+                    type="time" 
                     formControlName="freGenHora"
-                    placeholder="Ej: 08:30"
+                    (keydown)="preventManualInput($event)"
                     class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] text-gray-800 font-semibold font-mono text-sm">
                 </div>
               </div>
@@ -253,7 +253,7 @@ import { UiService } from '../../core/services/ui.service';
                   <label for="msgRemitente" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Remitente del Correo (Email Sender)</label>
                   <input 
                     id="msgRemitente" 
-                    type="email" 
+                    type="text" 
                     formControlName="msgRemitente"
                     class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] text-gray-800 font-medium">
                 </div>
@@ -301,11 +301,11 @@ import { UiService } from '../../core/services/ui.service';
             </div>
           </div>
 
-          <!-- SECCIÓN 5: Imagen Publicitaria de Visa -->
+          <!-- SECCIÓN 5: Imagen Publicitaria de Neo -->
           <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="bg-gradient-to-r from-[#007139] to-[#007139]/95 px-6 py-4 text-white">
               <h3 class="font-bold text-lg flex items-center gap-2">
-                <span>🖼️</span> Imagen Promocional Publicitaria (Visa)
+                <span>🖼️</span> Imagen Promocional Publicitaria (Neo)
               </h3>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -351,7 +351,7 @@ import { UiService } from '../../core/services/ui.service';
                 <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 self-start">Vista Previa de la Publicidad</span>
                 @if (imagePreview()) {
                   <div class="relative w-full max-h-[220px] overflow-hidden rounded-xl border bg-white flex items-center justify-center">
-                    <img [src]="imagePreview()" alt="Publicidad Visa" class="max-w-full max-h-[220px] object-contain">
+                    <img [src]="imagePreview()" alt="Publicidad Neo" class="max-w-full max-h-[220px] object-contain">
                   </div>
                 } @else {
                   <div class="text-center py-8 text-gray-400 space-y-2">
@@ -375,7 +375,7 @@ import { UiService } from '../../core/services/ui.service';
             </button>
             <button 
               type="submit" 
-              [disabled]="paramForm.invalid || isSaving()"
+              [disabled]="isSaving()"
               class="px-8 py-3 bg-[#007139] hover:bg-[#007139]/90 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-md shadow-[#007139]/10 flex items-center justify-center gap-2">
               @if (isSaving()) {
                 <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
@@ -411,7 +411,7 @@ export class ParametrosComponent {
     freRevAutorizacion: ['U', [Validators.required]],
     freRevHrsRepetir: ['0', [Validators.required]],
     freGenLink: ['U', [Validators.required]],
-    freGenHora: ['', [Validators.required, Validators.pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)]],
+    freGenHora: ['', [Validators.required]],
     tcTipTransac: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
     tcSubtipTrans: ['', [Validators.required]],
     numCtaContaQtz: ['', [Validators.required]],
@@ -424,7 +424,7 @@ export class ParametrosComponent {
     codDepartamento: ['', [Validators.required]],
     codDeptoPr: ['', [Validators.required]],
     desTransaccion: ['', [Validators.required]],
-    msgRemitente: ['', [Validators.required, Validators.email]],
+    msgRemitente: [''],
     msgHeader: ['', [Validators.required]],
     msgFooter: ['', [Validators.required]],
     msgSms: ['', [Validators.required, Validators.maxLength(160)]],
@@ -434,6 +434,55 @@ export class ParametrosComponent {
   constructor() {
     this.ui.title.set('Configuración General del Sistema');
     this.loadParameters();
+  }
+
+  preventManualInput(event: KeyboardEvent) {
+    // Permite teclas de navegación (Tab, flechas) y de borrado, pero bloquea la escritura de números y letras.
+    const allowedKeys = ['Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete', 'Backspace'];
+    if (allowedKeys.includes(event.key)) {
+      return; // Permite la acción
+    }
+    // Para cualquier otra tecla, previene la acción por defecto (escribir en el input).
+    event.preventDefault();
+  }
+
+  private convertTo24HourFormat(time12h: string): string {
+    if (!time12h || !time12h.includes(' ')) {
+      // Si ya está en formato HH:mm o está vacío, lo devolvemos.
+      if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(time12h)) {
+        return time12h;
+      }
+      return '';
+    }
+
+    const [time, modifier] = time12h.split(' ');
+    let [hours, minutes] = time.split(':');
+
+    if (hours === '12') {
+      hours = '00';
+    }
+    if (modifier.toUpperCase() === 'PM') {
+      hours = (parseInt(hours, 10) + 12).toString();
+    }
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+  }
+
+  private convertTo12HourFormat(time24h: string): string {
+    if (!time24h || !time24h.includes(':')) {
+      return ''; // Devuelve vacío si no es un formato de hora válido
+    }
+
+    const [hoursStr, minutes] = time24h.split(':');
+    let hours = parseInt(hoursStr, 10);
+
+    const ampm = hours >= 12 ? 'PM' : 'AM'; // Determina si es AM o PM
+    let hours12 = hours % 12;
+    hours12 = hours12 ? hours12 : 12; // La hora '0' (medianoche) se convierte en '12'
+
+    const finalHours = hours12.toString();
+    const finalMinutes = minutes.padStart(2, '0');
+
+    return `${finalHours}:${finalMinutes} ${ampm}`;
   }
 
   loadParameters() {
@@ -451,7 +500,7 @@ export class ParametrosComponent {
             freRevAutorizacion: data.freRevAutorizacion || 'U',
             freRevHrsRepetir: data.freRevHrsRepetir ? String(parseInt(data.freRevHrsRepetir, 10)) : '0',
             freGenLink: data.freGenLink || 'U',
-            freGenHora: data.freGenHora || '',
+            freGenHora: this.convertTo24HourFormat(data.freGenHora || ''),
             tcTipTransac: data.tcTipTransac || '',
             tcSubtipTrans: data.tcSubtipTrans || '',
             numCtaContaQtz: data.numCtaContaQtz || '',
@@ -544,7 +593,16 @@ export class ParametrosComponent {
   }
 
   onSave() {
-    if (this.paramForm.invalid) return;
+    if (this.paramForm.invalid) {
+      const invalidFields = [];
+      for (const controlName in this.paramForm.controls) {
+        if (this.paramForm.controls[controlName].invalid) {
+          invalidFields.push(controlName);
+        }
+      }
+      this.localError.set('Faltan campos obligatorios o el formato es incorrecto. Revise: ' + invalidFields.join(', '));
+      return;
+    }
     this.isSaving.set(true);
     this.localError.set(null);
 
@@ -554,7 +612,7 @@ export class ParametrosComponent {
       freRevAutorizacion: formVal.freRevAutorizacion,
       freRevHrsRepetir: String(formVal.freRevHrsRepetir),
       freGenLink: formVal.freGenLink,
-      freGenHora: formVal.freGenHora,
+      freGenHora: this.convertTo12HourFormat(formVal.freGenHora),
       tcTipTransac: String(formVal.tcTipTransac),
       tcSubtipTrans: formVal.tcSubtipTrans,
       numCtaContaQtz: formVal.numCtaContaQtz,

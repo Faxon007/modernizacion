@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Backend.Infrastructure.Database
 {
@@ -6,6 +7,9 @@ namespace Backend.Infrastructure.Database
     {
         public static IServiceCollection AddEncryptedDatabaseConnections(this IServiceCollection services)
         {
+            // Habilitar el enlace por nombre globalmente para Oracle
+            OracleConfiguration.BindByName = true;
+
             services.AddSingleton<IDatabaseConnectionProvider, DatabaseConnectionProvider>();
             return services;
         }

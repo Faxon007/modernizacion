@@ -89,7 +89,7 @@ public partial class frmLinksVerifica : System.Web.UI.Page
                 // se revisa que la autorizacion del pago se encuentre 
                 if (!String.IsNullOrEmpty(Link.ObtengoAutorizacion()))
                 {
-                    //obtengo el número de autorizacion de visa
+                    //obtengo el número de autorizacion de Neo
                     objPago.aut_visa = Link.ObtengoAutorizacion();
 
                     //se debe proceder con el pago del link 
@@ -103,7 +103,7 @@ public partial class frmLinksVerifica : System.Web.UI.Page
                 {
                     ScriptManager.RegisterStartupScript(this.Page, typeof(Page), "hideContenido", "HideDiv();", true);
                     //muestro el mensaje en el modal-fade
-                    ShowMessage("El link aún no posee un número de autorizacion en Visa", MessageType.Warning);
+                    ShowMessage("El link aún no posee un número de autorizacion en Neo", MessageType.Warning);
                 }
             }
         }

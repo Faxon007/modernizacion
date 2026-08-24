@@ -246,9 +246,6 @@ export class CancelarLinkComponent {
           this.linkInfo.set(null);
           this.cuentaForm.reset();
           this.correlativoForm.reset();
-          setTimeout(() => {
-            this.router.navigate(['/home']);
-          }, 1500);
         } else {
           this.ui.showError('No se pudo desactivar el link programado.');
         }

@@ -64,6 +64,17 @@ export interface PagoRequest {
   autVisa: string;
 }
 
+export interface LinkListItem {
+  correlativo: string;
+  producto: string;
+  monto: number;
+  pago: string;
+  emisionLink: string;
+  usuario: string;
+  envio: string;
+  tipoLink: string;
+}
+
 export interface LinkVerificaItem {
   correlativo: string;
   producto: string;
@@ -87,8 +98,8 @@ export class LinkService {
 
   // --- Endpoints de Links ---
 
-  getLinks(dtRequest: any): Observable<DataTableResponse<LinkEntity>> {
-    return this.http.post<DataTableResponse<LinkEntity>>(`${this.baseUrl}/links/get-links`, dtRequest);
+  getLinks(dtRequest: any): Observable<DataTableResponse<LinkListItem>> {
+    return this.http.post<DataTableResponse<LinkListItem>>(`${this.baseUrl}/links/get-links`, dtRequest);
   }
 
   getLinksVerifica(dtRequest: any): Observable<DataTableResponse<LinkVerificaItem>> {

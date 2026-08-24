@@ -22,7 +22,7 @@ namespace Backend.Repositories
                            FROM rrhh_menu_item m
                            JOIN rrhh_permiso_item pe ON pe.COD_MENU_ITEM = m.cod_menu_item
                            JOIN rrhh_usuario_rol ur ON ur.rol = pe.rol  
-                           WHERE UPPER(ur.USUARIO) = UPPER(:username)
+                           WHERE TRIM(UPPER(ur.USUARIO)) = TRIM(UPPER(:username))
                              AND m.cod_menu_item <> 0  
                              AND m.sistema = :systemCode
                            ORDER BY m.nombre ASC";
@@ -33,27 +33,27 @@ namespace Backend.Repositories
         public async Task<string?> ValidateRRHHAsync(string username)
         {
             using var conn = new OracleConnection(connectionString);
-            string sql = "SELECT activo FROM RRHH_USUARIO WHERE UPPER(USUARIO) = UPPER(:username)";
+            string sql = "SELECT activo FROM RRHH_USUARIO WHERE TRIM(UPPER(USUARIO)) = TRIM(UPPER(:username))";
             return await conn.QueryFirstOrDefaultAsync<string>(sql, new { username = username.Trim() });
         }
 
         public async Task<string?> ValidatePAAsync(string username)
         {
             using var conn = new OracleConnection(connectionString);
-            string sql = "SELECT est_activo FROM USUARIOS WHERE UPPER(cod_usuario) = UPPER(:username)";
+            string sql = "SELECT est_activo FROM USUARIOS WHERE TRIM(UPPER(cod_usuario)) = TRIM(UPPER(:username))";
             return await conn.QueryFirstOrDefaultAsync<string>(sql, new { username = username.Trim() });
         }
 
         public async Task<IEnumerable<UserRoleInfo>> VerificarRolAsync(string username, string systemCode)
         {
             using var conn = new OracleConnection(connectionString);
-            string sql = @"SELECT RU.USUARIO, RUR.ROL, RPI.COD_MENU_ITEM, RO.ACCION, RO.SISTEMA  
+            string sql = @"SELECT RU.USUARIO, RUR.ROL, RPI.COD_MENU_ITEM, '' AS ACCION, RO.SISTEMA  
                            FROM RRHH_USUARIO RU 
-                           LEFT JOIN RRHH_USUARIO_ROL RUR ON RUR.USUARIO = RU.USUARIO 
+                           LEFT JOIN RRHH_USUARIO_ROL RUR ON TRIM(UPPER(RUR.USUARIO)) = TRIM(UPPER(RU.USUARIO)) 
                            LEFT JOIN RRHH_ROL RO ON RO.ROL = RUR.ROL 
                            LEFT JOIN RRHH_PERMISO_ITEM RPI ON RPI.ROL = RUR.ROL 
                            WHERE RO.SISTEMA = :systemCode
-                             AND UPPER(RU.USUARIO) = UPPER(:username)";
+                             AND TRIM(UPPER(RU.USUARIO)) = TRIM(UPPER(:username))";
 
             return await conn.QueryAsync<UserRoleInfo>(sql, new { username = username.Trim(), systemCode = int.Parse(systemCode) });
         }

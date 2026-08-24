@@ -1,0 +1,372 @@
+2026-06-09 12:05:07.857 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 12:05:07.896 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 12:05:07.897 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 12:05:07.897 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 12:05:07.897 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 12:05:07.907 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 12:05:07.907 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 12:05:07.920 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 12:05:07.969 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 12:05:07.970 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 12:05:07.970 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 12:05:07.974 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 12:05:08.289 [INF] Now listening on: https://localhost:7194
+2026-06-09 12:05:08.289 [INF] Now listening on: http://localhost:5222
+2026-06-09 12:05:08.289 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 12:05:08.289 [INF] Hosting environment: Development
+2026-06-09 12:05:08.289 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 12:07:30.861 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 12:07:30.887 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 12:07:30.890 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 12:07:30.890 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 12:07:30.890 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 12:07:30.918 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 12:07:30.918 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 12:07:30.959 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 12:07:31.008 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 12:07:31.009 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 12:07:31.009 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 12:07:31.011 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 12:07:31.327 [INF] Now listening on: https://localhost:7194
+2026-06-09 12:07:31.327 [INF] Now listening on: http://localhost:5222
+2026-06-09 12:07:31.328 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 12:07:31.329 [INF] Hosting environment: Development
+2026-06-09 12:07:31.329 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 12:16:35.108 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 12:16:35.174 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 12:16:35.175 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 12:16:35.176 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 12:16:35.176 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 12:16:35.177 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 12:16:35.179 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 12:16:35.180 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 12:16:35.290 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 12:16:35.292 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 12:16:35.292 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 12:16:35.303 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 12:16:35.857 [INF] Now listening on: https://localhost:7194
+2026-06-09 12:16:35.857 [INF] Now listening on: http://localhost:5222
+2026-06-09 12:16:35.858 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 12:16:35.858 [INF] Hosting environment: Development
+2026-06-09 12:16:35.858 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 12:38:06.532 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 12:38:06.556 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 12:38:06.557 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 12:38:06.557 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 12:38:06.557 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 12:38:06.558 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 12:38:06.559 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 12:38:06.559 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 12:38:06.591 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 12:38:06.592 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 12:38:06.592 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 12:38:06.594 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 12:38:06.725 [INF] Now listening on: http://localhost:5000
+2026-06-09 12:38:06.725 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 12:38:06.725 [INF] Hosting environment: Development
+2026-06-09 12:38:06.725 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 12:39:18.077 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 12:39:18.105 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 12:39:18.106 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 12:39:18.106 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 12:39:18.106 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 12:39:18.107 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 12:39:18.108 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 12:39:18.108 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 12:39:18.152 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 12:39:18.153 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 12:39:18.153 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 12:39:18.157 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 12:39:18.340 [INF] Now listening on: http://localhost:5000
+2026-06-09 12:39:18.341 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 12:39:18.341 [INF] Hosting environment: Development
+2026-06-09 12:39:18.341 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 12:39:36.295 [INF] [START] [add47e3b-c191-4a22-bf5d-825d62671e2f] POST /api/auth/login
+2026-06-09 12:39:36.306 [WRN] Failed to determine the https port for redirect.
+2026-06-09 12:39:42.647 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-09 12:39:44.210 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-09 12:39:44.857 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-09 12:39:44.970 [INF] [END] [add47e3b-c191-4a22-bf5d-825d62671e2f] POST /api/auth/login -> 200 | 8676ms
+2026-06-09 12:39:45.018 [INF] [START] [ff16d0c0-56bf-4d89-ae0e-6a23676f849b] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 12:39:45.250 [INF] [END] [ff16d0c0-56bf-4d89-ae0e-6a23676f849b] GET /api/Menu/items -> 200 | 232ms
+2026-06-09 12:39:50.423 [INF] [START] [036b155d-02ea-46fd-a91e-89379b339d87] GET /api/parameters
+2026-06-09 12:39:52.373 [INF] [END] [036b155d-02ea-46fd-a91e-89379b339d87] GET /api/parameters -> 200 | 1950ms
+2026-06-09 12:40:06.158 [INF] [START] [cbb2cf6c-7aea-46f7-94ab-adb0255ca4b8] GET /api/clients/180004767096
+2026-06-09 12:40:06.530 [INF] [END] [cbb2cf6c-7aea-46f7-94ab-adb0255ca4b8] GET /api/clients/180004767096 -> 200 | 372ms
+2026-06-09 12:40:06.545 [INF] [START] [68c07a94-f74b-4c18-a62c-9aefe815c567] GET /api/clients/blacklist/1/901052534
+2026-06-09 12:40:06.655 [INF] [END] [68c07a94-f74b-4c18-a62c-9aefe815c567] GET /api/clients/blacklist/1/901052534 -> 200 | 110ms
+2026-06-09 12:40:06.666 [INF] [START] [22efbe28-4f14-4010-8f72-8fe1c2da1a28] GET /api/clients/901052534/cuentas
+2026-06-09 12:40:07.022 [INF] [END] [22efbe28-4f14-4010-8f72-8fe1c2da1a28] GET /api/clients/901052534/cuentas -> 200 | 356ms
+2026-06-09 12:40:12.294 [INF] [START] [6348b53d-60d6-4345-a139-38abf4c5ff43] GET /api/clients/901052534/correo
+2026-06-09 12:40:12.301 [INF] [START] [c2a499ce-c402-4f11-a278-adf1a4ff31b0] GET /api/clients/901052534/telefono
+2026-06-09 12:40:12.443 [INF] [END] [c2a499ce-c402-4f11-a278-adf1a4ff31b0] GET /api/clients/901052534/telefono -> 200 | 141ms
+2026-06-09 12:40:12.443 [INF] [END] [6348b53d-60d6-4345-a139-38abf4c5ff43] GET /api/clients/901052534/correo -> 200 | 150ms
+2026-06-09 12:40:17.504 [INF] [START] [0fddc846-f35a-4dcb-b1d3-b1ca1936183b] GET /api/clients/monto-pr/180004767096
+2026-06-09 12:40:18.625 [INF] [END] [0fddc846-f35a-4dcb-b1d3-b1ca1936183b] GET /api/clients/monto-pr/180004767096 -> 200 | 1120ms
+2026-06-09 12:40:19.108 [INF] [START] [02fbd382-c98b-41e5-9b90-680bf71a3ecf] GET /api/clients/180004767096/prestamo
+2026-06-09 12:40:19.773 [INF] [END] [02fbd382-c98b-41e5-9b90-680bf71a3ecf] GET /api/clients/180004767096/prestamo -> 200 | 664ms
+2026-06-09 13:24:07.103 [INF] [START] [442534e6-9006-451e-8196-9b3a645ee0f0] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 13:24:07.235 [INF] [END] [442534e6-9006-451e-8196-9b3a645ee0f0] GET /api/Menu/items -> 200 | 131ms
+2026-06-09 13:24:18.291 [INF] [START] [43478370-356d-4778-b1fa-6888048b5032] GET /api/parameters
+2026-06-09 13:24:19.566 [INF] [END] [43478370-356d-4778-b1fa-6888048b5032] GET /api/parameters -> 200 | 1274ms
+2026-06-09 13:24:35.082 [INF] [START] [9286f199-d392-4e80-9078-60ff2af44fec] GET /api/clients/180004767096
+2026-06-09 13:24:35.274 [INF] [END] [9286f199-d392-4e80-9078-60ff2af44fec] GET /api/clients/180004767096 -> 200 | 192ms
+2026-06-09 13:24:35.300 [INF] [START] [878985a8-f8c0-4c01-b448-9eb2d74e73af] GET /api/clients/blacklist/1/901052534
+2026-06-09 13:24:35.396 [INF] [END] [878985a8-f8c0-4c01-b448-9eb2d74e73af] GET /api/clients/blacklist/1/901052534 -> 200 | 96ms
+2026-06-09 13:24:35.411 [INF] [START] [be8c1c02-8149-46f8-92cf-be528dbf0de7] GET /api/clients/901052534/cuentas
+2026-06-09 13:24:35.778 [INF] [END] [be8c1c02-8149-46f8-92cf-be528dbf0de7] GET /api/clients/901052534/cuentas -> 200 | 366ms
+2026-06-09 13:24:50.968 [INF] [START] [90fcb9bb-0eca-4387-86a7-8ff9ab33c66e] GET /api/clients/901052534/correo
+2026-06-09 13:24:50.971 [INF] [START] [13a0d668-e31d-4fd7-a290-9c1979e3a7e9] GET /api/clients/901052534/telefono
+2026-06-09 13:24:51.186 [INF] [END] [90fcb9bb-0eca-4387-86a7-8ff9ab33c66e] GET /api/clients/901052534/correo -> 200 | 217ms
+2026-06-09 13:24:52.773 [INF] [END] [13a0d668-e31d-4fd7-a290-9c1979e3a7e9] GET /api/clients/901052534/telefono -> 200 | 1801ms
+2026-06-09 13:25:13.075 [INF] [START] [f5f9a7b9-b7e3-4b7c-a09b-ac750fb5e8d0] GET /api/clients/monto-pr/180004767096
+2026-06-09 13:25:14.300 [INF] [START] [5223464e-cf48-4e33-b5c5-1456d031a11d] GET /api/clients/180004767096/prestamo
+2026-06-09 13:25:14.426 [INF] [END] [f5f9a7b9-b7e3-4b7c-a09b-ac750fb5e8d0] GET /api/clients/monto-pr/180004767096 -> 200 | 1351ms
+2026-06-09 13:25:14.998 [INF] [END] [5223464e-cf48-4e33-b5c5-1456d031a11d] GET /api/clients/180004767096/prestamo -> 200 | 697ms
+2026-06-09 13:35:10.678 [INF] [START] [3ab86ad0-b865-4f66-b35e-54880d066922] GET /api/clients/180004767096/prestamo
+2026-06-09 13:35:11.134 [INF] [END] [3ab86ad0-b865-4f66-b35e-54880d066922] GET /api/clients/180004767096/prestamo -> 200 | 456ms
+2026-06-09 13:35:22.365 [INF] [START] [05f2dd02-fe52-471d-bd73-e3d8ed1a01e6] POST /api/links/emitir
+2026-06-09 13:37:37.341 [INF] Ejecutando PkgScl_InsParamLink con parámetros: p_NumCuenta=180004767096, p_TipCuenta=PR, p_MonCobro=5.00, p_TipPago=0, p_EsDefault=1, p_TipEnvio=2, p_NumTelefono=5345500003, p_NomCorreo=Eus9010525341@bancopromerica.com.gt, p_TipLink=2, p_DiaMes=, p_IndEstado=, p_CodSku=78307, p_Url=https://dummy.link/78307, p_URLCorto=https://lc.bpgt.com.gt/85vAZXdn
+2026-06-09 13:37:47.578 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 42
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 13:37:47.637 [ERR] [END] [05f2dd02-fe52-471d-bd73-e3d8ed1a01e6] POST /api/links/emitir -> 500 | 145267ms
+2026-06-09 14:12:15.225 [INF] [START] [a465a7b3-32a5-400e-abbd-a9996aa32181] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 14:12:15.421 [INF] [END] [a465a7b3-32a5-400e-abbd-a9996aa32181] GET /api/Menu/items -> 200 | 195ms
+2026-06-09 14:12:18.751 [INF] [START] [f2a4d0be-4748-4869-920d-09644e3c1dc4] GET /api/parameters
+2026-06-09 14:12:18.993 [INF] [START] [220dc7bf-56b7-49b9-b26e-9150303b940a] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 14:12:19.952 [INF] [END] [f2a4d0be-4748-4869-920d-09644e3c1dc4] GET /api/parameters -> 200 | 1200ms
+2026-06-09 14:12:20.451 [INF] [END] [220dc7bf-56b7-49b9-b26e-9150303b940a] GET /api/Menu/items -> 200 | 1459ms
+2026-06-09 15:58:41.490 [INF] [START] [dca55e05-de36-434e-82a9-a04b66978ee0] GET /api/parameters
+2026-06-09 15:58:41.795 [ERR] Error al obtener parámetros del sistema.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-03135: La conexión ha perdido contacto
+https://docs.oracle.com/error-help/db/ora-03135/
+ ---> OracleInternal.Network.NetworkException (0x80004005): ORA-03135: La conexión ha perdido contacto
+https://docs.oracle.com/error-help/db/ora-03135/
+ ---> System.Net.Sockets.SocketException (10054): Se ha forzado la interrupción de una conexión existente por el host remoto.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask`1.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at OracleInternal.Network.ReaderStream.asyncRead(OraBuf OB)
+   at OracleInternal.Network.ReaderStream.asyncRead(OraBuf OB)
+   at OracleInternal.TTC.OraBufReader.GetDataFromNetworkAsync(Boolean bAsync)
+   at OracleInternal.TTC.OraBufReader.ReadAsync(Boolean bAsync, Boolean bIgnoreData)
+   at OracleInternal.TTC.MarshallingEngine.UnmarshalUB1Async(Boolean bAsync, Boolean bIgnoreData)
+   at OracleInternal.TTC.TTCExecuteSql.ReceiveExecuteResponseAsync(Accessor[] bindAccessors, Boolean bHasReturningParams, SqlStatementType statementType, Int64 noOfRowsFetchedLastTime, Int32 noOfRowsToFetch, Int32 longFetchSize, Int64 clientInitialLOBFetchSize, Int64 initialLOBFetchSize, Int64 initialJSONFetchSize, Int64[] scnFromExecution, Boolean bAllInputBinds, Int32 arrayBindCount, Boolean bDefineDone, RER_RefAndOutParamArgCtx refOutArgCtx, Boolean bReadSqlId, Boolean bLOBArrayFetchRequired, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 489
+   at Backend.Repositories.SiteRepository.GetParametrosAsync() in D:\git_lander\modernizacion\Backend\Repositories\SiteRepository.cs:line 44
+   at Backend.Controllers.ParametersController.GetParameters() in D:\git_lander\modernizacion\Backend\Controllers\ParametersController.cs:line 31
+2026-06-09 15:58:41.818 [ERR] [END] [dca55e05-de36-434e-82a9-a04b66978ee0] GET /api/parameters -> 500 | 328ms
+2026-06-09 15:59:11.647 [INF] [START] [6a9aa9ef-3591-44bd-90fb-c368f907dedb] GET /api/clients/180004767096
+2026-06-09 15:59:14.547 [INF] [END] [6a9aa9ef-3591-44bd-90fb-c368f907dedb] GET /api/clients/180004767096 -> 200 | 2900ms
+2026-06-09 15:59:14.562 [INF] [START] [6fe8fe11-b5bb-4408-bfc6-eb63dac5135c] GET /api/clients/blacklist/1/901052534
+2026-06-09 15:59:14.669 [INF] [END] [6fe8fe11-b5bb-4408-bfc6-eb63dac5135c] GET /api/clients/blacklist/1/901052534 -> 200 | 107ms
+2026-06-09 15:59:14.694 [INF] [START] [4ef4a564-00e4-4e4a-8644-d23e5b42e36b] GET /api/clients/901052534/cuentas
+2026-06-09 15:59:15.058 [INF] [END] [4ef4a564-00e4-4e4a-8644-d23e5b42e36b] GET /api/clients/901052534/cuentas -> 200 | 363ms
+2026-06-09 15:59:21.193 [INF] [START] [dcb53d60-fe28-4498-b10a-77520022a2b7] GET /api/clients/901052534/correo
+2026-06-09 15:59:21.215 [INF] [START] [e1f13100-69b5-4c5e-a6a6-22d9cd01bc77] GET /api/clients/901052534/telefono
+2026-06-09 15:59:21.639 [INF] [END] [dcb53d60-fe28-4498-b10a-77520022a2b7] GET /api/clients/901052534/correo -> 200 | 445ms
+2026-06-09 15:59:23.095 [INF] [END] [e1f13100-69b5-4c5e-a6a6-22d9cd01bc77] GET /api/clients/901052534/telefono -> 200 | 1879ms
+2026-06-09 15:59:38.736 [INF] [START] [edd0d98d-c436-4bcb-940f-833984ac4776] GET /api/clients/monto-pr/180004767096
+2026-06-09 15:59:39.655 [INF] [END] [edd0d98d-c436-4bcb-940f-833984ac4776] GET /api/clients/monto-pr/180004767096 -> 200 | 918ms
+2026-06-09 15:59:43.467 [INF] [START] [5b8419a5-72b8-4d8d-a508-59570e7d3747] GET /api/clients/180004767096/prestamo
+2026-06-09 15:59:43.809 [INF] [END] [5b8419a5-72b8-4d8d-a508-59570e7d3747] GET /api/clients/180004767096/prestamo -> 200 | 341ms
+2026-06-09 15:59:57.572 [INF] [START] [e4c26cda-78f8-4987-8017-ed96277a9858] GET /api/clients/11800098829
+2026-06-09 15:59:57.921 [INF] [END] [e4c26cda-78f8-4987-8017-ed96277a9858] GET /api/clients/11800098829 -> 200 | 348ms
+2026-06-09 15:59:57.931 [INF] [START] [706e900d-cf96-4128-851c-bca768f8e0cc] GET /api/clients/blacklist/1/100000957
+2026-06-09 15:59:58.229 [INF] [END] [706e900d-cf96-4128-851c-bca768f8e0cc] GET /api/clients/blacklist/1/100000957 -> 200 | 298ms
+2026-06-09 15:59:58.243 [INF] [START] [f410783d-9012-46ea-86ae-a7b9d20555fc] GET /api/clients/100000957/cuentas
+2026-06-09 15:59:58.621 [INF] [END] [f410783d-9012-46ea-86ae-a7b9d20555fc] GET /api/clients/100000957/cuentas -> 200 | 378ms
+2026-06-09 16:00:00.131 [INF] [START] [77cc3104-bd21-4602-b7d0-8ca435b57b9c] GET /api/clients/100000957/telefono
+2026-06-09 16:00:00.131 [INF] [START] [75dabdf7-2c50-4f86-b439-c0ddf21fc7ac] GET /api/clients/100000957/correo
+2026-06-09 16:00:00.136 [INF] [START] [bc46c9b3-d0f5-47f1-a355-1a38d673d56c] GET /api/clients/11800098829/prestamo
+2026-06-09 16:00:00.148 [INF] [START] [9794912a-d1a8-4d5c-b76e-66b984e7e9c3] GET /api/clients/monto-pr/11800098829
+2026-06-09 16:00:00.553 [INF] [END] [77cc3104-bd21-4602-b7d0-8ca435b57b9c] GET /api/clients/100000957/telefono -> 200 | 421ms
+2026-06-09 16:00:00.561 [INF] [END] [75dabdf7-2c50-4f86-b439-c0ddf21fc7ac] GET /api/clients/100000957/correo -> 200 | 429ms
+2026-06-09 16:00:00.663 [INF] [END] [bc46c9b3-d0f5-47f1-a355-1a38d673d56c] GET /api/clients/11800098829/prestamo -> 200 | 526ms
+2026-06-09 16:00:01.416 [INF] [END] [9794912a-d1a8-4d5c-b76e-66b984e7e9c3] GET /api/clients/monto-pr/11800098829 -> 200 | 1268ms
+2026-06-09 16:00:36.467 [INF] [START] [12a76026-c58b-49b9-98fb-cc5717c78596] GET /api/clients/11800098829/prestamo
+2026-06-09 16:00:36.730 [INF] [END] [12a76026-c58b-49b9-98fb-cc5717c78596] GET /api/clients/11800098829/prestamo -> 200 | 262ms
+2026-06-09 16:00:44.283 [INF] [START] [4558fc15-8b75-4ef1-9698-2dbbfa6fbfcc] POST /api/links/emitir
+2026-06-09 16:01:11.657 [INF] Ejecutando PkgScl_InsParamLink con parámetros: p_NumCuenta=11800098829, p_TipCuenta=PR, p_MonCobro=10.00, p_TipPago=0, p_EsDefault=1, p_TipEnvio=2, p_NumTelefono=9572711883, p_NomCorreo=Eus1000009572@bancopromerica.com.gt, p_TipLink=2, p_DiaMes=, p_IndEstado=, p_CodSku=78308, p_Url=https://dummy.link/78308, p_URLCorto=https://lc.bpgt.com.gt/SgB9b41d
+2026-06-09 16:01:12.061 [ERR] Error al emitir link.
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-06502: PL/SQL: error : error de conversión de carácter a número numérico o de valor
+ORA-06512: en línea 1
+https://docs.oracle.com/error-help/db/ora-06502/
+   at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.VerifyExecution(OracleConnectionImpl connectionImpl, Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteNonQueryAsync(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, OracleConnection connection, ENQ_RefAndOutParamArgCtx enq_refOutArgCtx, Boolean isFromEF, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryInternalAsync(Boolean bAsync, CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteNonQueryAsyncHelper(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, Object param) in /_/Dapper/SqlMapper.Async.cs:line 662
+   at Backend.Repositories.LinkRepository.InsertLinkAsync(LinkEntity link) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 42
+   at Backend.Services.LinkBusinessService.EmitirLinkAsync(LinkEntity link, String imgPublicitaria, String username) in D:\git_lander\modernizacion\Backend\Services\LinkBusinessService.cs:line 56
+   at Backend.Controllers.LinkController.EmitirLink(EmitirLinkRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 227
+2026-06-09 16:01:12.067 [ERR] [END] [4558fc15-8b75-4ef1-9698-2dbbfa6fbfcc] POST /api/links/emitir -> 500 | 27783ms
+2026-06-09 16:13:47.982 [INF] Iniciando DatabaseConnectionProvider. Leyendo configuración de BD...
+2026-06-09 16:13:48.077 [INF] Ruta de archivo .cef2 obtenida: ApplicationData/db.cef2
+2026-06-09 16:13:48.079 [INF] Archivo .cef2 encontrado. Resolviendo llave privada...
+2026-06-09 16:13:48.080 [INF] Ruta de llave privada obtenida de 'Database:PrivateKeyEnvVar': ApplicationData/private_key.pem
+2026-06-09 16:13:48.080 [INF] Clave privada RSA encontrada en 'ApplicationData/private_key.pem'. Leyendo contenido...
+2026-06-09 16:13:48.111 [INF] Contenido de clave privada leído exitosamente (longitud: 1703).
+2026-06-09 16:13:48.113 [INF] Leyendo contenido del archivo .cef2 (ApplicationData/db.cef2)...
+2026-06-09 16:13:48.158 [INF] Intentando desencriptar el archivo .cef2 con la llave privada...
+2026-06-09 16:13:48.284 [INF] Desencriptación exitosa del archivo .cef2.
+2026-06-09 16:13:48.287 [INF] Conexión Oracle[0] ('Desarrollo') cargada.
+2026-06-09 16:13:48.287 [INF] DatabaseConnectionProvider listo: 1 conexión(es) disponible(s).
+2026-06-09 16:13:48.295 [INF] Base de datos disponible: Oracle[0] -> Desarrollo
+2026-06-09 16:13:49.154 [INF] Now listening on: http://localhost:5000
+2026-06-09 16:13:49.155 [INF] Application started. Press Ctrl+C to shut down.
+2026-06-09 16:13:49.155 [INF] Hosting environment: Development
+2026-06-09 16:13:49.155 [INF] Content root path: D:\git_lander\modernizacion\Backend
+2026-06-09 16:16:30.179 [INF] [START] [3589084e-ddce-4ed2-9547-97fb00573d02] POST /api/auth/login
+2026-06-09 16:16:30.186 [WRN] Failed to determine the https port for redirect.
+2026-06-09 16:16:38.699 [INF] Validando estado en RRHH para el usuario: 'INGRID_M'
+2026-06-09 16:16:40.801 [INF] Respuesta de RRHH_USUARIO.activo para 'INGRID_M': 'S'
+2026-06-09 16:16:41.519 [INF] Usuario INGRID_M autenticado correctamente con el rol 1330
+2026-06-09 16:16:41.615 [INF] [END] [3589084e-ddce-4ed2-9547-97fb00573d02] POST /api/auth/login -> 200 | 11436ms
+2026-06-09 16:16:41.660 [INF] [START] [27f5b63f-79af-480c-8c3d-c57f5c9edda7] GET /api/Menu/items?usuario=INGRID_M&sistema=509
+2026-06-09 16:16:42.027 [INF] [END] [27f5b63f-79af-480c-8c3d-c57f5c9edda7] GET /api/Menu/items -> 200 | 366ms
+2026-06-09 16:18:48.739 [INF] [START] [d922496e-ca03-4d94-af89-936ae563e6e5] GET /api/parameters
+2026-06-09 16:18:49.872 [INF] [END] [d922496e-ca03-4d94-af89-936ae563e6e5] GET /api/parameters -> 200 | 1133ms
+2026-06-09 16:18:53.698 [INF] [START] [2f9f645b-1480-4a73-a8bf-8f14ee4a05c7] GET /api/clients/11800098829
+2026-06-09 16:18:54.113 [INF] [END] [2f9f645b-1480-4a73-a8bf-8f14ee4a05c7] GET /api/clients/11800098829 -> 200 | 415ms
+2026-06-09 16:18:54.126 [INF] [START] [86f106b3-fe4d-467b-aec3-75c32699ac55] GET /api/clients/blacklist/1/100000957
+2026-06-09 16:18:54.254 [INF] [END] [86f106b3-fe4d-467b-aec3-75c32699ac55] GET /api/clients/blacklist/1/100000957 -> 200 | 127ms
+2026-06-09 16:18:54.269 [INF] [START] [4690af28-f6a2-4291-b6d2-7cf4cdb31cf4] GET /api/clients/100000957/cuentas
+2026-06-09 16:18:54.701 [INF] [END] [4690af28-f6a2-4291-b6d2-7cf4cdb31cf4] GET /api/clients/100000957/cuentas -> 200 | 432ms
+2026-06-09 16:18:56.316 [INF] [START] [9ad3afbd-eee8-4feb-b911-c730c476b95e] GET /api/clients/100000957/telefono
+2026-06-09 16:18:56.312 [INF] [START] [1851b630-377a-4050-9808-a9944fc18178] GET /api/clients/100000957/correo
+2026-06-09 16:18:56.326 [INF] [START] [e4487f18-b8cd-4520-82cd-1156fa94773f] GET /api/clients/11800098829/prestamo
+2026-06-09 16:18:56.327 [INF] [START] [12d51163-80e0-4c23-b47d-8d933ec2575f] GET /api/clients/monto-pr/11800098829
+2026-06-09 16:18:56.450 [INF] [END] [9ad3afbd-eee8-4feb-b911-c730c476b95e] GET /api/clients/100000957/telefono -> 200 | 138ms
+2026-06-09 16:18:56.488 [INF] [END] [1851b630-377a-4050-9808-a9944fc18178] GET /api/clients/100000957/correo -> 200 | 175ms
+2026-06-09 16:18:56.680 [INF] [END] [e4487f18-b8cd-4520-82cd-1156fa94773f] GET /api/clients/11800098829/prestamo -> 200 | 362ms
+2026-06-09 16:18:56.851 [INF] [END] [12d51163-80e0-4c23-b47d-8d933ec2575f] GET /api/clients/monto-pr/11800098829 -> 200 | 524ms
+2026-06-09 16:19:13.489 [INF] [START] [9282670d-6aee-4f56-ba8f-2292718533e6] GET /api/clients/11800098829/prestamo
+2026-06-09 16:19:13.692 [INF] [END] [9282670d-6aee-4f56-ba8f-2292718533e6] GET /api/clients/11800098829/prestamo -> 200 | 202ms
+2026-06-09 16:19:13.730 [INF] [START] [5b265bb8-70d9-4968-8844-c939d38c389f] POST /api/links/emitir
+2026-06-09 16:19:23.701 [INF] Ejecutando PkgScl_InsParamLink con parámetros: p_NumCuenta=11800098829, p_TipCuenta=PR, p_MonCobro=10.00, p_TipPago=0, p_EsDefault=1, p_TipEnvio=2, p_NumTelefono=9572711883, p_NomCorreo=Eus1000009572@bancopromerica.com.gt, p_TipLink=2, p_DiaMes=, p_IndEstado=, p_CodSku=78309, p_Url=https://dummy.link/78309, p_URLCorto=https://lc.bpgt.com.gt/BPT9Tx9e
+2026-06-09 16:19:23.980 [INF] [END] [5b265bb8-70d9-4968-8844-c939d38c389f] POST /api/links/emitir -> 200 | 10249ms
+2026-06-09 17:00:23.506 [INF] [START] [580657c0-54b8-4f85-9a0f-8bb1efbb2ff6] POST /api/links/get-links-verifica
+2026-06-09 17:00:23.570 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: ''
+2026-06-09 17:00:23.571 [INF] GetLinksVerifica: Processed search string for repository: ''
+2026-06-09 17:00:23.577 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 17:00:25.418 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                        
+2026-06-09 17:00:27.543 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                         
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 17:00:27.544 [INF] PagedData Params (Verifica): username='INGRID_M', search='', minRow=0, maxRow=10
+2026-06-09 17:00:27.691 [INF] [END] [580657c0-54b8-4f85-9a0f-8bb1efbb2ff6] POST /api/links/get-links-verifica -> 200 | 4185ms
+2026-06-09 17:00:34.164 [INF] [START] [3ea56e18-0b39-4830-b5bb-7f505e07c089] GET /api/links/validar/78307
+2026-06-09 17:00:35.787 [INF] Development Simulation: Processing payment for SKU '78307'.
+2026-06-09 17:00:35.787 [INF] Development Simulation: linkInfo.TipCuenta = 'PR', linkInfo.NumCuenta = '180004767096'
+2026-06-09 17:00:35.788 [INF] Development Simulation: PagoRequest: CodLink='840376', NumCta='180004767096', MonPago='5', Moneda='320'
+2026-06-09 17:00:42.861 [INF] Development Simulation: Calling AplicaPagoPRAsync for PR account.
+2026-06-09 17:00:58.744 [INF] [END] [3ea56e18-0b39-4830-b5bb-7f505e07c089] GET /api/links/validar/78307 -> 200 | 24579ms
+2026-06-09 17:01:14.261 [INF] [START] [eef1e776-7de5-427f-933c-3e866ef2a6ee] POST /api/links/aplicar-pago
+2026-06-09 17:01:24.068 [ERR] Error al aplicar pago manual para link: 840376
+System.Exception: Ya se encuentra pagado el link!!!
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 81
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 121
+   at Backend.Controllers.LinkController.AplicarPago(PagoRequest request) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 467
+2026-06-09 17:01:24.173 [ERR] [END] [eef1e776-7de5-427f-933c-3e866ef2a6ee] POST /api/links/aplicar-pago -> 500 | 9911ms
+2026-06-09 17:03:10.199 [INF] [START] [1e2099db-3085-45a8-9ead-52cf77a7f476] GET /api/links/validar/78307
+2026-06-09 17:03:10.690 [INF] Development Simulation: Processing payment for SKU '78307'.
+2026-06-09 17:03:10.691 [INF] Development Simulation: linkInfo.TipCuenta = 'PR', linkInfo.NumCuenta = '180004767096'
+2026-06-09 17:03:10.692 [INF] Development Simulation: PagoRequest: CodLink='840376', NumCta='180004767096', MonPago='5', Moneda='320'
+2026-06-09 17:03:10.692 [INF] Development Simulation: Calling AplicaPagoPRAsync for PR account.
+2026-06-09 17:03:19.770 [ERR] Error al validar link en Visa: 78307
+System.Exception: Ya se encuentra pagado el link!!!
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 81
+   at Backend.Repositories.LinkRepository.AplicaPagoPRAsync(PagoRequest pago, String moneda) in D:\git_lander\modernizacion\Backend\Repositories\LinkRepository.cs:line 121
+   at Backend.Controllers.LinkController.ValidarYConsultaLink(String sku) in D:\git_lander\modernizacion\Backend\Controllers\LinkController.cs:line 276
+2026-06-09 17:03:19.777 [INF] [END] [1e2099db-3085-45a8-9ead-52cf77a7f476] GET /api/links/validar/78307 -> 200 | 9577ms
+2026-06-09 17:06:21.875 [INF] [START] [c95bbfab-74f6-4407-b28b-6a0c3eb31c0c] POST /api/links/get-links-verifica
+2026-06-09 17:06:21.887 [INF] GetLinksVerifica: Raw search value from DataTableRequest.Search.Value: ''
+2026-06-09 17:06:21.888 [INF] GetLinksVerifica: Processed search string for repository: ''
+2026-06-09 17:06:21.888 [INF] TotalCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                     INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)
+2026-06-09 17:06:22.688 [INF] FilteredCount SQL (Verifica): SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
+                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                      WHERE 1 = 1 
+                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND (
+                                            (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                            OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                        )
+                                        
+2026-06-09 17:06:23.310 [INF] PagedData SQL (Verifica): SELECT Correlativo, Producto, CodigoVisa, NumAuto, NumMov, Edit 
+                                FROM (
+                                   SELECT a.*, ROWNUM rnum 
+                                   FROM (
+                                      SELECT 
+                                         TO_CHAR(LNK.COD_LINK) AS Correlativo, 
+                                         TO_CHAR(PAR.NUM_CUENTA) AS Producto, 
+                                         LNK.COD_SKU AS CodigoVisa, 
+                                         COALESCE(LNK.NUM_AUTORIZACION,'Pendiente') AS NumAuto, 
+                                         COALESCE(LNK.NUM_MOVIMIENTO,'Pendiente') AS NumMov,
+                                         DECODE(LNK.NUM_AUTORIZACION, NULL, 'Consulta/Pago', 'Pagado') AS Edit
+                                       FROM BO.SCL_LISTADO_LINKS LNK 
+                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
+                                       WHERE 1 = 1  
+                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND (
+                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = 'INGRID_M') > 0 
+                                             OR UPPER(PAR.COD_USUARIO) = 'INGRID_M'
+                                         )
+                                         
+                                       ORDER BY LNK.COD_LINK DESC
+                                   ) a WHERE ROWNUM <= :maxRow
+                                ) WHERE rnum > :minRow
+2026-06-09 17:06:23.310 [INF] PagedData Params (Verifica): username='INGRID_M', search='', minRow=0, maxRow=10
+2026-06-09 17:06:23.400 [INF] [END] [c95bbfab-74f6-4407-b28b-6a0c3eb31c0c] POST /api/links/get-links-verifica -> 200 | 1525ms

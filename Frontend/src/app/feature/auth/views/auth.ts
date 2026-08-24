@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth as AuthService } from '../../../core/services/auth';
-// Importamos NgOptimizedImage para carga ultrarrápida del logo del banco
 import { NgOptimizedImage } from '@angular/common';
 
 @Component({
@@ -15,7 +14,7 @@ import { NgOptimizedImage } from '@angular/common';
       <section class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border-t-8 border-green-800">
         
         <header class="text-center mb-8">
-          <img ngSrc="/grupo_promerica.svg" alt="Banco Promerica" width="200" height="60" class="mx-auto mb-4 object-contain">
+          <img ngSrc="/grupo_promerica.svg" alt="Banco Promerica" width="200" height="40" priority class="mx-auto mb-4 object-contain " >
           <h1 class="text-2xl font-bold text-gray-900">Banca Corporativa</h1>
           <p class="text-gray-500 text-sm mt-2">Ingresa tus credenciales para continuar</p>
         </header>
@@ -99,6 +98,10 @@ export class Auth {
 
         this.authService.login(payload).subscribe({
             next: (res) => {
+              console.log('--- RESPUESTA EXITOSA DEL BACKEND ---');
+        console.log('Estructura completa:', res);
+        console.log('¿Fue exitoso?:', res?.success);
+        console.log('Mensaje de error si existe:', res?.errorMessage);
                 if (res.success) {
                     // Si el token es válido, el sistema navega al dashboard de campañas
                     this.router.navigate(['/home']);
@@ -106,9 +109,11 @@ export class Auth {
                     this.errorMsg.set(res.errorMessage || 'Credenciales incorrectas');
                     this.isLoading.set(false);
                 }
+                
             },
-            error: () => {
-                this.errorMsg.set('Error de conexión con el servidor bancario.');
+            error: (err) => {
+                const errorMessage = err?.error?.message || 'Error de conexión con el servidor.';
+                this.errorMsg.set(errorMessage);
                 this.isLoading.set(false);
             }
         });

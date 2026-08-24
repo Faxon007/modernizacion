@@ -11,6 +11,6 @@ namespace Backend.Repositories
         Task<bool> InsertTokenAsync(string token);
         Task<string?> GetTokenInternoAsync();
         Task<bool> RegistraBitacoraAsync(BitacoraRequest request);
-        Task<bool> RegistraBitacoraCoreAsync(BitCoreRequest request);
+        Task<bool> RegistraBitacoraCoreAsync(BitCoreRequest request); // Se mantiene como método general
     }
 }

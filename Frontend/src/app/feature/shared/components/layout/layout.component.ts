@@ -10,7 +10,7 @@ import { MenuService } from '../../../../core/services/menu.service';
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
-    <header class="bg-white border-b px-6 py-4 flex justify-between items-center">
+    <header class="bg-white border-b px-6 py-4 flex justify-between items-center print:hidden">
       <img src="assets/images/logoN.png" alt="Logo" class="h-12">
       <div class="flex items-center gap-4">
         <span class="text-[#007139] text-xl font-semibold">{{ ui.title() }}</span>
@@ -19,7 +19,7 @@ import { MenuService } from '../../../../core/services/menu.service';
     </header>
 
 <!-- Barra de Navegación -->
-<nav class="bg-[#007139] sticky top-0 z-50 shadow-lg">
+<nav class="bg-[#007139] sticky top-0 z-50 shadow-lg print:hidden">
   <div class="h-1 bg-[#7bc342]"></div>
   <div class="container mx-auto flex">
     @for (item of menu.navItems(); track item.id) {
@@ -55,11 +55,28 @@ import { MenuService } from '../../../../core/services/menu.service';
   </div>
 </nav>
 
-    <div class="container mx-auto mt-4 px-4">
+    <!-- Global Toasts -->
+    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none print:hidden">
+      @if (ui.error()) {
+        <div class="bg-red-600 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 max-w-md pointer-events-auto animate-in slide-in-from-right duration-300">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⚠️</span>
+            <span class="font-medium text-sm">{{ ui.error() }}</span>
+          </div>
+          <button (click)="ui.error.set(null)" class="text-white/80 hover:text-white hover:bg-red-700 p-1.5 rounded-lg transition-colors flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      }
       @if (ui.success()) {
-        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 flex justify-between">
-          <span>{{ ui.success() }}</span>
-          <button (click)="ui.success.set(null)">×</button>
+        <div class="bg-emerald-600 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 max-w-md pointer-events-auto animate-in slide-in-from-right duration-300">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">✅</span>
+            <span class="font-medium text-sm">{{ ui.success() }}</span>
+          </div>
+          <button (click)="ui.success.set(null)" class="text-white/80 hover:text-white hover:bg-emerald-700 p-1.5 rounded-lg transition-colors flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
         </div>
       }
     </div>
@@ -69,12 +86,19 @@ import { MenuService } from '../../../../core/services/menu.service';
     </main>
 
     @if (ui.modalError()) {
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white rounded shadow-2xl max-w-lg w-full">
-          <div class="bg-red-600 p-4 text-white font-bold">Error</div>
-          <div class="p-6">{{ ui.modalError() }}</div>
-          <div class="p-4 text-right">
-            <button (click)="ui.closeModal()" class="bg-gray-200 px-4 py-2">Cerrar</button>
+      <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
+          <div class="bg-red-500 px-6 py-4 flex items-center gap-3">
+            <span class="text-white text-xl">⚠️</span>
+            <h3 class="text-white font-bold text-lg">Notificación de Error</h3>
+          </div>
+          <div class="p-6 text-gray-700 font-medium">
+            {{ ui.modalError() }}
+          </div>
+          <div class="bg-gray-50 px-6 py-4 text-right border-t border-gray-100">
+            <button (click)="ui.closeModal()" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-6 rounded-xl shadow-sm transition-colors">
+              Cerrar
+            </button>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -34,6 +35,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
@@ -41,21 +43,22 @@ namespace Backend.Controllers
                 return BadRequest(new { success = false, message = "Usuario y contraseña son requeridos." });
             }
 
-            // 1. Obtener la cadena de conexión base de Oracle (DatabaseKey.TC)
-            var baseConnStr = _dbProvider.GetConnectionString(DatabaseKey.TC);
+            // 1. Obtener la cadena de conexión base de Oracle (DatabaseKey.Oracle)
+            var baseConnStr = _dbProvider.GetConnectionString(DatabaseKey.Oracle);
             if (string.IsNullOrEmpty(baseConnStr))
             {
-                _logger.LogError("La conexión base de Oracle (TC) no está disponible en db.cef2.");
+                _logger.LogError("La conexión base de Oracle no está disponible en db.cef2.");
                 return StatusCode(500, new { success = false, message = "Error interno de base de datos." });
             }
 
             // 2. Construir la cadena de conexión específica para el usuario
             string userConnStr;
+            string cleanUsername = request.Username.Trim().ToUpper().Replace("PROMERICA\\", "");
             try
             {
                 var builder = new OracleConnectionStringBuilder(baseConnStr)
                 {
-                    UserID = request.Username.Trim().ToUpper(),
+                    UserID = cleanUsername,
                     Password = request.Password
                 };
                 userConnStr = builder.ConnectionString;
@@ -96,12 +99,16 @@ namespace Backend.Controllers
             try
             {
                 var menuRepo = new MenuRepository(userConnStr);
-                string username = request.Username.Trim().ToUpper().Replace("PROMERICA\\", "");
+                string username = cleanUsername;
 
                 // Validar RRHH
+                _logger.LogInformation("Validando estado en RRHH para el usuario: '{Username}'", username);
                 var rrhhActivo = await menuRepo.ValidateRRHHAsync(username);
+                _logger.LogInformation("Respuesta de RRHH_USUARIO.activo para '{Username}': '{Activo}'", username, rrhhActivo ?? "NULL");
+
                 if (string.IsNullOrEmpty(rrhhActivo) || rrhhActivo != "S")
                 {
+                    _logger.LogWarning("Autenticación denegada: Usuario '{Username}' no está activo en RRHH. Valor actual: '{Activo}'", username, rrhhActivo ?? "NULL");
                     return Unauthorized(new { success = false, message = "El usuario no se encuentra activo en RRHH." });
                 }
 
@@ -119,8 +126,8 @@ namespace Backend.Controllers
 
                 string userRole = roles.FirstOrDefault()?.Rol.ToString() ?? "USUARIO";
 
-                // 5. Generar token JWT
-                var jwtResponse = _jwtService.GenerateToken(username, userRole);
+                // 5. Generar token JWT con la contraseña encriptada internamente
+                var jwtResponse = _jwtService.GenerateToken(username, userRole, request.Password);
 
                 _logger.LogInformation("Usuario {Username} autenticado correctamente con el rol {Role}", username, userRole);
 
@@ -140,7 +147,7 @@ namespace Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al procesar roles y menú del usuario: {Username}", request.Username);
-                return StatusCode(500, new { success = false, message = "Error al recuperar privilegios de usuario." });
+                return StatusCode(500, new { success = false, message = "Error al recuperar privilegios de usuario.", detail = ex.Message });
             }
         }
     }

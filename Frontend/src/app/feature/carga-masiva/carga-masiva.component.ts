@@ -1,6 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { LinkService, LinkEntity } from '../../core/services/link.service';
 import { ParameterService } from '../../core/services/parameter.service';
@@ -55,10 +56,11 @@ interface BulkRecord {
           <!-- Input File Drag & Drop -->
           <div class="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-[#7bc342] transition-colors relative cursor-pointer bg-gray-50 group">
             <input 
+              #fileInput
               type="file" 
               accept=".csv"
               (change)="onFileSelected($event)"
-              class="absolute inset-0 opacity-0 cursor-pointer">
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
             <div class="space-y-2">
               <span class="text-3xl block group-hover:scale-110 transition-transform">📄</span>
               <span class="text-xs font-bold text-gray-600 block">
@@ -173,7 +175,7 @@ interface BulkRecord {
                     <td class="px-6 py-4">
                       <div class="flex flex-col">
                         <span class="font-semibold text-xs text-gray-600">{{ rec.tipoPago === '1' ? 'Dólares' : 'Quetzales' }}</span>
-                        <span class="text-[10px] text-gray-400">{{ rec.tipoLink === '1' ? 'Automático (Día ' + rec.diaMes + ')' : 'Manual (Único)' }}</span>
+                        <span class="text-[10px] text-gray-400">{{ rec.tipoLink==='1'?'Automático':'Manual'}}</span>
                       </div>
                     </td>
                     <td class="px-6 py-4">
@@ -228,6 +230,7 @@ export class CargaMasivaComponent implements OnInit {
   private readonly ui = inject(UiService);
   private readonly router = inject(Router);
 
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   selectedFileName = signal<string | null>(null);
   records = signal<BulkRecord[]>([]);
   isProcessing = signal(false);
@@ -264,6 +267,14 @@ export class CargaMasivaComponent implements OnInit {
     const file = event.target.files[0];
     if (!file) return;
 
+    // 1. Validar que la extensión sea .csv
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (extension !== 'csv') {
+      this.ui.showError('Tipo de archivo no válido. Por favor, seleccione un archivo con extensión .csv');
+      (event.target as HTMLInputElement).value = ''; // Limpiar el input para permitir una nueva selección
+      return;
+    }
+
     this.selectedFileName.set(file.name);
     this.records.set([]);
     this.resetStats();
@@ -277,20 +288,30 @@ export class CargaMasivaComponent implements OnInit {
   }
 
   private parseCsvText(text: string) {
-    const lines = text.split('\n');
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l); // Limpia líneas vacías
     if (lines.length <= 1) {
       this.ui.showError('El archivo CSV está vacío o no contiene registros.');
+      return;
+    }
+
+    // 1. Validar el encabezado del archivo
+    const header = lines[0].toUpperCase();
+    const expectedHeader = "TIPO_CUENTA,NUM_CUENTA,MONTO,TIPO_PAGO,TIPO_LINK,DIA_MES,TIPO_ENVIO,DATO_ENVIO";
+
+    if (header.replace(/\s/g, '') !== expectedHeader.replace(/\s/g, '')) {
+      this.ui.showError('El encabezado del archivo CSV no es válido. Por favor, use la plantilla descargable.');
+      this.clearFile(); // Limpiamos el archivo cargado si el header es incorrecto
       return;
     }
 
     const tempRecords: BulkRecord[] = [];
     let recordIndex = 1;
 
+    // 2. Procesar las filas de datos (a partir de la segunda línea)
     for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
+      const line = lines[i];
       if (!line) continue;
 
-      // Split by comma
       const cols = line.split(',');
       if (cols.length < 8) {
         continue; // skip malformed lines
@@ -346,29 +367,65 @@ export class CargaMasivaComponent implements OnInit {
     rec.estado = 'Procesando';
     this.records.set(list);
 
+    // --- INICIO DE VALIDACIONES PREVIAS ---
+    // Se realizan todas las validaciones de datos del CSV antes de consultar servicios externos.
+    if (rec.monto <= 0) {
+      rec.estado = 'Error';
+      rec.resultado = 'El monto debe ser mayor a cero.';
+      this.errorCount.set(this.errorCount() + 1);
+      this.updateProgress(index + 1, list.length);
+      this.records.set(list);
+      this.procesarFila(index + 1);
+      return;
+    }
+
+    if (rec.tipoEnvio === '1') { // SMS
+      if (!rec.datoEnvio || !/^[0-9]{8}$/.test(rec.datoEnvio)) {
+        rec.estado = 'Error';
+        rec.resultado = 'El teléfono debe contener 8 dígitos numéricos.';
+        this.errorCount.set(this.errorCount() + 1);
+        this.updateProgress(index + 1, list.length);
+        this.records.set(list);
+        this.procesarFila(index + 1); // Continuar con la siguiente fila
+        return;
+      }
+    } else if (rec.tipoEnvio === '2') { // Correo
+      if (!rec.datoEnvio || !/\S+@\S+\.\S+/.test(rec.datoEnvio)) {
+        rec.estado = 'Error';
+        rec.resultado = 'El formato del correo no es válido.';
+        this.errorCount.set(this.errorCount() + 1);
+        this.updateProgress(index + 1, list.length);
+        this.records.set(list);
+        this.procesarFila(index + 1); // Continuar con la siguiente fila
+        return;
+      }
+    }
+    // --- FIN DE VALIDACIONES PREVIAS ---
+
     // 1. Validar cuenta y obtener cliente
-    this.linkService.getClienteCta(rec.numCuenta).pipe(
+    this.linkService.getClienteCta(rec.numCuenta).pipe( // Paso 1: Obtener cliente por cuenta
       switchMap((clientRes) => {
         if (!clientRes.success || !clientRes.data) {
           throw new Error('La cuenta no existe en el sistema.');
         }
+        const client = clientRes.data;
+        const codCliente = client.codCliente;
 
-        const codCliente = clientRes.data.codCliente;
-        // 2. Validar lista negra
+        // Paso 2: Verificar lista negra
         return this.linkService.isClienteListaNegra('1', codCliente).pipe(
           switchMap((blacklistRes) => {
             if (blacklistRes.success && blacklistRes.data) {
               throw new Error('El cliente de la cuenta se encuentra en lista negra.');
             }
-            return of(clientRes.data);
+            return of(client); // Pasa el objeto client al siguiente paso
           })
         );
       }),
-      switchMap((clientData) => {
-        // 3. Validar tipo de préstamo si aplica
+      switchMap((client) => { // Ahora 'client' está disponible aquí
+        // Paso 3: Validar tipo de préstamo si aplica (usando rec.tipoCuenta directamente)
         if (rec.tipoCuenta === 'PR') {
           return this.linkService.getTipoPrestamo(rec.numCuenta).pipe(
-            switchMap((loanRes) => {
+            switchMap((loanRes: ApiResponse<any>) => {
               if (loanRes.success && loanRes.data) {
                 const mon = loanRes.data.moneda;
                 if (mon === '840' && rec.tipoPago === '0') {
@@ -377,58 +434,95 @@ export class CargaMasivaComponent implements OnInit {
                 if (mon === '320' && rec.tipoPago === '1') {
                   throw new Error('La opción de pago (USD) es para un préstamo en quetzales.');
                 }
+              } else if (loanRes.success && loanRes.data === null) {
+                // Si el backend devuelve 200 OK pero data: null, significa que no hay detalles de préstamo
+                // o que la cuenta no es de tipo préstamo.
+                throw new Error(`La cuenta ${rec.numCuenta} no es de tipo Préstamo o no se encontraron sus detalles.`);
               }
-              return of(clientData);
+              // Si loanRes.success es false, el error será capturado por el catchError interno.
+              return of(client); // Pasa client al siguiente paso
+            }),
+            catchError((err: any) => { // Captura errores específicos de la llamada a getTipoPrestamo
+              let userMessage = `Error al consultar detalles de préstamo para la cuenta ${rec.numCuenta}.`;
+
+              if (err instanceof HttpErrorResponse) {
+                if (err.status === 404) {
+                  // Si el backend devuelve 404, significa que el recurso no fue encontrado,
+                  // lo cual en este contexto puede interpretarse como que no es un préstamo válido.
+                  userMessage = `La cuenta ${rec.numCuenta} no es de tipo Préstamo o no se encontraron sus detalles.`;
+                } else if (err.error?.errorMessage) {
+                  userMessage = `Error al consultar detalles de préstamo para la cuenta ${rec.numCuenta}: ${err.error.errorMessage}`;
+                } else {
+                  userMessage = `Error de comunicación con el servidor (${err.status}): ${err.message}`;
+                }
+              } else if (err instanceof Error) {
+                userMessage = err.message; // Maneja errores lanzados por `throw new Error(...)`
+              }
+              throw new Error(userMessage); // Relanza el error con el mensaje amigable
             })
           );
         }
-        return of(clientData);
+        return of(client); // Pasa client si no es un préstamo
       }),
-      switchMap((clientData) => {
-        // 4. Validar montos límites
-        const limitCall = rec.tipoCuenta === 'PR' 
-          ? this.linkService.getMontoPR(rec.numCuenta) 
+      switchMap((client) => { // Ahora 'client' está disponible aquí
+        // Paso 4: Validar montos límites (usando rec.tipoCuenta directamente)
+        const limitCall = rec.tipoCuenta === 'PR'
+          ? this.linkService.getMontoPR(rec.numCuenta)
           : this.linkService.getMontoTC(rec.numCuenta);
 
         return limitCall.pipe(
           switchMap((limitRes) => {
-            if (limitRes.success && limitRes.data !== undefined) {
+            if (limitRes.success && limitRes.data !== undefined && limitRes.data !== null) {
               if (rec.monto > limitRes.data) {
                 throw new Error(`El monto supera el límite permitido (${rec.tipoPago === '1' ? '$' : 'Q'}. ${limitRes.data.toFixed(2)}).`);
               }
+            } else if (limitRes.success && limitRes.data === null) {
+                throw new Error(`No se pudo obtener el límite de monto para la cuenta ${rec.numCuenta}.`);
             }
-            return of(clientData);
+            return of(client); // Pasa client al siguiente paso
           })
         );
       }),
-      switchMap((clientData) => {
-        // 5. Preparar objeto y emitir link
+      switchMap((client) => { // Ahora 'client' está disponible aquí
+        // Paso 5: Preparar objeto y emitir link
         const link: LinkEntity = {
           numCuenta: rec.numCuenta,
-          tipCuenta: rec.tipoCuenta,
+          tipCuenta: rec.tipoCuenta, // Usa rec.tipoCuenta directamente
           monto: rec.monto,
           tipPago: rec.tipoPago,
-          esDefault: 'S',
+          esDefault: '1',
           tipEnvio: rec.tipoEnvio,
           numTelefono: rec.tipoEnvio === '1' ? rec.datoEnvio : '',
-          nomCorreo: rec.tipoEnvio === '2' ? rec.datoEnvio : '',
+          nomCorreo: rec.tipoEnvio === '2' ? rec.datoEnvio.toUpperCase() : '',
           tipLink: rec.tipoLink,
           diaMes: rec.diaMes,
-          nomProducto: rec.tipoCuenta === 'PR' ? 'PRESTAMO' : 'TARJETA DE CREDITO',
-          codCliente: clientData.codCliente
+          nomProducto: rec.tipoCuenta === 'PR' ? 'PRESTAMO' : 'TARJETA DE CREDITO', // Usa rec.tipoCuenta directamente
+          codCliente: client.codCliente
         };
 
-        return this.linkService.emitirLink(link, this.apiImagenBase64);
+        // Remove prefix for base64 from system image if it exists
+        const cleanImg = this.apiImagenBase64.replace(/^data:image\/\w+;base64,/, '');
+
+        return this.linkService.emitirLink(link, cleanImg);
       }),
       catchError((err) => {
-        return of({ success: false, errorMessage: err.message || 'Error en las validaciones de negocio.', data: '' } as ApiResponse<string>);
+        // Este catchError maneja tanto errores de HTTP (HttpErrorResponse) como errores lanzados manualmente (new Error).
+        let customErrorMessage = 'Error en las validaciones de negocio.';
+        if (err instanceof HttpErrorResponse) {
+          // Si es un error HTTP, intentamos obtener el mensaje específico del backend.
+          customErrorMessage = err.error?.message || err.error?.errorMessage || err.message;
+        } else if (err instanceof Error) {
+          // Si es un error lanzado manualmente, usamos su mensaje.
+          customErrorMessage = err.message;
+        }
+        return of({ success: false, errorMessage: customErrorMessage, data: '' } as ApiResponse<string>);
       })
     ).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           rec.estado = 'Exitoso';
-          rec.codSku = res.data; // El API retorna el SKU o link acortado
-          rec.urlCorto = res.data; // En backend emitirLink retorna la URL acortada
+          rec.codSku = res.data; // La API retorna el SKU o link acortado
+          rec.urlCorto = res.data; // El backend emitirLink retorna la URL acortada
           this.successCount.set(this.successCount() + 1);
         } else {
           rec.estado = 'Error';
@@ -439,10 +533,10 @@ export class CargaMasivaComponent implements OnInit {
         this.updateProgress(index + 1, list.length);
         this.records.set(list);
         
-        // Process next row
+        // Procesa la siguiente fila
         this.procesarFila(index + 1);
       },
-      error: (err) => {
+      error: (err) => { // This error block is for network/subscription errors not caught by the pipe's catchError
         rec.estado = 'Error';
         rec.resultado = err.message || 'Error inesperado.';
         this.errorCount.set(this.errorCount() + 1);
@@ -450,7 +544,7 @@ export class CargaMasivaComponent implements OnInit {
         this.updateProgress(index + 1, list.length);
         this.records.set(list);
 
-        // Process next row
+        // Procesa la siguiente fila
         this.procesarFila(index + 1);
       }
     });
@@ -474,12 +568,16 @@ export class CargaMasivaComponent implements OnInit {
     this.records.set([]);
     this.resetStats();
     this.totalRecords.set(0);
+    // 2. Resetear el valor del input de archivo para permitir volver a cargar el mismo archivo.
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   downloadTemplate() {
     const csvContent = 
       "TIPO_CUENTA,NUM_CUENTA,MONTO,TIPO_PAGO,TIPO_LINK,DIA_MES,TIPO_ENVIO,DATO_ENVIO\n" +
-      "TC,1234567890123456,150.00,0,2,,1,50212345678\n" +
+      "TC,1234567890123456,150.00,0,2,,1,12345678\n" +
       "PR,9876543210987654,500.00,1,1,15,2,cliente@correo.com\n";
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

@@ -301,11 +301,11 @@ import { UiService } from '../../core/services/ui.service';
             </div>
           </div>
 
-          <!-- SECCIÓN 5: Imagen Publicitaria de Visa -->
+          <!-- SECCIÓN 5: Imagen Publicitaria de Neo -->
           <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="bg-gradient-to-r from-[#007139] to-[#007139]/95 px-6 py-4 text-white">
               <h3 class="font-bold text-lg flex items-center gap-2">
-                <span>🖼️</span> Imagen Promocional Publicitaria (Visa)
+                <span>🖼️</span> Imagen Promocional Publicitaria (Neo)
               </h3>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -351,7 +351,7 @@ import { UiService } from '../../core/services/ui.service';
                 <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 self-start">Vista Previa de la Publicidad</span>
                 @if (imagePreview()) {
                   <div class="relative w-full max-h-[220px] overflow-hidden rounded-xl border bg-white flex items-center justify-center">
-                    <img [src]="imagePreview()" alt="Publicidad Visa" class="max-w-full max-h-[220px] object-contain">
+                    <img [src]="imagePreview()" alt="Publicidad Neo" class="max-w-full max-h-[220px] object-contain">
                   </div>
                 } @else {
                   <div class="text-center py-8 text-gray-400 space-y-2">

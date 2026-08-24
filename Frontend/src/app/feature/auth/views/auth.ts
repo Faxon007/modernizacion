@@ -14,7 +14,7 @@ import { NgOptimizedImage } from '@angular/common';
       <section class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border-t-8 border-green-800">
         
         <header class="text-center mb-8">
-          <img ngSrc="/grupo_promerica.svg" alt="Banco Promerica" width="200" height="60" class="mx-auto mb-4 object-contain">
+          <img ngSrc="/grupo_promerica.svg" alt="Banco Promerica" width="200" height="40" priority class="mx-auto mb-4 object-contain " >
           <h1 class="text-2xl font-bold text-gray-900">Banca Corporativa</h1>
           <p class="text-gray-500 text-sm mt-2">Ingresa tus credenciales para continuar</p>
         </header>

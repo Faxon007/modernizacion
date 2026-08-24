@@ -2,8 +2,11 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LinkService, LinkVerificaItem, PagoRequest } from '../../core/services/link.service';
-import { UiService } from '../../core/services/ui.service';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap, finalize } from 'rxjs';
+import { UiService } from '../../core/services/ui.service'; // Corregido
+import { AuthService } from '../../core/services/auth.service'; // Corregido
+import * as XLSX from 'xlsx';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap, finalize, catchError, EMPTY, merge } from 'rxjs'; 
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-verificacion-link',
@@ -14,7 +17,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
       <!-- Encabezado -->
       <div class="border-b pb-4">
         <h1 class="text-3xl font-extrabold text-[#007139] tracking-tight">Verificación y Conciliación de Links</h1>
-        <p class="text-gray-500 text-sm mt-1">Monitoree el estatus de los pagos y concilie autorizaciones de Visa con el sistema central.</p>
+        <p class="text-gray-500 text-sm mt-1">Monitoree el estatus de los pagos y concilie autorizaciones de Neo con el sistema central.</p>
       </div>
 
       <!-- Buscador y Filtros -->
@@ -32,15 +35,16 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
           <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Mostrar</label>
           <select 
             [formControl]="pageSizeControl"
-            (change)="loadLinks()" 
+            (change)="refreshData()" 
             class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7bc342]">
             <option [value]="10">10 registros</option>
             <option [value]="25">25 registros</option>
             <option [value]="50">50 registros</option>
+            <option [value]="100">100 registros</option>
           </select>
           
           <button 
-            (click)="loadLinks()" 
+            (click)="refreshData()" 
             class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-all flex items-center gap-1.5 print:hidden">
             🔄 Actualizar
           </button>
@@ -82,13 +86,13 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-gray-50 text-gray-400 text-xs font-bold uppercase tracking-wider border-b border-gray-100">
-                  <th class="px-6 py-4">Correlativo</th>
-                  <th class="px-6 py-4">Cuenta / Producto</th>
-                  <th class="px-6 py-4">SKU Visa</th>
-                  <th class="px-6 py-4">Autorización</th>
-                  <th class="px-6 py-4">Movimiento Core</th>
+                  <th class="px-6 py-4 cursor-pointer hover:text-gray-600" (click)="sort('CORRELATIVO')">Correlativo</th>
+                  <th class="px-6 py-4 cursor-pointer hover:text-gray-600" (click)="sort('PRODUCTO')">Cuenta / Producto</th>
+                  <th class="px-6 py-4 cursor-pointer hover:text-gray-600" (click)="sort('CODIGO_VISA')">SKU Neo</th>
+                  <th class="px-6 py-4 cursor-pointer hover:text-gray-600" (click)="sort('NUM_AUTO')">Autorización</th>
+                  <th class="px-6 py-4 cursor-pointer hover:text-gray-600" (click)="sort('NUM_MOV')">Movimiento Core</th>
                   <th class="px-6 py-4">Estatus Local</th>
-                  <th class="px-6 py-4 text-right">Acciones</th>
+                  <th class="px-6 py-4 text-right print:hidden">Acciones</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100 text-sm">
@@ -118,12 +122,12 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
                         <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">Por verificar</span>
                       }
                     </td>
-                    <td class="px-6 py-4 text-right">
+                    <td class="px-6 py-4 text-right print:hidden">
                       @if (item.edit !== 'Pagado') {
                         <button 
                           (click)="verificarEnVisa(item)" 
                           class="px-3.5 py-1.5 bg-[#007139] hover:bg-[#007139]/90 text-white text-xs font-bold rounded-lg transition-all shadow-sm">
-                          🔎 Verificar Visa
+                          🔎 Verificar Neo
                         </button>
                       } @else {
                         <span class="text-gray-400 text-xs italic">Ninguna acción</span>
@@ -156,12 +160,12 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
         }
       </div>
 
-      <!-- Modal de Conciliación / Detalles Visa -->
+      <!-- Modal de Conciliación / Detalles Neo -->
       @if (selectedItem()) {
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
           <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
             <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4 text-white flex justify-between items-center">
-              <h3 class="font-bold text-sm uppercase tracking-wider">Resultado Consulta Visa</h3>
+              <h3 class="font-bold text-sm uppercase tracking-wider">Resultado Consulta Neo</h3>
               <button (click)="closeModal()" class="text-white opacity-70 hover:opacity-100 text-xl font-bold">×</button>
             </div>
 
@@ -169,7 +173,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
               @if (isCheckingVisa()) {
                 <div class="py-8 text-center space-y-3">
                   <div class="animate-spin rounded-full h-8 w-8 border-4 border-[#7bc342] border-t-transparent mx-auto"></div>
-                  <p class="text-gray-500 text-sm font-semibold">Consultando API de Visa...</p>
+                  <p class="text-gray-500 text-sm font-semibold">Consultando API de Neo...</p>
                 </div>
               } @else if (!visaDetails()) {
                 <!-- Vista inicial del modal con detalles locales -->
@@ -193,7 +197,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
                     <span class="text-blue-500 text-xl">ℹ️</span>
                     <div>
                       <h4 class="font-bold text-blue-800 text-sm">Consulta de Estatus</h4>
-                      <p class="text-blue-700 text-xs mt-0.5">Haga clic en 'Consultar Visa' para verificar el estado de este link en la plataforma de Visa en Link y buscar su número de autorización.</p>
+                      <p class="text-blue-700 text-xs mt-0.5">Haga clic en 'Consultar Neo' para verificar el estado de este link en la plataforma de Neo en Link y buscar su número de autorización.</p>
                     </div>
                   </div>
                 </div>
@@ -214,24 +218,26 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
                     </div>
                     <div class="bg-gray-50 p-3 rounded-xl">
                       <span class="text-xs font-bold text-gray-400 block uppercase">Monto</span>
-                      <span class="font-bold text-gray-800 mt-1 block font-mono">Q/$. {{ visaDetails()?.monto | number:'1.2-2' }}</span>
+                      <span class="font-bold text-gray-800 mt-1 block font-mono">
+                        {{ visaDetails()?.moneda === 'Q' ? 'Q' : '$' }}. {{ visaDetails()?.monto | number:'1.2-2' }}
+                      </span>
                     </div>
                     <div class="bg-gray-50 p-3 rounded-xl">
-                      <span class="text-xs font-bold text-gray-400 block uppercase font-mono">Estatus Visa</span>
+                      <span class="text-xs font-bold text-gray-400 block uppercase font-mono">Estatus Neo</span>
                       <span class="font-bold mt-1 block" [class]="(visaDetails()?.estado === 'PAID' || visaDetails()?.estado === 'Pagado') ? 'text-emerald-600' : 'text-amber-600'">
                         {{ visaDetails()?.estado === 'PAID' ? 'Pagado' : (visaDetails()?.estado === 'PENDING' ? 'Pendiente' : visaDetails()?.estado) }}
                       </span>
                     </div>
                   </div>
 
-                  @if (visaDetails()?.autorizacion) {
-                    <!-- Pago Autorizado por Visa -->
+                  @if (visaDetails()?.ventas && visaDetails()?.ventas.length > 0) { 
+                    <!-- Pago Autorizado por Neo -->
                     <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex gap-3">
                       <span class="text-emerald-500 text-xl">✅</span>
                       <div>
-                        <h4 class="font-bold text-emerald-800 text-sm">Pago Autorizado en Visa</h4>
-                        <p class="text-emerald-700 text-xs mt-0.5">Código de autorización: <strong class="font-mono text-sm">{{ visaDetails()?.autorizacion }}</strong></p>
-                        <p class="text-emerald-600 text-xs mt-1">El cobro ya se realizó en Visa. Puede aplicar el pago al core bancario presionando el botón de abajo.</p>
+                        <h4 class="font-bold text-emerald-800 text-sm">Pago Autorizado en Neo</h4>
+                        <p class="text-emerald-700 text-xs mt-0.5">Código de autorización: <strong class="font-mono text-sm">{{ visaDetails()?.ventas[0]?.autorizacion }}</strong></p>
+                        <p class="text-emerald-600 text-xs mt-1">El cobro ya se realizó en Neo. Puede aplicar el pago al core bancario presionando el botón de abajo.</p>
                       </div>
                     </div>
                   } @else {
@@ -240,7 +246,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
                       <span class="text-amber-500 text-xl">⚠️</span>
                       <div>
                         <h4 class="font-bold text-amber-800 text-sm">Pago no completado</h4>
-                        <p class="text-amber-700 text-xs mt-0.5">El link aún no posee un número de autorización registrado en Visa.</p>
+                        <p class="text-amber-700 text-xs mt-0.5">El link aún no posee un número de autorización registrado en Neo.</p>
                       </div>
                     </div>
                   }
@@ -259,10 +265,10 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
                   <button 
                     (click)="consultarEnVisa()" 
                     class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-600/10 flex items-center gap-1.5">
-                    🔎 Consultar Visa
+                    🔎 Consultar Neo
                   </button>
                 }
-                @if (visaDetails()?.autorizacion && !isCheckingVisa()) {
+                @if (visaDetails()?.ventas && visaDetails()?.ventas.length > 0 && !isCheckingVisa()) {
                   <button 
                     (click)="aplicarPagoCore()" 
                     [disabled]="isApplying()"
@@ -286,7 +292,9 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, tap, switchMap,
 export class VerificacionLinkComponent implements OnInit, OnDestroy {
   private readonly linkService = inject(LinkService);
   private readonly ui = inject(UiService);
+  private readonly authService = inject(AuthService);
   private readonly destroy$ = new Subject<void>();
+  private readonly refresh$ = new Subject<void>();
 
   // States
   links = signal<LinkVerificaItem[]>([]);
@@ -295,6 +303,8 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
   // Pagination
   currentPage = signal(1);
   totalRecords = signal(0);
+  sortColumn = signal('CORRELATIVO');
+  sortDirection = signal<'asc' | 'desc'>('desc');
   
   searchControl = new FormControl('');
   pageSizeControl = new FormControl(10);
@@ -310,18 +320,30 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.searchControl.valueChanges.pipe(
+    const search$ = this.searchControl.valueChanges.pipe(
       debounceTime(400),
       distinctUntilChanged(),
       tap(() => {
-        this.currentPage.set(1); // Resetea a la primera página en cada búsqueda
+        this.currentPage.set(1); // Resetea a la primera página en cada nueva búsqueda
+      })
+    );
+
+    const pageSize$ = this.pageSizeControl.valueChanges.pipe(
+      distinctUntilChanged(),
+      tap(() => {
+        this.currentPage.set(1); // Resetea a la primera página cuando cambia el tamaño
+      })
+    );
+
+    merge(search$, pageSize$, this.refresh$).pipe(
+      tap(() => {
+        this.isLoading.set(true);
       }),
       switchMap(() => this.loadLinks()),
       takeUntil(this.destroy$)
     ).subscribe();
 
-    // Carga inicial
-    this.searchControl.setValue('', { emitEvent: true });
+    this.refreshData(); // Carga inicial
   }
 
   ngOnDestroy() {
@@ -345,12 +367,12 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
       },
       order: [
         {
-          column: 0,
-          dir: 'desc'
+          column: 0, // El backend usa el 'name' de la columna, no el índice.
+          dir: this.sortDirection()
         }
       ],
       columns: [
-        { name: 'CORRELATIVO', searchable: true, orderable: true },
+        { name: this.sortColumn(), searchable: true, orderable: true },
         { name: 'PRODUCTO', searchable: true, orderable: true },
         { name: 'CODIGO_VISA', searchable: true, orderable: true },
         { name: 'NUM_AUTO', searchable: false, orderable: false },
@@ -358,17 +380,22 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
       ]
     };
 
-    return this.linkService.getLinksVerifica(request).pipe(tap({
-      next: (res) => {
-        this.isLoading.set(false);
+    return this.linkService.getLinksVerifica(request).pipe(
+      tap(res => {
         this.links.set(res.data);
         this.totalRecords.set(res.recordsFiltered);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.ui.showError('Error al cargar la lista de verificación.');
-      }
-    }));
+      }),
+      finalize(() => this.isLoading.set(false)),
+      catchError((err: HttpErrorResponse) => {
+        if (err.status === 401) {
+          this.ui.showError('Su sesión ha expirado. Será redirigido al login.');
+          this.authService.logout();
+        } else {
+          this.ui.showError('Error al cargar la lista de verificación.');
+        }
+        return EMPTY;
+      })
+    );
   }
 
   // Pagination getters
@@ -387,15 +414,31 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
   prevPage() {
     if (this.currentPage() > 1) {
       this.currentPage.set(this.currentPage() - 1);
-      this.loadLinks();
+      this.refreshData();
     }
   }
 
   nextPage() {
     if (this.endRecord() < this.totalRecords()) {
       this.currentPage.set(this.currentPage() + 1);
-      this.loadLinks();
+      this.refreshData();
     }
+  }
+
+  refreshData() {
+    this.refresh$.next();
+  }
+
+  sort(column: string) {
+    if (this.sortColumn() === column) {
+      // Si es la misma columna, invertir la dirección
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Si es una nueva columna, establecerla y ordenar ascendentemente por defecto
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.refreshData();
   }
 
   // Verification & Action
@@ -418,12 +461,12 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
         if (res.success && res.data) {
           this.visaDetails.set(res.data);
         } else {
-          this.ui.showModal(this.cleanOracleError(res.errorMessage || 'Link no encontrado en Visa.'));
+          this.ui.showModal(this.cleanOracleError(res.errorMessage || 'Link no encontrado en Neo.'));
         }
       },
       error: (err) => {
         this.isCheckingVisa.set(false);
-        const msg = err.error?.message || err.error?.errorMessage || 'Error de comunicación con el servicio de Visa.';
+        const msg = err.error?.message || err.error?.errorMessage || 'Error de comunicación con el servicio de Neo.';
         this.ui.showModal(this.cleanOracleError(msg));
       }
     });
@@ -440,7 +483,7 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
       numCta: item.producto,
       codSku: item.codigoVisa,
       codLink: item.correlativo,
-      autVisa: details.autorizacion
+      autVisa: details.ventas[0]?.autorizacion
     };
 
     this.linkService.aplicarPago(pago).subscribe({
@@ -449,7 +492,7 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
         if (res.success) {
           this.ui.showSuccess(res.message || 'Se efectuó de forma exitosa el pago.');
           this.closeModal();
-          this.loadLinks(); // Refresh table
+          this.refreshData(); // Usar refreshData() para disparar la recarga a través del pipe principal
         } else {
           const rawError = res.errorMessage || res.message || 'No se pudo aplicar el pago en el Core.';
           this.ui.showModal(this.cleanOracleError(rawError));
@@ -522,145 +565,134 @@ export class VerificacionLinkComponent implements OnInit, OnDestroy {
     });
   }
 
-  copyToClipboard() {
-    this.getAllDataForExport((data) => {
-      const headers = ['Correlativo', 'Cuenta / Producto', 'SKU Visa', 'Autorización', 'Movimiento Core', 'Estatus Local'];
-      const rows = data.map(l => [
-        l.correlativo, 
-        l.producto, 
-        l.codigoVisa, 
-        l.numAuto, 
-        l.numMov, 
-        l.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'
-      ]);
-      
-      const tsvContent = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
-      
-      navigator.clipboard.writeText(tsvContent).then(() => {
-        this.ui.showSuccess('Datos copiados al portapapeles');
-      }).catch(() => {
-        this.ui.showError('Error al copiar al portapapeles');
-      });
+  private fallbackCopyToClipboard(text: string): boolean {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      return document.execCommand('copy');
+    } catch (err) {
+      return false;
+    } finally {
+      document.body.removeChild(textArea);
+    }
+  }
+
+  async copyToClipboard() {
+    this.getAllDataForExport(async (data) => {
+      if (data.length === 0) {
+        this.ui.showInfo('No hay datos para copiar.');
+        return;
+      }
+      const headers = ['Correlativo', 'Cuenta / Producto', 'SKU Neo', 'Autorización', 'Movimiento Core', 'Estatus Local'];
+      const rows = data.map(l => [l.correlativo, l.producto, l.codigoVisa, l.numAuto, l.numMov, l.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'].join('\t'));
+      const tsvContent = [headers.join('\t'), ...rows].join('\n');
+
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(tsvContent).then(() => this.ui.showSuccess('Datos copiados al portapapeles'), () => this.ui.showError('Error al copiar al portapapeles'));
+      } else if (this.fallbackCopyToClipboard(tsvContent)) {
+        this.ui.showSuccess('Datos copiados (modo compatibilidad).');
+      } else {
+        this.ui.showError('La función de copiar no es compatible o fue bloqueada.');
+      }
     });
   }
 
   exportToExcel() {
     this.getAllDataForExport((data) => {
-      const headers = ['Correlativo', 'Cuenta / Producto', 'SKU Visa', 'Autorizacion', 'Movimiento Core', 'Estatus Local'];
-      const rows = data.map(l => [
-        l.correlativo, 
-        l.producto, 
-        l.codigoVisa, 
-        l.numAuto, 
-        l.numMov, 
-        l.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'
-      ]);
-      
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
-      
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // Mapear los datos al formato deseado, tratando los números largos como texto.
+      const dataToExport = data.map(item => ({
+        'Correlativo': item.correlativo,
+        'Cuenta / Producto': item.producto,
+        'SKU Neo': item.codigoVisa,
+        'Autorización': item.numAuto,
+        'Movimiento Core': item.numMov,
+        'Estatus Local': item.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'
+      }));
+
+      // Crear la hoja de cálculo a partir de los datos JSON
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataToExport);
+
+      // Crear un nuevo libro de trabajo y añadir la hoja
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'VerificacionLinks');
+
+      const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `Verificacion_Links_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `Verificacion_Links_${new Date().toISOString().split('T')[0]}.xlsx`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     });
   }
 
-  print() {
+  async print() {
     if (this.totalRecords() === 0) {
       this.ui.showError('No hay datos para imprimir');
       return;
     }
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      this.ui.showError('Por favor, permita las ventanas emergentes para imprimir.');
-      return;
-    }
-    
-    printWindow.document.write('<html><body><h2>Cargando datos para impresión...</h2></body></html>');
+    this.ui.showInfo('Generando reporte para impresión...');
 
     this.getAllDataForExport((data) => {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString();
-      const timeStr = now.toLocaleTimeString();
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      iframe.style.visibility = 'hidden';
+      document.body.appendChild(iframe);
 
-      let html = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <title>Impresión - Verificación de Links</title>
+      const doc = iframe.contentWindow?.document;
+      if (!doc) {
+        this.ui.showError('No se pudo generar el documento para imprimir.');
+        document.body.removeChild(iframe);
+        return;
+      }
+
+      const now = new Date();
+      const html = `
+        <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Verificación de Links</title>
           <style>
             body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-            .header { text-align: center; margin-bottom: 20px; }
-            h1 { color: #007139; margin-bottom: 5px; font-size: 24px; }
-            .info { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; color: #333; text-transform: uppercase; font-size: 11px; }
+            h1 { color: #007139; font-size: 22px; }
+            p { font-size: 12px; color: #666; }
+            table { width: 100%; border-collapse: collapse; font-size: 10px; }
+            th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+            th { background-color: #f2f2f2; text-transform: uppercase; }
+            @media print { body { margin: 10px; } }
           </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Verificación y Conciliación de Links</h1>
-          </div>
-          <div class="info">
-            <span><strong>Fecha:</strong> ${dateStr}</span>
-            <span><strong>Hora:</strong> ${timeStr}</span>
-          </div>
+        </head><body>
+          <h1>Verificación y Conciliación de Links</h1>
+          <p>Reporte generado el ${now.toLocaleDateString()} a las ${now.toLocaleTimeString()}</p>
           <table>
             <thead>
-              <tr>
-                <th>Correlativo</th>
-                <th>Cuenta / Producto</th>
-                <th>SKU Visa</th>
-                <th>Autorización</th>
-                <th>Movimiento Core</th>
-                <th>Estatus Local</th>
-              </tr>
+              <tr><th>Correlativo</th><th>Cuenta / Producto</th><th>SKU Neo</th><th>Autorización</th><th>Movimiento Core</th><th>Estatus Local</th></tr>
             </thead>
-            <tbody>
-      `;
-
-      data.forEach(item => {
-        const estatus = item.edit === 'Pagado' ? 'Conciliado' : 'Por verificar';
-        
-        html += `
-          <tr>
-            <td>${item.correlativo}</td>
-            <td>${item.producto}</td>
-            <td>${item.codigoVisa}</td>
-            <td>${item.numAuto}</td>
-            <td>${item.numMov}</td>
-            <td>${estatus}</td>
-          </tr>
-        `;
-      });
-
-      html += `
-            </tbody>
+            <tbody>${data.map(item => `<tr><td>${item.correlativo}</td><td>${item.producto}</td><td>${item.codigoVisa}</td><td>${item.numAuto}</td><td>${item.numMov}</td><td>${item.edit === 'Pagado' ? 'Conciliado' : 'Por verificar'}</td></tr>`).join('')}</tbody>
           </table>
-          <script>
-            window.onload = function() {
-              setTimeout(function() {
-                window.print();
-                window.onafterprint = function() { window.close(); }
-              }, 250);
-            }
-          </script>
-        </body>
-        </html>
-      `;
+        </body></html>`;
 
-      printWindow.document.open();
-      printWindow.document.write(html);
-      printWindow.document.close();
+      doc.open();
+      doc.write(html);
+      doc.close();
+
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+
+      // Limpiar el iframe después de un tiempo prudencial
+      setTimeout(() => document.body.removeChild(iframe), 1000);
     }, () => {
-      printWindow.close();
+      // onError, no es necesario hacer nada extra ya que no hay ventana que cerrar
     });
   }
 }

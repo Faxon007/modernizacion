@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin, of } from 'rxjs';
 import { LinkService, LinkEntity, ClientEntity } from '../../core/services/link.service';
 import { ParameterService } from '../../core/services/parameter.service';
 import { UiService } from '../../core/services/ui.service';
@@ -163,8 +163,8 @@ import { UiService } from '../../core/services/ui.service';
                   id="tipLink" 
                   formControlName="tipLink"
                   class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7bc342] focus:border-[#7bc342] transition-all text-gray-800 font-medium">
-                  <option value="2">No (Emisión Única)</option>
-                  <option value="1">Sí (Mensual Programado)</option>
+                  <option value="2">No (Manual)</option>
+                  <option value="1">Sí (Automático)</option>
                 </select>
               </div>
             </div>
@@ -375,7 +375,7 @@ export class EmisionLinkComponent {
   defaultEmail = signal('');
   defaultPhone = signal('');
 
-  maxMonto = signal<number>(999999);
+  maxMonto = signal<number>(0);
   isMontoValido = signal(true);
   generatedUrl = signal<string | null>(null);
   systemImageBase64 = signal<string>('');
@@ -392,16 +392,18 @@ export class EmisionLinkComponent {
     monto: ['0.00', [Validators.required]],
     pagarDolares: [false],
     tipLink: ['2'], // '2' = No, '1' = Si
-    diaMes: [new Date().getDate().toString()],
+    diaMes: [new Date().getDate()],
     tipEnvio: ['2'], // '1' = SMS, '2' = Correo
     esDefault: ['1'], // '1' = Default, '2' = Editado
-    customTelefono: ['', [Validators.pattern(/^[0-9]{8}$/)]],
-    customEmail: ['', [Validators.email]]
+    // Los validadores se añadirán dinámicamente
+    customTelefono: [''],
+    customEmail: ['']
   });
 
   constructor() {
     this.ui.title.set('Emisión de Links de Pago');
     this.loadSystemImage();
+    this.setupDynamicValidators();
     // Inicializar el campo de monto con el formato correcto
     this.linkForm.get('monto')?.setValue(this.formatCurrency(0));
   }
@@ -414,6 +416,51 @@ export class EmisionLinkComponent {
         }
       }
     });
+  }
+
+  private setupDynamicValidators() {
+    const esDefaultControl = this.linkForm.get('esDefault');
+    const tipEnvioControl = this.linkForm.get('tipEnvio');
+    const customTelefonoControl = this.linkForm.get('customTelefono');
+    const customEmailControl = this.linkForm.get('customEmail');
+
+    if (!esDefaultControl || !tipEnvioControl || !customTelefonoControl || !customEmailControl) return;
+
+    // Escuchar cambios en ambos controles
+    esDefaultControl.valueChanges.subscribe(esDefault => {
+      if (esDefault !== null && tipEnvioControl.value !== null) {
+        this.updateValidators(esDefault, tipEnvioControl.value);
+      }
+    });
+
+    tipEnvioControl.valueChanges.subscribe(tipEnvio => {
+      if (esDefaultControl.value !== null && tipEnvio !== null) {
+        this.updateValidators(esDefaultControl.value, tipEnvio);
+      }
+    });
+  }
+
+  private updateValidators(esDefault: string, tipEnvio: string) {
+    const customTelefonoControl = this.linkForm.get('customTelefono');
+    const customEmailControl = this.linkForm.get('customEmail');
+
+    if (!customTelefonoControl || !customEmailControl) return;
+
+    // Limpiar ambos campos y sus validadores primero
+    customTelefonoControl.clearValidators();
+    customTelefonoControl.setValue('');
+    customEmailControl.clearValidators();
+    customEmailControl.setValue('');
+
+    if (esDefault === '2') { // Si es "Editar"
+      if (tipEnvio === '1') { // y es SMS
+        customTelefonoControl.setValidators([Validators.required, Validators.pattern(/^[0-9]{8}$/)]);
+      } else { // y es Correo
+        customEmailControl.setValidators([Validators.required, Validators.email]);
+      }
+    }
+    customTelefonoControl.updateValueAndValidity();
+    customEmailControl.updateValueAndValidity();
   }
 
   private formatCurrency(value: any): string {
@@ -502,7 +549,7 @@ export class EmisionLinkComponent {
       // 2. Check blacklist (Empresa "1")
       const blacklistRes = await firstValueFrom(this.linkService.isClienteListaNegra('1', client.codCliente));
       if (blacklistRes.success && blacklistRes.data === true) {
-        this.showError(`El cliente ${client.nomCliente} (${client.codCliente}) se encuentra en la Lista de Exclusiones/Lista Negra.`);
+        this.showError(`Tu transacción no pudo ser procesada debido a que el método de pago utilizado fue rechazado. Por favor, acércate a una agencia para realizar el pago.)`);
         this.isSearching.set(false);
         return;
       }
@@ -559,46 +606,57 @@ export class EmisionLinkComponent {
     this.closeCuentasModal();
 
     // Retrieve default phone & email
-    const client = this.selectedClient()!;
-    this.linkService.getCorreoCliente(client.codCliente).subscribe({
-      next: (res) => { if (res.success && res.data) this.defaultEmail.set(res.data); }
-    });
-    this.linkService.getTelefonoCliente(client.codCliente).subscribe({
-      next: (res) => { if (res.success && res.data) this.defaultPhone.set(res.data); }
-    });
+    this.loadAccountDetails(ac);
+  }
 
-    // Check maximum limits
-    if (ac.tipo === 'Tarjeta') {
-      this.linkService.getMontoTC(ac.numCuenta).subscribe({
-        next: (res) => {
-          if (res.success && res.data) {
-            this.maxMonto.set(res.data);
-          }
+  private loadAccountDetails(account: any) {
+    const client = this.selectedClient()!;
+    const isLoan = account.tipo !== 'Tarjeta';
+
+    // Define all API calls to be made
+    const email$ = this.linkService.getCorreoCliente(client.codCliente);
+    const phone$ = this.linkService.getTelefonoCliente(client.codCliente);
+    const limit$ = isLoan 
+      ? this.linkService.getMontoPR(account.numCuenta) 
+      : this.linkService.getMontoTC(account.numCuenta);
+    const loanType$ = isLoan 
+      ? this.linkService.getTipoPrestamo(account.numCuenta) 
+      : of(null); // Return an empty observable if not a loan
+
+    // Execute all calls in parallel
+    forkJoin({
+      email: email$,
+      phone: phone$,
+      limit: limit$,
+      loanType: loanType$
+    }).subscribe({
+      next: (results) => {
+        // Set email and phone
+        if (results.email.success && results.email.data) this.defaultEmail.set(results.email.data);
+        if (results.phone.success && results.phone.data) this.defaultPhone.set(results.phone.data);
+
+        // Set max amount
+        if (results.limit.success && results.limit.data) {
+          this.maxMonto.set(results.limit.data);
+        } else {
+          this.maxMonto.set(0); // Set to 0 on failure
+          this.ui.showError('No se pudo obtener el límite de monto para este producto.');
         }
-      });
-    } else {
-      this.linkService.getMontoPR(ac.numCuenta).subscribe({
-        next: (res) => {
-          if (res.success && res.data) {
-            this.maxMonto.set(res.data);
-          }
+
+        // Set currency for loans
+        if (results.loanType && results.loanType.success && results.loanType.data) {
+          const isUSD = results.loanType.data.moneda === '840';
+          this.linkForm.patchValue({ pagarDolares: isUSD });
+        } else {
+          this.linkForm.patchValue({ pagarDolares: false });
         }
-      });
-      
-      // Auto USD check depending on loan currency
-      this.linkService.getTipoPrestamo(ac.numCuenta).subscribe({
-        next: (res) => {
-          if (res.success && res.data) {
-            // Moneda '840' = USD
-            if (res.data.moneda === '840') {
-              this.linkForm.patchValue({ pagarDolares: true });
-            } else {
-              this.linkForm.patchValue({ pagarDolares: false });
-            }
-          }
-        }
-      });
-    }
+      },
+      error: () => {
+        // Handle any critical failure in forkJoin
+        this.maxMonto.set(0);
+        this.ui.showError('Error de comunicación al obtener los detalles de la cuenta.');
+      }
+    });
   }
 
   onMontoBlur() {
@@ -697,7 +755,7 @@ export class EmisionLinkComponent {
   private proceedSaveLink(formVal: any, ac: any, client: ClientEntity) {
     // 20240312 Email & phone validation
     let phone = this.defaultPhone();
-    let email = this.defaultEmail();
+    let email = this.defaultEmail().toUpperCase();;
 
     if (formVal.esDefault === '2') {
       if (formVal.tipEnvio === '1') {
@@ -707,27 +765,34 @@ export class EmisionLinkComponent {
           this.isSaving.set(false);
           return;
         }
+        email = '';
       } else {
-        email = formVal.customEmail;
+        email = formVal.customEmail.toUpperCase();
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
           this.showError('ERROR: Se debe ingresar un correo electrónico válido.');
           this.isSaving.set(false);
           return;
         }
+        phone='';
       }
     } else {
       // Default
-      if (formVal.tipEnvio === '1' && (!phone || phone.startsWith('Dato default no'))) {
-        this.showError('Se debe seleccionar otro medio de envío o digitar un número de teléfono.');
-        this.isSaving.set(false);
-        return;
+      if (formVal.tipEnvio === '1'){
+        if(!phone || phone.startsWith('Dato default no')) {
+          this.showError('Se debe seleccionar otro medio de envío o digitar un número de teléfono.');
+          this.isSaving.set(false);
+          return;
+        }else
+          email = '';
+      } else{
+          if (!email || email.startsWith('Dato default no')) {
+          this.showError('Se debe seleccionar otro medio de envío o digitar un correo electrónico.');
+          this.isSaving.set(false);
+          return;
+        } else
+            phone='';
       }
-      if (formVal.tipEnvio === '2' && (!email || email.startsWith('Dato default no'))) {
-        this.showError('Se debe seleccionar otro medio de envío o digitar un correo electrónico.');
-        this.isSaving.set(false);
-        return;
-      }
-    }
+  }
 
     const payload: LinkEntity = {
       numCuenta: ac.numCuenta,
@@ -739,7 +804,7 @@ export class EmisionLinkComponent {
       numTelefono: phone,
       nomCorreo: email,
       tipLink: formVal.tipLink,
-      diaMes: formVal.tipLink === '1' ? formVal.diaMes : '',
+      diaMes: formVal.tipLink === '1' ? String(formVal.diaMes) : '',
       nomProducto: ac.tipo === 'Tarjeta' ? 'Pago Tarjeta Promerica' : 'Pago Préstamo Promerica',
       codCliente: client.codCliente
     };
@@ -754,7 +819,7 @@ export class EmisionLinkComponent {
           this.generatedUrl.set(res.data);
           this.ui.showSuccess('Link generado y guardado exitosamente.');
         } else {
-          this.showError(res.errorMessage || 'Ocurrió un error al registrar el link en Visa.');
+          this.showError(res.errorMessage || 'Ocurrió un error al registrar el link en Neo.');
         }
       },
       error: (err) => {
@@ -765,10 +830,35 @@ export class EmisionLinkComponent {
     });
   }
 
-  copyLink() {
-    if (this.generatedUrl()) {
-      navigator.clipboard.writeText(this.generatedUrl()!);
-      this.ui.showSuccess('¡Enlace copiado al portapapeles!');
+  private fallbackCopyToClipboard(text: string): boolean {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      return document.execCommand('copy');
+    } catch (err) {
+      return false;
+    } finally {
+      document.body.removeChild(textArea);
+    }
+  }
+
+  async copyLink() {
+    const url = this.generatedUrl();
+    if (!url) return;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url).then(() => this.ui.showSuccess('¡Enlace copiado al portapapeles!'), () => this.ui.showError('No se pudo copiar el enlace.'));
+    } else if (this.fallbackCopyToClipboard(url)) {
+      this.ui.showSuccess('¡Enlace copiado al portapapeles! (modo compatibilidad)');
+    } else {
+      this.ui.showError('La función de copiar no es compatible o fue bloqueada por su navegador.');
     }
   }
 
@@ -778,7 +868,7 @@ export class EmisionLinkComponent {
       monto: this.formatCurrency(0),
       pagarDolares: false,
       tipLink: '2',
-      diaMes: new Date().getDate().toString(),
+      diaMes: new Date().getDate(),
       tipEnvio: '2',
       esDefault: '1',
       customTelefono: '',
@@ -801,7 +891,7 @@ export class EmisionLinkComponent {
       monto: this.formatCurrency(0),
       pagarDolares: false,
       tipLink: '2',
-      diaMes: new Date().getDate().toString(),
+      diaMes: new Date().getDate(),
       tipEnvio: '2',
       esDefault: '1',
       customTelefono: '',

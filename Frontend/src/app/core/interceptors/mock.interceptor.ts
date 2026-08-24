@@ -44,7 +44,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       data: [
         {
           id: 1,
-          nombre: 'Cobros Visa En Link',
+          nombre: 'Cobros Neo En Link',
           path: '',
           descripcion: 'Gestión de cobros y links de pago',
           padreId: 0,
@@ -497,7 +497,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
         codSubtipoPr: '05',
         codDepartamento: '01',
         codDeptoPr: '01',
-        desTransaccion: 'Cobro Visa En Link Promerica',
+        desTransaccion: 'Cobro Neo En Link Promerica',
         apiImagenBase64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', // 1px transparent png
         msgRemitente: 'Banco Promerica Guatemala',
         msgHeader: 'Estimado Cliente, Banco Promerica le envía su link de pago seguro:',

@@ -34,7 +34,7 @@ namespace Backend.Services
         private readonly ILogger<VisaEnLinkIntegrationService> _logger;
 
         public VisaEnLinkIntegrationService(
-            HttpClient httpClient, 
+            HttpClient httpClient,
             ISiteRepository siteRepository, 
             IOptions<VisaEnLinkOptions> options,
             IWebHostEnvironment env,
@@ -45,8 +45,16 @@ namespace Backend.Services
             _options = options.Value;
             _env = env;
             _logger = logger;
+
+            if (!string.IsNullOrEmpty(_options.UrlVisa))
+            {
+                _httpClient.BaseAddress = new Uri(_options.UrlVisa);
+            }
         }
 
+        // This method is now responsible for creating a client with the correct proxy settings
+        // on a per-call basis if needed, or you can configure the injected _httpClient.
+        // For simplicity and to match the request, we will create a new client when proxy is needed.
         public async Task<string> GetOrGenerateTokenAsync()
         {
             // If in Development environment, return a dummy token immediately
@@ -80,32 +88,56 @@ namespace Backend.Services
                 new KeyValuePair<string, string>("usuario", _options.UsuVisa),
                 new KeyValuePair<string, string>("clave", _options.ClaveVisa)
             });
-
             try
             {
                 _logger.LogInformation("Enviando POST a /api/login para obtener token...");
                 var response = await _httpClient.PostAsync("/api/login", content);
                 
-                if (!response.IsSuccessStatusCode)
-                {
-                    string errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Error HTTP {StatusCode} en /api/login. Contenido: {Content}", response.StatusCode, errorContent);
-                }
-                response.EnsureSuccessStatusCode();
+                // --- INICIO DE CAMBIOS PARA DEPURACIÓN ---
+                // 1. Leer la respuesta como texto crudo para poder registrarla.
+                var rawContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Respuesta de Neo API /api/login - StatusCode: {StatusCode}, Content: {Content}", response.StatusCode, rawContent);
+                // --- FIN DE CAMBIOS PARA DEPURACIÓN ---
 
-                var result = await response.Content.ReadFromJsonAsync<VisaLoginResponse>();
-                if (result == null || result.Result != "success" || result.Data == null || string.IsNullOrEmpty(result.Data.Token))
+                VisaLoginResponse? result;
+                try
                 {
-                    _logger.LogWarning("Respuesta de login no fue exitosa o no trajo token. Message: {Message}", result?.Message);
-                    throw new Exception($"Error al generar token de Visa: {result?.Message ?? "Respuesta inválida"}");
+                    // 2. Intentar deserializar la respuesta.
+                    result = JsonSerializer.Deserialize<VisaLoginResponse>(rawContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+                catch (JsonException jsonEx)
+                {
+                    // Si la deserialización falla, la respuesta no es un JSON válido.
+                    _logger.LogError(jsonEx, "Fallo al deserializar la respuesta de Neo API /api/login. El contenido no es un JSON válido. Contenido Crudo: {RawContent}", rawContent);
+                    throw new Exception($"La respuesta del servicio de autenticación no tiene un formato válido.");
+                }
+
+                // 3. Validar el estado HTTP y el resultado de la API.
+                // Si el estado HTTP no es de éxito, o si el JSON indica un error, lanzamos una excepción con el mensaje de la API.
+                if (!response.IsSuccessStatusCode || result == null || result.Result != "success" || result.Data == null || string.IsNullOrEmpty(result.Data.Token))
+                {
+                    string errorMessage;
+                    if (result != null && !string.IsNullOrEmpty(result.Message))
+                    {
+                        // La API devolvió un JSON válido con un mensaje de error específico.
+                        errorMessage = result.Message;
+                        _logger.LogWarning("La API de Neo devolvió un error. Mensaje: {Message}. StatusCode: {StatusCode}", errorMessage, response.StatusCode);
+                    }
+                    else
+                    {
+                        // La API devolvió un error HTTP, pero el JSON no contenía un mensaje específico o era nulo.
+                        errorMessage = $"Error HTTP {response.StatusCode} al contactar la API de Neo.";
+                        _logger.LogError("La API de Neo devolvió un error HTTP sin mensaje específico. StatusCode: {StatusCode}. Contenido: {RawContent}", response.StatusCode, rawContent);
+                    }
+                    throw new Exception(errorMessage);
                 }
 
                 _logger.LogInformation("Token generado exitosamente.");
                 return result.Data.Token;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not JsonException)
             {
-                _logger.LogError(ex, "Excepción ocurrida en GenerateNewTokenAsync al contactar la API de Visa.");
+                _logger.LogError(ex, "Excepción no controlada ocurrida en GenerateNewTokenAsync al contactar la API de Neo.");
                 throw;
             }
         }
@@ -123,7 +155,6 @@ namespace Backend.Services
                 new KeyValuePair<string, string>("llave", _options.Key),
                 new KeyValuePair<string, string>("token", token)
             });
-
             try
             {
                 _logger.LogInformation("Enviando POST a /api/network/all para consultar redes...");
@@ -140,7 +171,7 @@ namespace Backend.Services
                 if (result == null || result.Result != "success" || result.Data == null || result.Data.Count == 0)
                 {
                     _logger.LogWarning("Respuesta de redes no fue exitosa o no trajo datos. Message: {Message}", result?.Message);
-                    throw new Exception($"Error al consultar redes de Visa: {result?.Message ?? "Sin redes disponibles"}");
+                    throw new Exception($"Error al consultar redes de Neo: {result?.Message ?? "Sin redes disponibles"}");
                 }
 
                 _logger.LogInformation("Redes consultadas exitosamente, retornando primera red: {Red}", result.Data[0].Codigo);
@@ -199,7 +230,7 @@ namespace Backend.Services
                 if (result == null || result.Result != "success" || result.Data == null || result.Data.Count == 0)
                 {
                     _logger.LogWarning("Respuesta de creación de link no fue exitosa. Message: {Message}", result?.Message);
-                    throw new Exception($"Error al registrar link en Visa: {result?.Message ?? "Respuesta vacía"}");
+                    throw new Exception($"Error al registrar link en Neo: {result?.Message ?? "Respuesta vacía"}");
                 }
 
                 string sku = codigoInterno;
@@ -218,7 +249,7 @@ namespace Backend.Services
                         new KeyValuePair<string, string>("imagen", imgPublicitaria),
                         new KeyValuePair<string, string>("tipo", "jpg")
                     });
-
+                    
                     var imgResponse = await _httpClient.PostAsync("/api/link/image", imgContent);
                     
                     if (!imgResponse.IsSuccessStatusCode)
@@ -232,7 +263,7 @@ namespace Backend.Services
                     if (imgResult == null || imgResult.Result != "success")
                     {
                         _logger.LogWarning("Respuesta de carga de imagen no fue exitosa. Message: {Message}", imgResult?.Message);
-                        throw new Exception($"Error al asociar imagen publicitaria en Visa: {imgResult?.Message ?? "Falla en carga"}");
+                        throw new Exception($"Error al asociar imagen publicitaria en Neo: {imgResult?.Message ?? "Falla en carga"}");
                     }
                     _logger.LogInformation("Imagen subida exitosamente para {CodigoInterno}.", sku);
                 }
@@ -249,18 +280,31 @@ namespace Backend.Services
         public async Task<VisaLinkInfo?> ConsultaLinkAsync(string sku)
         {
             // Development bypass as requested
-            if (_env.IsDevelopment())
+            // This bypass is now smarter:
+            // - If SKU ends in an even number, it simulates a PAID link.
+            // - If SKU ends in an odd number or is not a number, it simulates a PENDING link.
+            /*if (_env.IsDevelopment())
             {
-                return new VisaLinkInfo
+                _logger.LogInformation("[DEV MODE] Simulando ConsultaLinkAsync para SKU: {Sku}", sku);
+                char lastChar = sku.LastOrDefault();
+                bool isEven = char.IsDigit(lastChar) && (int.Parse(lastChar.ToString()) % 2 == 0);
+
+                if (isEven)
                 {
-                    Sku = sku,
-                    LinkUrl = $"https://dummy.link/{sku}",
-                    Estado = "PAID",
-                    Nombre = "Dummy Link (Development Mode)",
-                    Monto = 100.00,
-                    Autorizacion = "8956540" // Dummy auth code from legacy code
-                };
-            }
+                    _logger.LogInformation("[DEV MODE] Simulando respuesta PAGADA.");
+                    return new VisaLinkInfo
+                    {
+                        Sku = sku,
+                        Estado = "PAID",
+                        Monto = 125.50,
+                        Moneda = "Q",
+                        Ventas = new List<VentaData> { new VentaData { Autorizacion = "888888" } }
+                    };
+                }
+
+                _logger.LogInformation("[DEV MODE] Simulando respuesta PENDIENTE.");
+                return new VisaLinkInfo { Sku = sku, Estado = "PENDING", Monto = 75.00, Moneda = "Q", Ventas = new List<VentaData>() };
+            }*/
 
             string token = await GetOrGenerateTokenAsync();
 
@@ -270,22 +314,31 @@ namespace Backend.Services
                 new KeyValuePair<string, string>("token", token),
                 new KeyValuePair<string, string>("codigo", sku)
             });
-
-            _logger.LogInformation("Visa API ConsultaLinkAsync Request - URL: /api/link/single, Sku: {Sku}", sku);
+            _logger.LogInformation("Neo API ConsultaLinkAsync Request - URL: /api/link/single, Sku: {Sku}", sku);
 
             var response = await _httpClient.PostAsync("/api/link/single", content);
             
             var rawContent = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Visa API ConsultaLinkAsync Response - StatusCode: {StatusCode}, Content: {Content}", response.StatusCode, rawContent);
+            _logger.LogInformation("Neo API ConsultaLinkAsync Response - StatusCode: {StatusCode}, Content: {Content}", response.StatusCode, rawContent);
 
             response.EnsureSuccessStatusCode();
 
+            // First, deserialize only the generic part to check the 'result' field
+            var genericResult = JsonSerializer.Deserialize<VisaGenericResponse>(rawContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (genericResult == null || genericResult.Result != "success")
+            {
+                _logger.LogWarning("Neo API ConsultaLinkAsync no fue exitosa. Result: {Result}, Message: {Message}", genericResult?.Result, genericResult?.Message);
+                throw new Exception($"Error al consultar link en Neo: {genericResult?.Message ?? "No se encontraron datos"}");
+            }
+
+            // If successful, now deserialize the full response
             var result = JsonSerializer.Deserialize<VisaLinkInfoResponse>(rawContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             
             if (result == null || result.Result != "success" || result.Data == null)
             {
-                _logger.LogWarning("Visa API ConsultaLinkAsync fallida o sin datos. Result: {Result}, Message: {Message}", result?.Result, result?.Message);
-                throw new Exception($"Error al consultar link en Visa: {result?.Message ?? "No se encontraron datos"}");
+                _logger.LogWarning("Neo API ConsultaLinkAsync fallida o sin datos. Result: {Result}, Message: {Message}", result?.Result, result?.Message);
+                throw new Exception($"Error al consultar link en Neo: {result?.Message ?? "No se encontraron datos"}");
             }
 
             var info = new VisaLinkInfo
@@ -294,12 +347,13 @@ namespace Backend.Services
                 LinkUrl = result.Data.Token ?? string.Empty,
                 Estado = result.Data.Estado ?? string.Empty,
                 Nombre = result.Data.NombreInterno ?? string.Empty,
-                Monto = result.Data.Precio
+                Monto = result.Data.Precio,
+                Moneda = result.Data.Moneda ?? "Q" // Asegurar que la moneda se mapee
             };
 
             if (result.Data.Ventas != null && result.Data.Ventas.Count > 0)
             {
-                info.Autorizacion = result.Data.Ventas[0].Autorizacion ?? string.Empty;
+                info.Ventas = result.Data.Ventas.Select(v => new VentaData { Autorizacion = v.Autorizacion }).ToList();
             }
 
             return info;
@@ -328,7 +382,6 @@ namespace Backend.Services
                 new KeyValuePair<string, string>("redes", networks),
                 new KeyValuePair<string, string>("cuota", "0")
             });
-
             var response = await _httpClient.PostAsync("/index.php/rest_movil/link", content);
             response.EnsureSuccessStatusCode();
 
@@ -398,6 +451,9 @@ namespace Backend.Services
                 public string? CodigoInterno { get; set; }
                 [JsonPropertyName("token")]
                 public string? Token { get; set; }
+                [JsonPropertyName("moneda")]
+                 public string? Moneda { get; set; }
+                
                 [JsonPropertyName("precio")]
                 public double Precio { get; set; }
                 [JsonPropertyName("estado")]

@@ -260,21 +260,30 @@ namespace Backend.Repositories
 
         public async Task<bool> RegistraBitacoraCoreAsync(BitCoreRequest request)
         {
-            using var conn = new OracleConnection(connectionString);
-            var p = new OracleDynamicParameters();
-            p.Add("P_CodPersona", request.CodPersona, OracleDbType.Varchar2, ParameterDirection.Input);
-            p.Add("P_NumCtaCredito", string.IsNullOrEmpty(request.NumCtaCredito) ? "NULL" : request.NumCtaCredito, OracleDbType.Varchar2, ParameterDirection.Input);
-            p.Add("P_NumPrestamo", string.IsNullOrEmpty(request.NumCtaPrestamo) ? "NULL" : request.NumCtaPrestamo, OracleDbType.Varchar2, ParameterDirection.Input);
-            p.Add("P_DesDetalle", request.Descripcion, OracleDbType.Varchar2, ParameterDirection.Input);
-            p.Add("P_MsgError", dbType: OracleDbType.Varchar2, direction: ParameterDirection.Output, size: 2000);
-
-            await conn.ExecuteAsync("BO.PKG_SCL.PkgScl_InsBitacoraCore", p, commandType: CommandType.StoredProcedure);
-            string? error = p.Get<string>("P_MsgError");
-            if (!string.IsNullOrEmpty(error) && !error.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                throw new Exception($"Procedimiento PkgScl_InsBitacoraCore retornó error: {error}");
+                using var conn = new OracleConnection(connectionString);
+                var p = new OracleDynamicParameters();
+                p.Add("P_CodPersona", request.CodPersona, OracleDbType.Varchar2, ParameterDirection.Input);
+                p.Add("P_NumCtaCredito", string.IsNullOrEmpty(request.NumCtaCredito) ? null : request.NumCtaCredito, OracleDbType.Varchar2, ParameterDirection.Input);
+                p.Add("P_NumPrestamo", string.IsNullOrEmpty(request.NumCtaPrestamo) ? null : request.NumCtaPrestamo, OracleDbType.Varchar2, ParameterDirection.Input);
+                p.Add("P_DesDetalle", request.Descripcion, OracleDbType.Varchar2, ParameterDirection.Input);
+                p.Add("P_MsgError", dbType: OracleDbType.Varchar2, direction: ParameterDirection.Output, size: 2000);
+
+                await conn.ExecuteAsync("BO.PKG_SCL.PkgScl_InsBitacoraCore", p, commandType: CommandType.StoredProcedure);
+                string? error = p.Get<string>("P_MsgError");
+                if (!string.IsNullOrEmpty(error) && !error.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogError(error,"Procedimiento PkgScl_InsBitacoraCore retornó error: {error}");
+                    throw new Exception($"Procedimiento PkgScl_InsBitacoraCore retornó error: {error}");
+                }
+                return true;
             }
-            return true;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fallo al registrar la bitácora del core. El flujo principal no se verá afectado. Descripción: {Descripcion}", request.Descripcion);
+                return false; // Retorna false pero no lanza la excepción hacia arriba.
+            }
         }
     }
 }

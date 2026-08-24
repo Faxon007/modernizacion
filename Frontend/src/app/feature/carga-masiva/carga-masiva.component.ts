@@ -175,7 +175,7 @@ interface BulkRecord {
                     <td class="px-6 py-4">
                       <div class="flex flex-col">
                         <span class="font-semibold text-xs text-gray-600">{{ rec.tipoPago === '1' ? 'Dólares' : 'Quetzales' }}</span>
-                        <span class="text-[10px] text-gray-400">{{ rec.tipoLink === '1' ? 'Automático (Día ' + rec.diaMes + ')' : 'Manual (Único)' }}</span>
+                        <span class="text-[10px] text-gray-400">{{ rec.tipoLink==='1'?'Automático':'Manual'}}</span>
                       </div>
                     </td>
                     <td class="px-6 py-4">
@@ -367,6 +367,41 @@ export class CargaMasivaComponent implements OnInit {
     rec.estado = 'Procesando';
     this.records.set(list);
 
+    // --- INICIO DE VALIDACIONES PREVIAS ---
+    // Se realizan todas las validaciones de datos del CSV antes de consultar servicios externos.
+    if (rec.monto <= 0) {
+      rec.estado = 'Error';
+      rec.resultado = 'El monto debe ser mayor a cero.';
+      this.errorCount.set(this.errorCount() + 1);
+      this.updateProgress(index + 1, list.length);
+      this.records.set(list);
+      this.procesarFila(index + 1);
+      return;
+    }
+
+    if (rec.tipoEnvio === '1') { // SMS
+      if (!rec.datoEnvio || !/^[0-9]{8}$/.test(rec.datoEnvio)) {
+        rec.estado = 'Error';
+        rec.resultado = 'El teléfono debe contener 8 dígitos numéricos.';
+        this.errorCount.set(this.errorCount() + 1);
+        this.updateProgress(index + 1, list.length);
+        this.records.set(list);
+        this.procesarFila(index + 1); // Continuar con la siguiente fila
+        return;
+      }
+    } else if (rec.tipoEnvio === '2') { // Correo
+      if (!rec.datoEnvio || !/\S+@\S+\.\S+/.test(rec.datoEnvio)) {
+        rec.estado = 'Error';
+        rec.resultado = 'El formato del correo no es válido.';
+        this.errorCount.set(this.errorCount() + 1);
+        this.updateProgress(index + 1, list.length);
+        this.records.set(list);
+        this.procesarFila(index + 1); // Continuar con la siguiente fila
+        return;
+      }
+    }
+    // --- FIN DE VALIDACIONES PREVIAS ---
+
     // 1. Validar cuenta y obtener cliente
     this.linkService.getClienteCta(rec.numCuenta).pipe( // Paso 1: Obtener cliente por cuenta
       switchMap((clientRes) => {
@@ -458,7 +493,7 @@ export class CargaMasivaComponent implements OnInit {
           esDefault: '1',
           tipEnvio: rec.tipoEnvio,
           numTelefono: rec.tipoEnvio === '1' ? rec.datoEnvio : '',
-          nomCorreo: rec.tipoEnvio === '2' ? rec.datoEnvio : '',
+          nomCorreo: rec.tipoEnvio === '2' ? rec.datoEnvio.toUpperCase() : '',
           tipLink: rec.tipoLink,
           diaMes: rec.diaMes,
           nomProducto: rec.tipoCuenta === 'PR' ? 'PRESTAMO' : 'TARJETA DE CREDITO', // Usa rec.tipoCuenta directamente
@@ -542,7 +577,7 @@ export class CargaMasivaComponent implements OnInit {
   downloadTemplate() {
     const csvContent = 
       "TIPO_CUENTA,NUM_CUENTA,MONTO,TIPO_PAGO,TIPO_LINK,DIA_MES,TIPO_ENVIO,DATO_ENVIO\n" +
-      "TC,1234567890123456,150.00,0,2,,1,50212345678\n" +
+      "TC,1234567890123456,150.00,0,2,,1,12345678\n" +
       "PR,9876543210987654,500.00,1,1,15,2,cliente@correo.com\n";
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

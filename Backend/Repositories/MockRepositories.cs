@@ -104,7 +104,7 @@ namespace Backend.Repositories
         public Task<IEnumerable<MenuItem>> GetMenuItemsAsync(string username, string systemCode) =>
             Task.FromResult<IEnumerable<MenuItem>>(new List<MenuItem>
             {
-                new MenuItem { CodMenuItem = 1, Nombre = "Cobros Visa En Link", Path = "", Descripcion = "Gestión de cobros", CodItemPadre = 0, Visible = "S" },
+                new MenuItem { CodMenuItem = 1, Nombre = "Cobros Neo En Link", Path = "", Descripcion = "Gestión de cobros", CodItemPadre = 0, Visible = "S" },
                 new MenuItem { CodMenuItem = 2, Nombre = "Emisión de Link", Path = "frmEmisionLink", Descripcion = "Emitir un nuevo link", CodItemPadre = 1, Visible = "S" },
                 new MenuItem { CodMenuItem = 3, Nombre = "Activación de Link", Path = "frmActivacion", Descripcion = "Activación manual", CodItemPadre = 1, Visible = "S" },
                 new MenuItem { CodMenuItem = 4, Nombre = "Cancelar Link", Path = "frmCancelarLink", Descripcion = "Cancelar programaciones", CodItemPadre = 1, Visible = "S" },
@@ -150,7 +150,7 @@ namespace Backend.Repositories
             CodSubtipoPr = "05",
             CodDepartamento = "01",
             CodDeptoPr = "01",
-            DesTransaccion = "Cobro Visa En Link Promerica",
+            DesTransaccion = "Cobro Neo En Link Promerica",
             ApiImagenBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
             MsgRemitente = "Banco Promerica Guatemala",
             MsgHeader = "Estimado Cliente, Banco Promerica le envía su link de pago seguro:",

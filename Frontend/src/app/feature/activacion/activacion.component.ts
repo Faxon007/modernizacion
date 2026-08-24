@@ -64,7 +64,7 @@ import { UiService } from '../../core/services/ui.service';
                 <span class="font-semibold text-gray-800 mt-1 block font-mono">Q. {{ linkInfo().precio || '0.00' }}</span>
               </div>
               <div class="bg-gray-50 p-4 rounded-xl col-span-2">
-                <span class="text-xs font-bold text-gray-400 block uppercase">Estatus en Visa</span>
+                <span class="text-xs font-bold text-gray-400 block uppercase">Estatus en Neo</span>
                 <div class="flex items-center gap-2 mt-2">
                   @if (linkInfo().activo === 'SI') {
                     <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold uppercase">
@@ -147,7 +147,7 @@ export class ActivacionComponent {
             this.ui.showSuccess('El link consultado ya se encuentra activo.');
           }
         } else {
-          this.ui.showError(res.errorMessage || 'Link no encontrado en Visa.');
+          this.ui.showError(res.errorMessage || 'Link no encontrado en Neo.');
         }
       },
       error: () => {

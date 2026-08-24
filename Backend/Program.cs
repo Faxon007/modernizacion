@@ -138,6 +138,8 @@ builder.Services.Configure<VisaEnLinkOptions>(builder.Configuration.GetSection("
 builder.Services.Configure<UrlShortenerOptions>(builder.Configuration.GetSection("UrlShortener"));
 
 // Registrar Clientes HTTP para consumo de APIs externas
+builder.Services.AddHttpClient<IVisaEnLinkIntegrationService, VisaEnLinkIntegrationService>();
+// Registrar Clientes HTTP para consumo de APIs externas
 builder.Services.AddHttpClient<IVisaEnLinkIntegrationService, VisaEnLinkIntegrationService>()
     .ConfigureHttpClient((sp, client) => {
         var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<VisaEnLinkOptions>>().Value;
@@ -156,7 +158,24 @@ builder.Services.AddHttpClient<IVisaEnLinkIntegrationService, VisaEnLinkIntegrat
         }
         return new System.Net.Http.HttpClientHandler();
     });
+
 builder.Services.AddHttpClient<IUrlShortenerService, UrlShortenerService>();
+
+builder.Services.AddHttpClient<IUrlShortenerService, UrlShortenerService>()
+    .ConfigurePrimaryHttpMessageHandler((sp) =>
+    {
+        // Se aplica la misma lógica de proxy que el servicio de Visa.
+        var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<VisaEnLinkOptions>>().Value;
+        if (options.UseProxy && !string.IsNullOrEmpty(options.ProxyUrl)) {
+            var proxy = new System.Net.WebProxy(options.ProxyUrl);
+            if (!string.IsNullOrEmpty(options.ProxyUser)) {
+                proxy.Credentials = new System.Net.NetworkCredential(options.ProxyUser, options.ProxyPassword);
+            }
+            return new System.Net.Http.HttpClientHandler { Proxy = proxy, UseProxy = true };
+        }
+        // Si no hay proxy configurado, no se usa.
+        return new System.Net.Http.HttpClientHandler();
+    });
 
 // Registrar Servicios de Negocio
 builder.Services.AddScoped<ILinkBusinessService, LinkBusinessService>();
@@ -173,9 +192,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Cobro Visa En Link API",
+        Title = "Cobro Neo En Link API",
         Version = "v1",
-        Description = "API REST de Cobro Visa En Link modernizada"
+        Description = "API REST de Cobro Neo En Link modernizada"
     });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -215,7 +234,7 @@ app.UseCors("AllowAngularDev");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cobro Visa En Link API v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cobro Neo En Link API v1");
     c.RoutePrefix = string.Empty; // Swagger en la raíz
 });
 

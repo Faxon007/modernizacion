@@ -28,7 +28,7 @@ namespace Backend.Repositories
             p.Add("p_TipLink", link.TipLink, DbType.String, ParameterDirection.Input);
             p.Add("p_DiaMes", string.IsNullOrEmpty(link.DiaMes) ? null : link.DiaMes, DbType.String, ParameterDirection.Input);
             p.Add("p_IndEstado", string.IsNullOrEmpty(link.IndEstado) ? null : link.IndEstado, DbType.String, ParameterDirection.Input);
-            p.Add("p_CodSku", string.IsNullOrEmpty(link.CodSku) ? null : link.CodSku, DbType.String, ParameterDirection.Input);
+            p.Add("p_CodSku", string.IsNullOrEmpty(link.CodSku) ? (decimal?)null : decimal.Parse(link.CodSku, System.Globalization.CultureInfo.InvariantCulture), DbType.Decimal, ParameterDirection.Input);
             p.Add("p_Url", string.IsNullOrEmpty(link.UrlLink) ? null : link.UrlLink, DbType.String, ParameterDirection.Input);
             p.Add("p_URLCorto", string.IsNullOrEmpty(link.UrlCorto) ? null : link.UrlCorto, DbType.String, ParameterDirection.Input);
             p.Add("P_MsgError", null, DbType.String, ParameterDirection.Output, 4000);
@@ -276,7 +276,7 @@ namespace Backend.Repositories
 
             string countFilterSql = $@"SELECT COUNT(*) FROM BO.SCL_PARAMETROS_LINK LNK 
                                       WHERE 1 = 1 
-                                        AND TRUNC(FEC_EMISION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND TRUNC(FEC_EMISION) > ADD_MONTHS(TRUNC(SYSDATE,'MM'),-4) 
                                         AND (
                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
                                             OR UPPER(COD_USUARIO) = '{safeUsername}'
@@ -318,7 +318,7 @@ namespace Backend.Repositories
                                          DECODE(LNK.TIP_LINK,'1','Automatico','Manual') AS TipoLink 
                                        FROM BO.SCL_PARAMETROS_LINK LNK 
                                        WHERE 1 = 1  
-                                         AND TRUNC(FEC_EMISION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND TRUNC(FEC_EMISION) > ADD_MONTHS(TRUNC(SYSDATE,'MM'),-4) 
                                          AND (
                                              (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
                                              OR UPPER(COD_USUARIO) = '{safeUsername}'
@@ -357,7 +357,7 @@ namespace Backend.Repositories
             // 1. Total Count
             string countTotalSql = @"SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
                                      INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
-                                     WHERE TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3)";
+                                     WHERE TRUNC(LNK.FEC_ADICION) > ADD_MONTHS(TRUNC(SYSDATE,'MM'),-4)";
             logger?.LogInformation("TotalCount SQL (Verifica): {Sql}", countTotalSql); // Added Debug log
             int totalCount = await conn.ExecuteScalarAsync<int>(countTotalSql);
 
@@ -383,7 +383,7 @@ namespace Backend.Repositories
             string countFilterSql = $@"SELECT COUNT(*) FROM BO.SCL_LISTADO_LINKS LNK 
                                       INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
                                       WHERE 1 = 1 
-                                        AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                        AND TRUNC(LNK.FEC_ADICION) > ADD_MONTHS(TRUNC(SYSDATE,'MM'),-4) 
                                         AND (
                                             (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
                                             OR UPPER(PAR.COD_USUARIO) = '{safeUsername}'
@@ -422,7 +422,7 @@ namespace Backend.Repositories
                                        FROM BO.SCL_LISTADO_LINKS LNK 
                                        INNER JOIN BO.SCL_PARAMETROS_LINK PAR ON LNK.COD_PARAMETRO = PAR.COD_PARAMETRO
                                        WHERE 1 = 1  
-                                         AND TRUNC(LNK.FEC_ADICION) >= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-3) 
+                                         AND TRUNC(LNK.FEC_ADICION) > ADD_MONTHS(TRUNC(SYSDATE,'MM'),-4) 
                                          AND (
                                              (SELECT COUNT(*) FROM GT_RRHH.RRHH_USUARIO_ROL WHERE ROL = 1330 AND UPPER(USUARIO) = '{safeUsername}') > 0 
                                              OR UPPER(PAR.COD_USUARIO) = '{safeUsername}'
@@ -450,6 +450,10 @@ namespace Backend.Repositories
 
             await conn.ExecuteAsync("BO.PKG_SCL.PkgScl_SmsEnviar", p, commandType: CommandType.StoredProcedure);
             var error = p.Get<string>("P_MsgError");
+            if (!string.IsNullOrEmpty(error) && !error.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+            {
+                logger?.LogWarning("El procedimiento PkgScl_SmsEnviar retornó un mensaje: {Error}", error);
+            }
             return string.IsNullOrEmpty(error) || error.Equals("NULL", StringComparison.OrdinalIgnoreCase) ? null : error;
         }
 

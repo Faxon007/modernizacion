@@ -19,7 +19,8 @@ export const errorInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      // Si el error es 401 y NO es la pantalla de login, entonces es una sesión expirada.
+      if (error.status === 401 && !req.url.includes('/api/auth/login')) {
         // Si el error es 401 (No autorizado), la sesión ha expirado.
         return uiService.showModal('Tu sesión ha expirado. Por favor, inicia sesión de nuevo para continuar.').pipe(
           switchMap(() => {

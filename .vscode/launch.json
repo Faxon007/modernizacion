@@ -16,7 +16,7 @@
         "uriFormat": "%s/index.html"
       },
       "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_ENVIRONMENT": "Production",
         "ASPNETCORE_URLS": "http://localhost:5000"
       },
       "sourceFileMap": {

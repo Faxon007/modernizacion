@@ -1,9 +1,12 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { LinkService, DataTableResponse, LinkEntity } from '../../core/services/link.service';
+import { AuthService } from '../../core/services/auth.service'; // Corregido
+import * as XLSX from 'xlsx';
 import { UiService } from '../../core/services/ui.service';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, tap, finalize, map, Observable } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, tap, finalize, map, Observable, catchError, EMPTY, merge, startWith } from 'rxjs';
 
 export interface LinkListItem {
   correlativo: string;
@@ -43,8 +46,8 @@ export interface LinkListItem {
         <div class="flex items-center gap-3">
           <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Mostrar</label>
           <select 
-            [(ngModel)]="pageSize" 
-            (change)="manualLoad()" 
+            [formControl]="pageSizeControl"
+            (change)="refreshData()" 
             class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7bc342]">
             <option [value]="10">10 registros</option>
             <option [value]="25">25 registros</option>
@@ -53,7 +56,7 @@ export interface LinkListItem {
           </select>
           
           <button 
-            (click)="manualLoad()" 
+            (click)="refreshData()" 
             class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-all flex items-center gap-1.5 print:hidden">
             🔄 Actualizar
           </button>
@@ -116,15 +119,7 @@ export interface LinkListItem {
                     <td class="px-6 py-4 font-mono text-gray-500 text-xs">{{ item.emisionLink }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ item.usuario }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ item.envio }}</td>
-                    <td class="px-6 py-4">
-                      @if (item.tipoLink === 'U') {
-                        <span class="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-xs font-bold">Único</span>
-                      } @else if (item.tipoLink === 'M') {
-                        <span class="px-2 py-0.5 bg-purple-50 text-purple-700 border border-purple-100 rounded text-xs font-bold">Múltiple</span>
-                      } @else {
-                        <span class="px-2 py-0.5 bg-gray-100 text-gray-700 border border-gray-200 rounded text-xs font-bold">{{ item.tipoLink }}</span>
-                      }
-                    </td>
+                    <td class="px-6 py-4"><span class="px-2 py-0.5 bg-gray-100 text-gray-700 border border-gray-200 rounded text-xs font-bold">{{ item.tipoLink }}</span></td>
                   </tr>
                 }
               </tbody>
@@ -157,7 +152,9 @@ export interface LinkListItem {
 export class ControlLinkComponent implements OnInit, OnDestroy {
   private readonly linkService = inject(LinkService);
   private readonly ui = inject(UiService);
+  private readonly authService = inject(AuthService);
   private readonly destroy$ = new Subject<void>();
+  private readonly refresh$ = new Subject<void>();
 
   // States
   links = signal<LinkListItem[]>([]);
@@ -167,8 +164,8 @@ export class ControlLinkComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('');
 
   // Pagination and sorting
+  pageSizeControl = new FormControl(10);
   currentPage = signal(1);
-  pageSize = 25;
   totalRecords = signal(0);
   sortColumn = 'EMISION_LINK';
   sortDirection: 'asc' | 'desc' = 'desc';
@@ -178,53 +175,42 @@ export class ControlLinkComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.searchControl.valueChanges.pipe(
+    const search$ = this.searchControl.valueChanges.pipe(
       debounceTime(400),
       distinctUntilChanged(),
       tap(() => {
-        this.currentPage.set(1);
+        this.currentPage.set(1); // Resetea a la primera página en cada nueva búsqueda
+      })
+    );
+
+    const pageSize$ = this.pageSizeControl.valueChanges.pipe(
+      distinctUntilChanged(),
+      tap(() => {
+        this.currentPage.set(1); // Resetea a la primera página cuando cambia el tamaño
+      })
+    );
+
+    merge(search$, pageSize$, this.refresh$).pipe(
+      tap(() => {
         this.isLoading.set(true);
       }),
-      switchMap((query) => 
-        this.loadLinks(query ?? '').pipe(
-          map((res: any): any => ({
-            ...res,
-            data: (res.data || []).map((link: any) => ({
-                                  correlativo: link.correlativo || 'N/A',
-                    producto: link.producto  || 'N/A',
-                    monto: link.monto || link.Monto || 0,
-                    pago: link.pago || 'N/A',
-                    emisionLink: link.emisionLink || 'N/A',
-                    usuario: link.usuario || 'N/A',
-                    envio: link.envio || link.envio || 'N/A',
-                    tipoLink: link.tipLink || link.TipLink || 'U'
-            }))
-          }))
-        )
-      ),
+      switchMap(() => this.loadLinks()),
       takeUntil(this.destroy$)
-    ).subscribe({
-      next: (res) => {
-        this.links.set(res.data);
-        this.totalRecords.set(res.recordsFiltered);
-      },
-      error: () => this.ui.showError('Error al buscar la lista de links.'),
-      complete: () => this.isLoading.set(false)
-    });
-    
-    // Initial load
-    this.searchControl.setValue('', { emitEvent: true });
+    ).subscribe();
+
+    this.refreshData(); // Carga inicial
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  loadLinks(query: string, length?: number): Observable<DataTableResponse<LinkListItem>> {
-    this.isLoading.set(true);
-    const pageSize = length !== undefined ? length : this.pageSize;
-    const start = pageSize === -1 ? 0 : (this.currentPage() - 1) * this.pageSize;
+  
+  loadLinks(length?: number): Observable<DataTableResponse<LinkListItem>> {
+    // this.isLoading.set(true); // Se mueve al 'tap' del observable principal
+    const pageSize = length !== undefined ? length : (this.pageSizeControl.value || 10);
+    const start = pageSize === -1 ? 0 : (this.currentPage() - 1) * pageSize;
+    const query = this.searchControl.value || '';
 
     const request = {
       draw: this.currentPage(),
@@ -238,7 +224,7 @@ export class ControlLinkComponent implements OnInit, OnDestroy {
       columns: [{ name: this.sortColumn, searchable: true, orderable: true }]
     };
 
-     return (this.linkService.getLinks(request) as Observable<any>).pipe(
+     return this.linkService.getLinks(request).pipe(
         map((res: any): DataTableResponse<LinkListItem> => {
             return {
                 ...res,
@@ -250,24 +236,27 @@ export class ControlLinkComponent implements OnInit, OnDestroy {
                     emisionLink: link.emisionLink || 'N/A',
                     usuario: link.usuario || 'N/A',
                     envio: link.envio || link.envio || 'N/A',
-                    tipoLink: link.tipLink || link.TipLink || 'U'
+                    tipoLink: link.tipoLink || 'N/A'
                 }))
             };
         }),
-        finalize(() => this.isLoading.set(false))
-    );
-  }
-  
-    manualLoad() {
-    this.loadLinks(this.searchControl.value ?? '').pipe(
-      takeUntil(this.destroy$) 
-    ).subscribe({
-        next: (res) => {
+        finalize(() => this.isLoading.set(false)),
+        tap(res => { // Solo actualizar la tabla si no es una petición para obtener todos los datos
+          if (pageSize !== -1) {
             this.links.set(res.data);
             this.totalRecords.set(res.recordsFiltered);
-        },
-        error: () => this.ui.showError('Error al recargar los links.')
-    });
+          }
+        }),
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 401) {
+            this.ui.showError('Su sesión ha expirado. Será redirigido al login.');
+            this.authService.logout();
+          } else {
+            this.ui.showError('Error al cargar la lista de links.');
+          }
+          return EMPTY; // Detiene la cadena de observables
+        })
+    );
   }
 
   sort(column: string) {
@@ -277,95 +266,115 @@ export class ControlLinkComponent implements OnInit, OnDestroy {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    this.manualLoad();
+    this.refreshData();
   }
 
   // Pagination getters
   startRecord() {
     if (this.totalRecords() === 0) return 0;
-    return (this.currentPage() - 1) * this.pageSize + 1;
+    return (this.currentPage() - 1) * (this.pageSizeControl.value || 10) + 1;
   }
 
   endRecord() {
-    const end = this.currentPage() * this.pageSize;
+    const end = this.currentPage() * (this.pageSizeControl.value || 10);
     return end > this.totalRecords() ? this.totalRecords() : end;
   }
 
   prevPage() {
     if (this.currentPage() > 1) {
       this.currentPage.set(this.currentPage() - 1);
-      this.manualLoad();
+      this.refreshData();
     }
   }
 
   nextPage() {
     if (this.endRecord() < this.totalRecords()) {
       this.currentPage.set(this.currentPage() + 1);
-      this.manualLoad();
+      this.refreshData();
     }
   }
 
-  // Export and Print features... (rest of the file is unchanged)
-  copyToClipboard() {
-    const data = this.links();
-    if (data.length === 0) {
-      this.ui.showInfo('No hay datos para copiar.');
-      return;
+  refreshData() {
+    this.refresh$.next();
+  }
+
+  private fallbackCopyToClipboard(text: string): boolean {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      return document.execCommand('copy');
+    } catch (err) {
+      return false;
+    } finally {
+      document.body.removeChild(textArea);
     }
+  }
 
-    const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emisión', 'Usuario', 'Envío', 'Tipo Link'];
-    const rows = data.map(item => 
-      [
-        item.correlativo,
-        item.producto,
-        item.monto.toFixed(2),
-        item.pago,
-        item.emisionLink,
-        item.usuario,
-        item.envio,
-        item.tipoLink
-      ].join('\t')
-    );
+  async copyToClipboard() {
+    this.getAllDataForExport(async (data) => {
+      if (data.length === 0) {
+        this.ui.showInfo('No hay datos para copiar.');
+        return;
+      }
 
-    const clipboardText = [headers.join('\t'), ...rows].join('\n');
-    navigator.clipboard.writeText(clipboardText).then(() => {
-      this.ui.showSuccess('Datos copiados al portapapeles.');
-    }).catch(err => {
-      this.ui.showError('No se pudo copiar al portapapeles.');
-      console.error('Error al copiar: ', err);
+      const headers = ['Correlativo', 'Producto', 'Monto', 'Pago', 'Emisión', 'Usuario', 'Envío', 'Tipo Link'];
+      const rows = data.map(item => [item.correlativo, item.producto, item.monto.toFixed(2), item.pago, item.emisionLink, item.usuario, item.envio, item.tipoLink].join('\t'));
+      const clipboardText = [headers.join('\t'), ...rows].join('\n');
+
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(clipboardText).then(() => this.ui.showSuccess('Datos copiados al portapapeles.'), () => this.ui.showError('No se pudo copiar al portapapeles.'));
+      } else if (this.fallbackCopyToClipboard(clipboardText)) {
+        this.ui.showSuccess('Datos copiados al portapapeles (modo compatibilidad).');
+      } else {
+        this.ui.showError('La función de copiar no es compatible o fue bloqueada por su navegador.');
+      }
     });
   }
 
   exportToExcel() {
-    const data = this.links();
-    if (data.length === 0) {
-      this.ui.showInfo('No hay datos para exportar.');
-      return;
-    }
+    this.getAllDataForExport(data => {
+      if (data.length === 0) {
+        this.ui.showInfo('No hay datos para exportar.');
+        return;
+      }
 
-    const headers = 'Correlativo,Producto,Monto,Pago,Emision,Usuario,Envio,TipoLink\n';
-    const rows = data.map(item => 
-      [
-        `"${item.correlativo}"`,
-        `"${item.producto}"`,
-        item.monto.toFixed(2),
-        `"${item.pago}"`,
-        `"${item.emisionLink}"`,
-        `"${item.usuario}"`,
-        `"${item.envio}"`,
-        `"${item.tipoLink}"`
-      ].join(',')
-    ).join('\n');
+      // Mapear los datos al formato deseado, tratando los números largos como texto.
+      const dataToExport = data.map(item => ({
+        'Correlativo': item.correlativo,
+        'Producto (Cuenta)': item.producto,
+        'Monto': item.monto,
+        'Moneda de Pago': item.pago,
+        'Fecha Emisión': item.emisionLink,
+        'Usuario Creador': item.usuario,
+        'Medio de Envío': item.envio,
+        'Tipo de Link': item.tipoLink
+      }));
 
-    const csvContent = headers + rows;
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `control_links_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Crear la hoja de cálculo a partir de los datos JSON
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataToExport);
+
+      // Crear un nuevo libro de trabajo y añadir la hoja
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'ControlLinks');
+
+      // Escribir el libro de trabajo y generar el archivo para descarga
+      const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Control_Links_${new Date().toISOString().slice(0,10)}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   }
 
   private getAllDataForExport(callback: (data: LinkListItem[]) => void, onError?: () => void) {
@@ -382,7 +391,7 @@ export class ControlLinkComponent implements OnInit, OnDestroy {
     }
 
     // Si no, hacemos una llamada para obtener todos los registros que coinciden con el filtro.
-    this.loadLinks(this.searchControl.value || '', -1) // Usamos -1 para indicar que queremos todos los registros
+    this.loadLinks(-1) // Usamos -1 para indicar que queremos todos los registros
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -395,60 +404,59 @@ export class ControlLinkComponent implements OnInit, OnDestroy {
       });
   }
 
-  print() {
+  async print() {
     if (this.totalRecords() === 0) {
       this.ui.showError('No hay datos para imprimir');
       return;
     }
+    
+    this.ui.showInfo('Generando reporte para impresión...');
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      this.ui.showError('Por favor, permita las ventanas emergentes para imprimir.');
-      return;
-    }
+    this.getAllDataForExport(data => {
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        iframe.style.visibility = 'hidden';
+        document.body.appendChild(iframe);
 
-    printWindow.document.write('<html><head><title>Imprimiendo...</title></head><body><h2>Cargando datos para impresión...</h2></body></html>');
+        const doc = iframe.contentWindow?.document;
+        if (!doc) {
+            this.ui.showError('No se pudo generar el documento para imprimir.');
+            document.body.removeChild(iframe);
+            return;
+        }
 
-    this.getAllDataForExport((data: LinkListItem[]) => {
-      const now = new Date();
-      let html = `
-        <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Control de Links</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-          h1 { color: #007139; font-size: 22px; }
-          p { font-size: 12px; color: #666; }
-          table { width: 100%; border-collapse: collapse; font-size: 10px; }
-          th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
-          th { background-color: #f2f2f2; text-transform: uppercase; }
-        </style>
-        </head><body>
-        <h1>Control de Links</h1>
-        <p>Reporte generado el ${now.toLocaleDateString()} a las ${now.toLocaleTimeString()}</p>
-        <table>
-          <thead>
-            <tr>
-              <th>Correlativo</th><th>Producto</th><th>Monto</th><th>Pago</th><th>Emisión</th><th>Usuario</th><th>Envío</th><th>Tipo</th>
-            </tr>
-          </thead>
-          <tbody>`;
+        const now = new Date();
+        const html = `
+            <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Control de Links</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+              h1 { color: #007139; font-size: 22px; }
+              p { font-size: 12px; color: #666; }
+              table { width: 100%; border-collapse: collapse; font-size: 10px; }
+              th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+              th { background-color: #f2f2f2; text-transform: uppercase; }
+              @media print { body { margin: 10px; } }
+            </style>
+            </head><body>
+            <h1>Control de Links</h1>
+            <p>Reporte generado el ${now.toLocaleDateString()} a las ${now.toLocaleTimeString()}</p>
+            <table>
+              <thead><tr><th>Correlativo</th><th>Producto</th><th>Monto</th><th>Pago</th><th>Emisión</th><th>Usuario</th><th>Envío</th><th>Tipo</th></tr></thead>
+              <tbody>${data.map(item => `<tr><td>${item.correlativo}</td><td>${item.producto}</td><td>${item.pago.includes('Quetzales') ? 'Q' : '$'} ${item.monto.toFixed(2)}</td><td>${item.pago}</td><td>${item.emisionLink}</td><td>${item.usuario}</td><td>${item.envio}</td><td>${item.tipoLink}</td></tr>`).join('')}</tbody>
+            </table></body></html>`;
 
-      data.forEach((item: LinkListItem) => {
-        const monto = `${item.pago.includes('Quetzales') ? 'Q' : '$'} ${item.monto.toFixed(2)}`;
-        html += `<tr><td>${item.correlativo}</td><td>${item.producto}</td><td>${monto}</td><td>${item.pago}</td><td>${item.emisionLink}</td><td>${item.usuario}</td><td>${item.envio}</td><td>${item.tipoLink}</td></tr>`;
-      });
+        doc.open();
+        doc.write(html);
+        doc.close();
 
-      html += `
-          </tbody>
-        </table>
-        <script>window.onload=function(){setTimeout(function(){window.print();window.onafterprint=function(){window.close()}},250)}</script>
-        </body></html>`;
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
 
-      printWindow.document.open();
-      printWindow.document.write(html);
-      printWindow.document.close();
-    }, () => {
-      // Si hay un error al obtener los datos, cerramos la ventana emergente.
-      printWindow.close();
+        // Limpiar el iframe después de un tiempo prudencial
+        setTimeout(() => document.body.removeChild(iframe), 1000);
     });
   }
 }
